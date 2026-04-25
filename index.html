@@ -13,36 +13,48 @@
   <button onclick="clockIn()" style="padding:15px;margin:10px">上班打卡</button>
   <button onclick="clockOut()" style="padding:15px;margin:10px">下班打卡</button>
 
-  <script>
-     function updateTime() {
-    document.getElementById("time").innerText = new Date().toLocaleString();
-  }
-  setInterval(updateTime, 1000);
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-  function clockIn() {
-    const time = new Date().toLocaleString();
-    localStorage.setItem("clockIn", time);
-    alert("上班打卡成功：" + time);
-  }
+<script>
+const SUPABASE_URL = "https://chdznhbloctutfsenstm.supabase.co/rest/v1/";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoZHpuaGJsb2N0dXRmc2Vuc3RtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTI4MDMsImV4cCI6MjA5MjY4ODgwM30.tYcDc8Yq4WLde0A6pFDG1uouHKx3j34GR_oZwu3H5zE";
 
-  function clockOut() {
-    const time = new Date().toLocaleString();
-    localStorage.setItem("clockOut", time);
-    alert("下班打卡成功：" + time);
-  }
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  window.onload = function() {
-    const inTime = localStorage.getItem("clockIn");
-    const outTime = localStorage.getItem("clockOut");
+function updateTime() {
+  document.getElementById("time").innerText = new Date().toLocaleString();
+}
+setInterval(updateTime, 1000);
 
-    if (inTime) {
-      document.body.innerHTML += "<p>上班時間：" + inTime + "</p>";
+async function clockIn() {
+  const { error } = await supabase.from("clock_records").insert([
+    {
+      employee_name: "員工A",
+      action: "上班",
     }
-    if (outTime) {
-      document.body.innerHTML += "<p>下班時間：" + outTime + "</p>";
-    }
+  ]);
+
+  if (error) {
+    alert("打卡失敗");
+  } else {
+    alert("上班打卡成功！");
   }
-   
-  </script>
+}
+
+async function clockOut() {
+  const { error } = await supabase.from("clock_records").insert([
+    {
+      employee_name: "員工A",
+      action: "下班",
+    }
+  ]);
+
+  if (error) {
+    alert("打卡失敗");
+  } else {
+    alert("下班打卡成功！");
+  }
+}
+</script>
 </body>
 </html>
