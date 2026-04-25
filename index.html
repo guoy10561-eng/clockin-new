@@ -15,17 +15,22 @@
 
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
 <script>
 const SUPABASE_URL = "https://chdznhbloctutfsenstm.supabase.co/rest/v1/";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoZHpuaGJsb2N0dXRmc2Vuc3RtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTI4MDMsImV4cCI6MjA5MjY4ODgwM30.tYcDc8Yq4WLde0A6pFDG1uouHKx3j34GR_oZwu3H5zE";
+const SUPABASE_KEY = "sb_publishable_rg_KIkolbor3jmbYcZ9WhQ_5ranwHNp";
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// ✅ 修正：時間顯示
 function updateTime() {
   document.getElementById("time").innerText = new Date().toLocaleString();
 }
 setInterval(updateTime, 1000);
+updateTime(); // ← 這行很重要（馬上顯示）
 
+// ✅ 上班打卡
 async function clockIn() {
   const { error } = await supabase.from("clock_records").insert([
     {
@@ -41,6 +46,7 @@ async function clockIn() {
   }
 }
 
+// ✅ 下班打卡
 async function clockOut() {
   const { error } = await supabase.from("clock_records").insert([
     {
