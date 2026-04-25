@@ -5,17 +5,30 @@
   <title>潮味決南港昆陽店打卡</title>
 </head>
 
-<body style="font-family:sans-serif;text-align:center;padding:50px">
+<body style="font-family:sans-serif;text-align:center;padding:30px">
   <h1>潮味決南港昆陽店</h1>
   <h2>員工打卡系統</h2>
 
-  <p id="time">時間讀取中...</p>
+  <button onclick="showEmployee()">員工打卡</button>
+  <button onclick="showBoss()">老闆頁面</button>
 
-  <input id="employeeName" placeholder="請輸入員工名字" style="padding:12px;margin:10px">
-  <br>
+  <hr>
 
-  <button onclick="clockIn()" style="padding:15px;margin:10px">上班打卡</button>
-  <button onclick="clockOut()" style="padding:15px;margin:10px">下班打卡</button>
+  <div id="employeePage">
+    <p id="time">時間讀取中...</p>
+
+    <input id="employeeName" placeholder="請輸入員工名字" style="padding:12px;margin:10px">
+    <br>
+
+    <button onclick="clockIn()" style="padding:15px;margin:10px">上班打卡</button>
+    <button onclick="clockOut()" style="padding:15px;margin:10px">下班打卡</button>
+  </div>
+
+  <div id="bossPage" style="display:none">
+    <h2>今日打卡紀錄</h2>
+    <button onclick="loadRecords()" style="padding:12px;margin:10px">重新整理紀錄</button>
+    <div id="records"></div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -31,6 +44,17 @@
 
     updateTime();
     setInterval(updateTime, 1000);
+
+    function showEmployee() {
+      document.getElementById("employeePage").style.display = "block";
+      document.getElementById("bossPage").style.display = "none";
+    }
+
+    function showBoss() {
+      document.getElementById("employeePage").style.display = "none";
+      document.getElementById("bossPage").style.display = "block";
+      loadRecords();
+    }
 
     async function saveClock(action) {
       const name = document.getElementById("employeeName").value;
@@ -62,6 +86,35 @@
 
     function clockOut() {
       saveClock("下班");
+    }
+
+    async function loadRecords() {
+      const { data, error } = await supabaseClient
+        .from("clock_records")
+        .select("*")
+        .order("clock_time", { ascending: false });
+
+      if (error) {
+        document.getElementById("records").innerHTML = "讀取失敗：" + error.message;
+        return;
+      }
+
+      let html = "<table border='1' style='margin:auto;border-collapse:collapse;width:100%;max-width:500px'>";
+      html += "<tr><th>員工</th><th>動作</th><th>時間</th></tr>";
+
+      data.forEach(row => {
+        html += `
+          <tr>
+            <td>${row.employee_name}</td>
+            <td>${row.action}</td>
+            <td>${new Date(row.clock_time).toLocaleString()}</td>
+          </tr>
+        `;
+      });
+
+      html += "</table>";
+
+      document.getElementById("records").innerHTML = html;
     }
   </script>
 </body>
