@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>潮味決南港昆陽店打卡</title>
+</head>
+<body style="font-family:sans-serif;text-align:center;padding:50px">
+  <h1>潮味決南港昆陽店</h1>
+  <h2>員工打卡系統</h2>
+
+  <p id="time"></p>
+
+  <button onclick="clockIn()" style="padding:15px;margin:10px">上班打卡</button>
+  <button onclick="clockOut()" style="padding:15px;margin:10px">下班打卡</button>
+
+  <script>
+    function updateTime() {
+      document.getElementById("time").innerText = new Date().toLocaleString();
+    }
+    setInterval(updateTime, 1000);
+
+    function clockIn() {
+      alert("上班打卡成功！");
+    }
+
+    function clockOut() {
+      alert("下班打卡成功！");
+    }
+  </script>
+</body>
+</html>
