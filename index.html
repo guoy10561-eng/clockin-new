@@ -14,18 +14,35 @@
   <button onclick="clockOut()" style="padding:15px;margin:10px">下班打卡</button>
 
   <script>
-    function updateTime() {
-      document.getElementById("time").innerText = new Date().toLocaleString();
-    }
-    setInterval(updateTime, 1000);
+     function updateTime() {
+    document.getElementById("time").innerText = new Date().toLocaleString();
+  }
+  setInterval(updateTime, 1000);
 
-    function clockIn() {
-      alert("上班打卡成功！");
-    }
+  function clockIn() {
+    const time = new Date().toLocaleString();
+    localStorage.setItem("clockIn", time);
+    alert("上班打卡成功：" + time);
+  }
 
-    function clockOut() {
-      alert("下班打卡成功！");
+  function clockOut() {
+    const time = new Date().toLocaleString();
+    localStorage.setItem("clockOut", time);
+    alert("下班打卡成功：" + time);
+  }
+
+  window.onload = function() {
+    const inTime = localStorage.getItem("clockIn");
+    const outTime = localStorage.getItem("clockOut");
+
+    if (inTime) {
+      document.body.innerHTML += "<p>上班時間：" + inTime + "</p>";
     }
+    if (outTime) {
+      document.body.innerHTML += "<p>下班時間：" + outTime + "</p>";
+    }
+  }
+   
   </script>
 </body>
 </html>
