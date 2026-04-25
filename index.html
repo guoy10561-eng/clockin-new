@@ -51,10 +51,17 @@
     }
 
     function showBoss() {
-      document.getElementById("employeePage").style.display = "none";
-      document.getElementById("bossPage").style.display = "block";
-      loadRecords();
-    }
+  const password = prompt("請輸入老闆密碼");
+
+  if (password !== "1119") {
+    alert("密碼錯誤");
+    return;
+  }
+
+  document.getElementById("employeePage").style.display = "none";
+  document.getElementById("bossPage").style.display = "block";
+  loadRecords();
+}
 
     async function saveClock(action) {
       const name = document.getElementById("employeeName").value;
