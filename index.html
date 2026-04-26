@@ -3,30 +3,180 @@
 <head>
   <meta charset="UTF-8">
   <title>潮味決南港昆陽店打卡</title>
+
+  <style>
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes glow {
+      0% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.15); }
+      100% { opacity: 0.3; transform: scale(1); }
+    }
+
+    @keyframes floatText {
+      0% { transform: translateY(0px) rotate(-20deg); }
+      50% { transform: translateY(-25px) rotate(-20deg); }
+      100% { transform: translateY(0px) rotate(-20deg); }
+    }
+
+    @keyframes rippleEffect {
+      to {
+        transform: scale(6);
+        opacity: 0;
+      }
+    }
+
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 30px;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(270deg, #ff7e5f, #feb47b, #ff7e5f);
+      background-size: 600% 600%;
+      animation: gradientMove 10s ease infinite;
+      overflow-x: hidden;
+    }
+
+    .brand-text {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 70px;
+      font-weight: bold;
+      color: rgba(255,255,255,0.1);
+      z-index: -1;
+      animation: floatText 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .glow1, .glow2 {
+      position: fixed;
+      border-radius: 50%;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    .glow1 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255,255,255,0.35), transparent);
+      top: -120px;
+      left: -120px;
+      animation: glow 6s infinite;
+    }
+
+    .glow2 {
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(255,255,255,0.25), transparent);
+      bottom: -100px;
+      right: -100px;
+      animation: glow 8s infinite;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.9);
+      border-radius: 24px;
+      padding: 24px;
+      max-width: 700px;
+      margin: 20px auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+      backdrop-filter: blur(8px);
+    }
+
+    h1, h2 {
+      color: white;
+      text-shadow: 0 3px 12px rgba(0,0,0,0.25);
+    }
+
+    button {
+      padding: 14px 18px;
+      margin: 8px;
+      border: none;
+      border-radius: 14px;
+      background: #111827;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    input {
+      padding: 14px;
+      margin: 10px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+      width: 80%;
+      max-width: 320px;
+    }
+
+    table {
+      margin: auto;
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 700px;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    .ripple {
+      position: fixed;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.55);
+      transform: scale(0);
+      animation: rippleEffect 0.7s linear;
+      pointer-events: none;
+      z-index: 9999;
+    }
+  </style>
 </head>
 
-<body style="font-family:sans-serif;text-align:center;padding:30px">
+<body>
+  <div class="glow1"></div>
+  <div class="glow2"></div>
+  <div class="brand-text">潮味決南港昆陽店</div>
+
   <h1>潮味決南港昆陽店</h1>
   <h2>員工打卡系統</h2>
 
-  <button onclick="showEmployee()">員工打卡</button>
-  <button onclick="showBoss()">老闆頁面</button>
-
-  <hr>
-
-  <div id="employeePage">
-    <p id="time">時間讀取中...</p>
-
-    <input id="employeeName" placeholder="請輸入員工名字" style="padding:12px;margin:10px">
-    <br>
-
-    <button onclick="clockIn()" style="padding:15px;margin:10px">上班打卡</button>
-    <button onclick="clockOut()" style="padding:15px;margin:10px">下班打卡</button>
+  <div class="card">
+    <button onclick="showEmployee()">員工打卡</button>
+    <button onclick="showBoss()">老闆頁面</button>
   </div>
 
-  <div id="bossPage" style="display:none">
-    <h2>今日打卡紀錄</h2>
-    <button onclick="loadRecords()" style="padding:12px;margin:10px">重新整理紀錄</button>
+  <div id="employeePage" class="card">
+    <p id="time">時間讀取中...</p>
+
+    <input id="employeeName" placeholder="請輸入員工名字">
+    <br>
+
+    <button onclick="clockIn()">上班打卡</button>
+    <button onclick="breakStart()">休息開始</button>
+    <button onclick="breakEnd()">休息結束</button>
+    <button onclick="clockOut()">下班打卡</button>
+  </div>
+
+  <div id="bossPage" class="card" style="display:none">
+    <h3>今日打卡紀錄</h3>
+    <button onclick="loadRecords()">重新整理紀錄</button>
+    <button onclick="exportWorkHours()">匯出上班/加班時間</button>
     <div id="records"></div>
   </div>
 
@@ -40,7 +190,23 @@
     const STORE_LNG = 121.59244072858665;
     const MAX_DISTANCE = 0.1; // 0.1公里 = 100公尺
 
+    const BOSS_PASSWORD = "1234";
+
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const EMPLOYEE_RULES = {
+      "劉淑貞": 8.5,
+      "洪語婷": 8.5,
+      "劉春美": 6.5,
+      "林佳恆": 4,
+      "林禹達": 6,
+      "劉穎希": 6,
+      "林芷亘": 8,
+      "黃韋銘": 4,
+      "李品璇": 4,
+      "黃王楷": 4,
+      "黃啟軒": 4
+    };
 
     function updateTime() {
       document.getElementById("time").innerText = new Date().toLocaleString();
@@ -57,7 +223,7 @@
     function showBoss() {
       const password = prompt("請輸入老闆密碼");
 
-      if (password !== "1119") {
+      if (password !== BOSS_PASSWORD) {
         alert("密碼錯誤");
         return;
       }
@@ -83,10 +249,15 @@
     }
 
     async function saveClock(action) {
-      const name = document.getElementById("employeeName").value;
+      const name = document.getElementById("employeeName").value.trim();
 
       if (!name) {
         alert("請先輸入員工名字");
+        return;
+      }
+
+      if (!navigator.geolocation) {
+        alert("你的手機不支援定位");
         return;
       }
 
@@ -115,7 +286,13 @@
         if (error) {
           alert("打卡失敗：" + error.message);
         } else {
-          alert(action + "打卡成功！");
+          if (action === "上班") {
+            alert("上班打卡成功！今天加油💪");
+          } else if (action === "下班") {
+            alert("下班打卡成功！辛苦了👏");
+          } else {
+            alert(action + "成功！");
+          }
         }
 
       }, function() {
@@ -125,6 +302,14 @@
 
     function clockIn() {
       saveClock("上班");
+    }
+
+    function breakStart() {
+      saveClock("休息開始");
+    }
+
+    function breakEnd() {
+      saveClock("休息結束");
     }
 
     function clockOut() {
@@ -142,8 +327,8 @@
         return;
       }
 
-      let html = "<table border='1' style='margin:auto;border-collapse:collapse;width:100%;max-width:500px'>";
-      html += "<tr><th>員工</th><th>動作</th><th>時間</th></tr>";
+      let html = "<table>";
+      html += "<tr><th>員工</th><th>動作</th><th>時間</th><th>位置</th></tr>";
 
       data.forEach(row => {
         html += `
@@ -151,6 +336,7 @@
             <td>${row.employee_name}</td>
             <td>${row.action}</td>
             <td>${new Date(row.clock_time).toLocaleString()}</td>
+            <td>${row.latitude ? "有" : "無"}</td>
           </tr>
         `;
       });
@@ -158,6 +344,95 @@
       html += "</table>";
       document.getElementById("records").innerHTML = html;
     }
+
+    async function exportWorkHours() {
+      const { data, error } = await supabaseClient
+        .from("clock_records")
+        .select("*")
+        .order("clock_time", { ascending: true });
+
+      if (error) {
+        alert("匯出失敗：" + error.message);
+        return;
+      }
+
+      const grouped = {};
+
+      data.forEach(row => {
+        const date = new Date(row.clock_time).toLocaleDateString("zh-TW");
+        const key = row.employee_name + "_" + date;
+
+        if (!grouped[key]) {
+          grouped[key] = {
+            name: row.employee_name,
+            date: date,
+            clockIn: null,
+            clockOut: null,
+            breakStart: null,
+            breakEnd: null
+          };
+        }
+
+        if (row.action === "上班") grouped[key].clockIn = row.clock_time;
+        if (row.action === "下班") grouped[key].clockOut = row.clock_time;
+        if (row.action === "休息開始") grouped[key].breakStart = row.clock_time;
+        if (row.action === "休息結束") grouped[key].breakEnd = row.clock_time;
+      });
+
+      let csv = "員工,日期,上班時間,休息開始,休息結束,下班時間,標準工時,休息時數,實際工時,加班時數\n";
+
+      Object.values(grouped).forEach(item => {
+        let totalHours = "";
+        let overtime = "";
+        let breakHours = "";
+        let standardHours = EMPLOYEE_RULES[item.name] || 8;
+
+        if (item.clockIn && item.clockOut) {
+          const start = new Date(item.clockIn);
+          const end = new Date(item.clockOut);
+
+          let breakTime = 0;
+
+          if (item.breakStart && item.breakEnd) {
+            const bStart = new Date(item.breakStart);
+            const bEnd = new Date(item.breakEnd);
+            breakTime = (bEnd - bStart) / 1000 / 60 / 60;
+          }
+
+          const hours = (end - start) / 1000 / 60 / 60 - breakTime;
+
+          breakHours = breakTime.toFixed(2);
+          totalHours = hours.toFixed(2);
+          overtime = Math.max(0, hours - standardHours).toFixed(2);
+        }
+
+        csv += `${item.name},${item.date},${item.clockIn || ""},${item.breakStart || ""},${item.breakEnd || ""},${item.clockOut || ""},${standardHours},${breakHours},${totalHours},${overtime}\n`;
+      });
+
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+
+      link.href = URL.createObjectURL(blob);
+      link.download = "員工上班加班紀錄.csv";
+      link.click();
+    }
+
+    document.addEventListener("click", function(e) {
+      const ripple = document.createElement("span");
+      ripple.className = "ripple";
+
+      const size = 120;
+      ripple.style.width = size + "px";
+      ripple.style.height = size + "px";
+      ripple.style.left = e.clientX - size / 2 + "px";
+      ripple.style.top = e.clientY - size / 2 + "px";
+
+      document.body.appendChild(ripple);
+
+      setTimeout(() => {
+        ripple.remove();
+      }, 700);
+    });
   </script>
 </body>
 </html>
