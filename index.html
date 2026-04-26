@@ -64,6 +64,43 @@
 }
 
     async function saveClock(action) {
+  const name = document.getElementById("employeeName").value;
+
+  if (!name) {
+    alert("請先輸入員工名字");
+    return;
+  }
+
+  if (!navigator.geolocation) {
+    alert("你的手機不支援定位");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(async function(position) {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+
+    const { error } = await supabaseClient
+      .from("clock_records")
+      .insert([
+        {
+          employee_name: name,
+          action: action,
+          latitude: lat,
+          longitude: lng
+        }
+      ]);
+
+    if (error) {
+      alert("打卡失敗：" + error.message);
+    } else {
+      alert(action + "打卡成功！（已記錄位置）");
+    }
+
+  }, function() {
+    alert("定位失敗，請開啟定位權限");
+  });
+}
       const name = document.getElementById("employeeName").value;
 
       if (!name) {
