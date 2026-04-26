@@ -5,56 +5,38 @@
 <title>潮味決南港昆陽店打卡</title>
 
 <style>
-body {
-  font-family:sans-serif;
-  text-align:center;
-  padding:30px;
-  min-height:100vh;
-  margin:0;
-  background: linear-gradient(270deg,#ff7e5f,#feb47b,#ff7e5f);
-  background-size:600% 600%;
-  animation:gradientMove 10s ease infinite;
+body{
+font-family:sans-serif;
+text-align:center;
+padding:30px;
+background:linear-gradient(270deg,#ff7e5f,#feb47b,#ff7e5f);
+background-size:600% 600%;
+animation:bg 10s infinite;
 }
-
-@keyframes gradientMove {
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
+@keyframes bg{
+0%{background-position:0%}
+50%{background-position:100%}
+100%{background-position:0%}
 }
-
-.card {
-  background:white;
-  border-radius:20px;
-  padding:20px;
-  margin:20px auto;
-  max-width:700px;
+.card{
+background:white;
+padding:20px;
+border-radius:20px;
+max-width:600px;
+margin:auto;
 }
-
-button {
-  padding:12px;
-  margin:6px;
-  border:none;
-  border-radius:10px;
-  background:black;
-  color:white;
+button{
+padding:12px;
+margin:6px;
+border:none;
+border-radius:12px;
+background:black;
+color:white;
 }
-
-select {
-  padding:12px;
-  margin:10px;
-  border-radius:10px;
-}
-
-.ripple {
-  position:fixed;
-  border-radius:50%;
-  background:rgba(255,255,255,0.5);
-  transform:scale(0);
-  animation:ripple 0.6s linear;
-}
-
-@keyframes ripple {
-  to {transform:scale(6);opacity:0;}
+select,input{
+padding:10px;
+margin:8px;
+border-radius:10px;
 }
 </style>
 </head>
@@ -65,7 +47,9 @@ select {
 
 <div class="card">
 
-<select id="employeeName" onchange="showEmployeeInfo()">
+<p id="timeText"></p>
+
+<select id="employee" onchange="saveLast()">
 <option value="">選擇員工</option>
 <option>劉淑貞</option>
 <option>洪語婷</option>
@@ -80,148 +64,170 @@ select {
 <option>黃啟軒</option>
 </select>
 
-<p id="employeeInfo"></p>
+<p id="distance"></p>
 
-<button onclick="clockIn()">上班</button>
-<button onclick="breakStart()">休息開始</button>
-<button onclick="breakEnd()">休息結束</button>
-<button onclick="clockOut()">下班</button>
+<button onclick="clock('上班')">上班</button>
+<button onclick="clock('休息開始')">休息開始</button>
+<button onclick="clock('休息結束')">休息結束</button>
+<button onclick="clock('下班')">下班</button>
 
 <br><br>
-
-<button onclick="showBoss()">老闆頁面</button>
+<button onclick="boss()">老闆頁面</button>
 
 </div>
 
 <div id="bossPage" class="card" style="display:none;">
-<button onclick="exportSalary()">匯出薪資</button>
-<div id="records"></div>
+<input type="month" id="month">
+<button onclick="exportReport()">一鍵月結算</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const SUPABASE_URL = "https://chdznhbloctutfsenstm.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoZHpuaGJsb2N0dXRmc2Vuc3RtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTI4MDMsImV4cCI6MjA5MjY4ODgwM30.tYcDc8Yq4WLde0A6pFDG1uouHKx3j34GR_oZwu3H5zE";
+const SUPABASE_URL="https://chdznhbloctutfsenstm.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoZHpuaGJsb2N0dXRmc2Vuc3RtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTI4MDMsImV4cCI6MjA5MjY4ODgwM30.tYcDc8Yq4WLde0A6pFDG1uouHKx3j34GR_oZwu3H5zE";
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const STORE_LAT=25.049901606435455;
+const STORE_LNG=121.59244072858665;
 
-const EMPLOYEE_RULES = {
-"劉淑貞":8.5,"洪語婷":8.5,"劉春美":6.5,"林佳恆":4,
-"林禹達":6,"劉穎希":6,"林芷亘":8,"黃韋銘":4,
-"李品璇":4,"黃王楷":4,"黃啟軒":4
+const SHIFT={
+"劉淑貞":"09:30",
+"洪語婷":"10:00",
+"林芷亘":"14:00"
 };
 
-const EMPLOYEE_SHIFTS = {
-"劉淑貞":"09:30-18:00","洪語婷":"10:00-18:30","劉春美":"11:30-18:00",
-"林佳恆":"12:00-16:00","林禹達":"12:00-18:00","劉穎希":"12:00-18:00",
-"林芷亘":"14:00-22:00","黃韋銘":"18:00-22:00","李品璇":"18:00-22:00",
-"黃王楷":"18:00-22:00","黃啟軒":"18:00-22:00"
-};
-
-const EMPLOYEE_PAY = {
+const PAY={
 "劉淑貞":{type:"monthly",salary:45000},
 "洪語婷":{type:"monthly",salary:33000},
+"林芷亘":{type:"monthly",salary:30500},
+
 "劉春美":{type:"hourly",wage:200},
 "林佳恆":{type:"hourly",wage:196},
 "林禹達":{type:"hourly",wage:200},
 "劉穎希":{type:"hourly",wage:196},
-"林芷亘":{type:"monthly",salary:30500},
 "黃韋銘":{type:"hourly",wage:200},
 "李品璇":{type:"hourly",wage:200},
 "黃王楷":{type:"hourly",wage:196},
 "黃啟軒":{type:"hourly",wage:196}
 };
 
-function showEmployeeInfo(){
-const name=document.getElementById("employeeName").value;
-if(!name)return;
+function updateTime(){
+document.getElementById("timeText").innerText=
+"現在時間："+new Date().toLocaleString();
+}
+setInterval(updateTime,1000);updateTime();
 
-localStorage.setItem("last",name);
-
-document.getElementById("employeeInfo").innerText=
-"班別："+EMPLOYEE_SHIFTS[name]+"｜工時："+EMPLOYEE_RULES[name]+"hr";
+function dist(a,b,c,d){
+let R=6371;
+let dLat=(c-a)*Math.PI/180;
+let dLng=(d-b)*Math.PI/180;
+let x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLng/2)**2;
+return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
 }
 
-window.onload=function(){
-const last=localStorage.getItem("last");
-if(last){
-document.getElementById("employeeName").value=last;
-showEmployeeInfo();
+function updateDistance(){
+navigator.geolocation.getCurrentPosition(pos=>{
+let m=Math.round(dist(pos.coords.latitude,pos.coords.longitude,STORE_LAT,STORE_LNG)*1000);
+let el=document.getElementById("distance");
+
+if(m<50){el.style.color="green"}
+else if(m<100){el.style.color="orange"}
+else{el.style.color="red"}
+
+el.innerText="距離："+m+"公尺";
+});
 }
+setInterval(updateDistance,5000);updateDistance();
+
+function saveLast(){
+localStorage.setItem("emp",document.getElementById("employee").value);
+}
+window.onload=()=>{
+let last=localStorage.getItem("emp");
+if(last)document.getElementById("employee").value=last;
+};
+
+function isLate(name,time){
+if(!SHIFT[name])return false;
+let [h,m]=SHIFT[name].split(":");
+let t=new Date(time);
+let base=new Date(time);
+base.setHours(h,m);
+return t>base;
 }
 
-async function saveClock(action){
-const name=document.getElementById("employeeName").value;
+async function clock(type){
+let name=document.getElementById("employee").value;
 if(!name)return alert("選員工");
 
-const today=new Date().toLocaleDateString("zh-TW");
+navigator.geolocation.getCurrentPosition(async pos=>{
+let d=dist(pos.coords.latitude,pos.coords.longitude,STORE_LAT,STORE_LNG);
+if(d>0.1)return alert("不在店附近");
 
-const {data}=await supabaseClient
-.from("clock_records")
-.select("*")
-.eq("employee_name",name)
-.eq("action",action);
+let today=new Date().toLocaleDateString("zh-TW");
+
+let {data}=await db.from("clock_records").select("*")
+.eq("employee_name",name).eq("action",type);
 
 if(data.some(r=>new Date(r.clock_time).toLocaleDateString("zh-TW")==today)){
-alert("今天已打過");
+alert("已打過");
 return;
 }
 
-await supabaseClient.from("clock_records").insert([
-{employee_name:name,action:action}
-]);
+await db.from("clock_records").insert([{employee_name:name,action:type}]);
 
-alert(action+"成功");
+if(type=="上班")alert("今天加油💪");
+if(type=="下班")alert("辛苦了👏");
+});
 }
 
-function clockIn(){saveClock("上班");}
-function breakStart(){saveClock("休息開始");}
-function breakEnd(){saveClock("休息結束");}
-function clockOut(){saveClock("下班");}
-
-function showBoss(){
-const p=prompt("密碼");
-if(p!=="1234")return;
-
+function boss(){
+if(prompt("密碼")!="1234")return;
 document.getElementById("bossPage").style.display="block";
 }
 
-async function exportSalary(){
-const {data}=await supabaseClient.from("clock_records").select("*");
+async function exportReport(){
+let m=document.getElementById("month").value;
+if(!m)return alert("選月份");
+
+let {data}=await db.from("clock_records").select("*");
+
+let sum={};
+
+data.filter(r=>{
+let d=new Date(r.clock_time);
+return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")==m;
+}).forEach(r=>{
+let n=r.employee_name;
+
+if(!sum[n])sum[n]={late:0,miss:0};
+
+if(r.action=="上班" && isLate(n,r.clock_time))sum[n].late++;
+});
 
 let csv="員工,總薪資\n";
 
-Object.keys(EMPLOYEE_PAY).forEach(name=>{
-let pay=EMPLOYEE_PAY[name];
+Object.keys(PAY).forEach(n=>{
+let p=PAY[n];
 let total=0;
 
-if(pay.type==="monthly"){
-total=pay.salary+2000;
+if(p.type=="monthly"){
+let full=(sum[n]?.late||0)==0;
+total=p.salary+1000+(full?1000:0);
 }else{
-total=10000;
+total=0;
 }
 
-csv+=name+","+total+"\n";
+csv+=n+","+total+"\n";
 });
 
-const blob=new Blob(["\uFEFF"+csv]);
-const link=document.createElement("a");
-link.href=URL.createObjectURL(blob);
-link.download="薪資.csv";
-link.click();
+let blob=new Blob(["\uFEFF"+csv]);
+let a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="月結薪資.csv";
+a.click();
 }
-
-document.addEventListener("click",e=>{
-const ripple=document.createElement("span");
-ripple.className="ripple";
-ripple.style.width="100px";
-ripple.style.height="100px";
-ripple.style.left=e.clientX-50+"px";
-ripple.style.top=e.clientY-50+"px";
-document.body.appendChild(ripple);
-setTimeout(()=>ripple.remove(),600);
-});
 </script>
 
 </body>
