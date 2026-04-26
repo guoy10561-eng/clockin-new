@@ -270,8 +270,7 @@
       if (payRule.type === "hourly") payText = "時薪：" + payRule.wage;
 
       document.getElementById("employeeInfo").innerText =
-        "班別：" + shift + "｜標準工時：" + standardHours + " 小時｜" + payText;
-    }
+  "班別：" + shift + "｜標準工時：" + standardHours + " 小時";
 
     window.addEventListener("load", function() {
       const lastName = localStorage.getItem("lastEmployeeName");
