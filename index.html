@@ -5,30 +5,10 @@
   <title>潮味決南港昆陽店打卡</title>
 
   <style>
-    @keyframes gradientMove {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    @keyframes glow {
-      0% { opacity: 0.3; transform: scale(1); }
-      50% { opacity: 0.7; transform: scale(1.15); }
-      100% { opacity: 0.3; transform: scale(1); }
-    }
-
-    @keyframes floatText {
-      0% { transform: translateY(0px) rotate(-20deg); }
-      50% { transform: translateY(-25px) rotate(-20deg); }
-      100% { transform: translateY(0px) rotate(-20deg); }
-    }
-
-    @keyframes rippleEffect {
-      to {
-        transform: scale(6);
-        opacity: 0;
-      }
-    }
+    @keyframes gradientMove { 0%{background-position:0% 50%;} 50%{background-position:100% 50%;} 100%{background-position:0% 50%;} }
+    @keyframes glow { 0%{opacity:.3;transform:scale(1);} 50%{opacity:.7;transform:scale(1.15);} 100%{opacity:.3;transform:scale(1);} }
+    @keyframes floatText { 0%{transform:translateY(0) rotate(-20deg);} 50%{transform:translateY(-25px) rotate(-20deg);} 100%{transform:translateY(0) rotate(-20deg);} }
+    @keyframes rippleEffect { to { transform:scale(6); opacity:0; } }
 
     body {
       font-family: sans-serif;
@@ -85,7 +65,7 @@
       background: rgba(255,255,255,0.9);
       border-radius: 24px;
       padding: 24px;
-      max-width: 700px;
+      max-width: 760px;
       margin: 20px auto;
       box-shadow: 0 10px 30px rgba(0,0,0,0.18);
       backdrop-filter: blur(8px);
@@ -108,11 +88,7 @@
       cursor: pointer;
     }
 
-    button:hover {
-      opacity: 0.9;
-    }
-
-    input {
+    select {
       padding: 14px;
       margin: 10px;
       border-radius: 12px;
@@ -126,14 +102,14 @@
       margin: auto;
       border-collapse: collapse;
       width: 100%;
-      max-width: 700px;
+      max-width: 760px;
       background: white;
     }
 
     th, td {
       border: 1px solid #ddd;
       padding: 8px;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .ripple {
@@ -164,8 +140,22 @@
   <div id="employeePage" class="card">
     <p id="time">時間讀取中...</p>
 
-    <input id="employeeName" placeholder="請輸入員工名字">
-    <br>
+    <select id="employeeName" onchange="showEmployeeInfo()">
+      <option value="">請選擇員工</option>
+      <option>劉淑貞</option>
+      <option>洪語婷</option>
+      <option>劉春美</option>
+      <option>林佳恆</option>
+      <option>林禹達</option>
+      <option>劉穎希</option>
+      <option>林芷亘</option>
+      <option>黃韋銘</option>
+      <option>李品璇</option>
+      <option>黃王楷</option>
+      <option>黃啟軒</option>
+    </select>
+
+    <p id="employeeInfo" style="font-weight:bold;color:#111827;"></p>
 
     <button onclick="clockIn()">上班打卡</button>
     <button onclick="breakStart()">休息開始</button>
@@ -176,7 +166,7 @@
   <div id="bossPage" class="card" style="display:none">
     <h3>今日打卡紀錄</h3>
     <button onclick="loadRecords()">重新整理紀錄</button>
-    <button onclick="exportWorkHours()">匯出上班/加班時間</button>
+    <button onclick="exportSalaryReport()">匯出薪資月結報表</button>
     <div id="records"></div>
   </div>
 
@@ -188,9 +178,12 @@
 
     const STORE_LAT = 25.049901606435455;
     const STORE_LNG = 121.59244072858665;
-    const MAX_DISTANCE = 0.1; // 0.1公里 = 100公尺
+    const MAX_DISTANCE = 0.1;
 
-    const BOSS_PASSWORD = "931119";
+    const BOSS_PASSWORD = "1234";
+
+    const MONTHLY_MEAL_ALLOWANCE = 1000;
+    const FULL_ATTENDANCE_BONUS = 1000;
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -201,11 +194,53 @@
       "林佳恆": 4,
       "林禹達": 6,
       "劉穎希": 6,
-      "林芷亘": 8.5,
+      "林芷亘": 8,
       "黃韋銘": 4,
       "李品璇": 4,
       "黃王楷": 4,
       "黃啟軒": 4
+    };
+
+    const EMPLOYEE_SHIFTS = {
+      "劉淑貞": "09:30 - 18:00",
+      "洪語婷": "10:00 - 18:30",
+      "劉春美": "11:30 - 18:00",
+      "林佳恆": "12:00 - 16:00",
+      "林禹達": "12:00 - 18:00",
+      "劉穎希": "12:00 - 18:00",
+      "林芷亘": "14:00 - 22:00",
+      "黃韋銘": "18:00 - 22:00",
+      "李品璇": "18:00 - 22:00",
+      "黃王楷": "18:00 - 22:00",
+      "黃啟軒": "18:00 - 22:00"
+    };
+
+    const EMPLOYEE_PAY_RULES = {
+      "劉淑貞": { type: "monthly", salary: 45000 },
+      "洪語婷": { type: "monthly", salary: 33000 },
+      "劉春美": { type: "hourly", wage: 200 },
+      "林佳恆": { type: "hourly", wage: 196 },
+      "林禹達": { type: "hourly", wage: 200 },
+      "劉穎希": { type: "hourly", wage: 196 },
+      "林芷亘": { type: "monthly", salary: 30500 },
+      "黃韋銘": { type: "hourly", wage: 200 },
+      "李品璇": { type: "hourly", wage: 200 },
+      "黃王楷": { type: "hourly", wage: 196 },
+      "黃啟軒": { type: "hourly", wage: 196 }
+    };
+
+    const OVERTIME_RULES = {
+      "劉淑貞": { start: "18:10", end: "18:30" },
+      "洪語婷": { start: "18:10", end: "18:30" },
+      "劉春美": { start: "18:10", end: "18:30" },
+      "林佳恆": { start: "16:10", end: "16:30" },
+      "林禹達": { start: "18:10", end: "18:30" },
+      "劉穎希": { start: "18:10", end: "18:30" },
+      "林芷亘": { start: "22:10", end: "22:30" },
+      "黃韋銘": { start: "22:10", end: "22:30" },
+      "李品璇": { start: "22:10", end: "22:30" },
+      "黃王楷": { start: "22:10", end: "22:30" },
+      "黃啟軒": { start: "22:10", end: "22:30" }
     };
 
     function updateTime() {
@@ -214,6 +249,37 @@
 
     updateTime();
     setInterval(updateTime, 1000);
+
+    function showEmployeeInfo() {
+      const name = document.getElementById("employeeName").value;
+
+      if (!name) {
+        document.getElementById("employeeInfo").innerText = "";
+        localStorage.removeItem("lastEmployeeName");
+        return;
+      }
+
+      localStorage.setItem("lastEmployeeName", name);
+
+      const shift = EMPLOYEE_SHIFTS[name] || "未設定";
+      const standardHours = EMPLOYEE_RULES[name] || 8;
+      const payRule = EMPLOYEE_PAY_RULES[name];
+
+      let payText = "";
+      if (payRule.type === "monthly") payText = "月薪：" + payRule.salary;
+      if (payRule.type === "hourly") payText = "時薪：" + payRule.wage;
+
+      document.getElementById("employeeInfo").innerText =
+        "班別：" + shift + "｜標準工時：" + standardHours + " 小時｜" + payText;
+    }
+
+    window.addEventListener("load", function() {
+      const lastName = localStorage.getItem("lastEmployeeName");
+      if (lastName) {
+        document.getElementById("employeeName").value = lastName;
+        showEmployeeInfo();
+      }
+    });
 
     function showEmployee() {
       document.getElementById("employeePage").style.display = "block";
@@ -248,11 +314,35 @@
       return R * c;
     }
 
+    function isSameDay(timeA, timeB) {
+      return new Date(timeA).toLocaleDateString("zh-TW") === new Date(timeB).toLocaleDateString("zh-TW");
+    }
+
     async function saveClock(action) {
       const name = document.getElementById("employeeName").value.trim();
 
       if (!name) {
-        alert("請先輸入員工名字");
+        alert("請先選擇員工");
+        return;
+      }
+
+      const now = new Date();
+
+      const { data: existingRecords, error: checkError } = await supabaseClient
+        .from("clock_records")
+        .select("*")
+        .eq("employee_name", name)
+        .eq("action", action);
+
+      if (checkError) {
+        alert("檢查打卡失敗：" + checkError.message);
+        return;
+      }
+
+      const alreadyClicked = existingRecords.some(row => isSameDay(row.clock_time, now));
+
+      if (alreadyClicked) {
+        alert("今天已經打過「" + action + "」了，不能重複打卡");
         return;
       }
 
@@ -286,13 +376,9 @@
         if (error) {
           alert("打卡失敗：" + error.message);
         } else {
-          if (action === "上班") {
-            alert("上班打卡成功！今天加油💪");
-          } else if (action === "下班") {
-            alert("下班打卡成功！辛苦了👏");
-          } else {
-            alert(action + "成功！");
-          }
+          if (action === "上班") alert("上班打卡成功！今天加油💪");
+          else if (action === "下班") alert("下班打卡成功！辛苦了👏");
+          else alert(action + "成功！");
         }
 
       }, function() {
@@ -300,21 +386,10 @@
       });
     }
 
-    function clockIn() {
-      saveClock("上班");
-    }
-
-    function breakStart() {
-      saveClock("休息開始");
-    }
-
-    function breakEnd() {
-      saveClock("休息結束");
-    }
-
-    function clockOut() {
-      saveClock("下班");
-    }
+    function clockIn() { saveClock("上班"); }
+    function breakStart() { saveClock("休息開始"); }
+    function breakEnd() { saveClock("休息結束"); }
+    function clockOut() { saveClock("下班"); }
 
     async function loadRecords() {
       const { data, error } = await supabaseClient
@@ -345,7 +420,30 @@
       document.getElementById("records").innerHTML = html;
     }
 
-    async function exportWorkHours() {
+    function calculateOvertimeHours(name, clockOutTime) {
+      const rule = OVERTIME_RULES[name];
+      if (!rule) return 0;
+
+      const end = new Date(clockOutTime);
+
+      const [sh, sm] = rule.start.split(":").map(Number);
+      const [eh, em] = rule.end.split(":").map(Number);
+
+      const overtimeStart = new Date(end);
+      overtimeStart.setHours(sh, sm, 0, 0);
+
+      const overtimeEnd = new Date(end);
+      overtimeEnd.setHours(eh, em, 0, 0);
+
+      const actualEnd = end > overtimeEnd ? overtimeEnd : end;
+
+      let minutes = (actualEnd - overtimeStart) / 1000 / 60;
+      if (minutes < 0) minutes = 0;
+
+      return minutes / 60;
+    }
+
+    async function exportSalaryReport() {
       const { data, error } = await supabaseClient
         .from("clock_records")
         .select("*")
@@ -356,16 +454,16 @@
         return;
       }
 
-      const grouped = {};
+      const daily = {};
 
       data.forEach(row => {
         const date = new Date(row.clock_time).toLocaleDateString("zh-TW");
         const key = row.employee_name + "_" + date;
 
-        if (!grouped[key]) {
-          grouped[key] = {
+        if (!daily[key]) {
+          daily[key] = {
             name: row.employee_name,
-            date: date,
+            date,
             clockIn: null,
             clockOut: null,
             breakStart: null,
@@ -373,47 +471,90 @@
           };
         }
 
-        if (row.action === "上班") grouped[key].clockIn = row.clock_time;
-        if (row.action === "下班") grouped[key].clockOut = row.clock_time;
-        if (row.action === "休息開始") grouped[key].breakStart = row.clock_time;
-        if (row.action === "休息結束") grouped[key].breakEnd = row.clock_time;
+        if (row.action === "上班") daily[key].clockIn = row.clock_time;
+        if (row.action === "下班") daily[key].clockOut = row.clock_time;
+        if (row.action === "休息開始") daily[key].breakStart = row.clock_time;
+        if (row.action === "休息結束") daily[key].breakEnd = row.clock_time;
       });
 
-      let csv = "員工,日期,上班時間,休息開始,休息結束,下班時間,標準工時,休息時數,實際工時,加班時數\n";
+      const summary = {};
 
-      Object.values(grouped).forEach(item => {
-        let totalHours = "";
-        let overtime = "";
-        let breakHours = "";
-        let standardHours = EMPLOYEE_RULES[item.name] || 8;
+      Object.values(daily).forEach(item => {
+        const rule = EMPLOYEE_PAY_RULES[item.name];
+        if (!rule) return;
+
+        if (!summary[item.name]) {
+          summary[item.name] = {
+            name: item.name,
+            type: rule.type,
+            payBase: rule.type === "monthly" ? rule.salary : rule.wage,
+            workDays: 0,
+            totalHours: 0,
+            breakHours: 0,
+            overtimeHours: 0,
+            hourlyMeal: 0
+          };
+        }
 
         if (item.clockIn && item.clockOut) {
           const start = new Date(item.clockIn);
           const end = new Date(item.clockOut);
 
           let breakTime = 0;
-
           if (item.breakStart && item.breakEnd) {
-            const bStart = new Date(item.breakStart);
-            const bEnd = new Date(item.breakEnd);
-            breakTime = (bEnd - bStart) / 1000 / 60 / 60;
+            breakTime = (new Date(item.breakEnd) - new Date(item.breakStart)) / 1000 / 60 / 60;
           }
 
           const hours = (end - start) / 1000 / 60 / 60 - breakTime;
+          const overtime = calculateOvertimeHours(item.name, item.clockOut);
 
-          breakHours = breakTime.toFixed(2);
-          totalHours = hours.toFixed(2);
-          overtime = Math.max(0, hours - standardHours).toFixed(2);
+          summary[item.name].workDays += 1;
+          summary[item.name].totalHours += hours;
+          summary[item.name].breakHours += breakTime;
+          summary[item.name].overtimeHours += overtime;
+
+          if (rule.type === "hourly") {
+            if (hours >= 5) summary[item.name].hourlyMeal += 100;
+            else if (hours >= 4) summary[item.name].hourlyMeal += 50;
+          }
+        }
+      });
+
+      let csv = "員工,薪資類型,時薪/月薪,出勤天數,總工時,休息時數,加班時數,餐費,全勤,基本薪資,加班費,總薪資\n";
+
+      Object.values(summary).forEach(item => {
+        const rule = EMPLOYEE_PAY_RULES[item.name];
+
+        let payType = rule.type === "monthly" ? "月薪" : "時薪";
+        let mealPay = 0;
+        let attendancePay = 0;
+        let basePay = 0;
+        let overtimePay = 0;
+        let totalPay = 0;
+
+        if (rule.type === "hourly") {
+          mealPay = item.hourlyMeal;
+          basePay = Math.round(item.totalHours * rule.wage);
+          overtimePay = Math.round(item.overtimeHours * rule.wage);
+          totalPay = basePay + overtimePay + mealPay;
         }
 
-        csv += `${item.name},${item.date},${item.clockIn || ""},${item.breakStart || ""},${item.breakEnd || ""},${item.clockOut || ""},${standardHours},${breakHours},${totalHours},${overtime}\n`;
+        if (rule.type === "monthly") {
+          mealPay = MONTHLY_MEAL_ALLOWANCE;
+          attendancePay = FULL_ATTENDANCE_BONUS;
+          basePay = rule.salary;
+          overtimePay = Math.round(item.overtimeHours * 200);
+          totalPay = basePay + overtimePay + mealPay + attendancePay;
+        }
+
+        csv += `${item.name},${payType},${item.payBase},${item.workDays},${item.totalHours.toFixed(2)},${item.breakHours.toFixed(2)},${item.overtimeHours.toFixed(2)},${mealPay},${attendancePay},${basePay},${overtimePay},${totalPay}\n`;
       });
 
       const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
       const link = document.createElement("a");
 
       link.href = URL.createObjectURL(blob);
-      link.download = "員工上班加班紀錄.csv";
+      link.download = "潮味決南港昆陽店_薪資月結報表.csv";
       link.click();
     }
 
@@ -429,9 +570,7 @@
 
       document.body.appendChild(ripple);
 
-      setTimeout(() => {
-        ripple.remove();
-      }, 700);
+      setTimeout(() => ripple.remove(), 700);
     });
   </script>
 </body>
