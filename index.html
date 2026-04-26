@@ -1,576 +1,228 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>潮味決南港昆陽店打卡</title>
+<meta charset="UTF-8">
+<title>潮味決南港昆陽店打卡</title>
 
-  <style>
-    @keyframes gradientMove { 0%{background-position:0% 50%;} 50%{background-position:100% 50%;} 100%{background-position:0% 50%;} }
-    @keyframes glow { 0%{opacity:.3;transform:scale(1);} 50%{opacity:.7;transform:scale(1.15);} 100%{opacity:.3;transform:scale(1);} }
-    @keyframes floatText { 0%{transform:translateY(0) rotate(-20deg);} 50%{transform:translateY(-25px) rotate(-20deg);} 100%{transform:translateY(0) rotate(-20deg);} }
-    @keyframes rippleEffect { to { transform:scale(6); opacity:0; } }
+<style>
+body {
+  font-family:sans-serif;
+  text-align:center;
+  padding:30px;
+  min-height:100vh;
+  margin:0;
+  background: linear-gradient(270deg,#ff7e5f,#feb47b,#ff7e5f);
+  background-size:600% 600%;
+  animation:gradientMove 10s ease infinite;
+}
 
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 30px;
-      min-height: 100vh;
-      margin: 0;
-      background: linear-gradient(270deg, #ff7e5f, #feb47b, #ff7e5f);
-      background-size: 600% 600%;
-      animation: gradientMove 10s ease infinite;
-      overflow-x: hidden;
-    }
+@keyframes gradientMove {
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
 
-    .brand-text {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 70px;
-      font-weight: bold;
-      color: rgba(255,255,255,0.1);
-      z-index: -1;
-      animation: floatText 6s ease-in-out infinite;
-      pointer-events: none;
-    }
+.card {
+  background:white;
+  border-radius:20px;
+  padding:20px;
+  margin:20px auto;
+  max-width:700px;
+}
 
-    .glow1, .glow2 {
-      position: fixed;
-      border-radius: 50%;
-      z-index: -2;
-      pointer-events: none;
-    }
+button {
+  padding:12px;
+  margin:6px;
+  border:none;
+  border-radius:10px;
+  background:black;
+  color:white;
+}
 
-    .glow1 {
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, rgba(255,255,255,0.35), transparent);
-      top: -120px;
-      left: -120px;
-      animation: glow 6s infinite;
-    }
+select {
+  padding:12px;
+  margin:10px;
+  border-radius:10px;
+}
 
-    .glow2 {
-      width: 320px;
-      height: 320px;
-      background: radial-gradient(circle, rgba(255,255,255,0.25), transparent);
-      bottom: -100px;
-      right: -100px;
-      animation: glow 8s infinite;
-    }
+.ripple {
+  position:fixed;
+  border-radius:50%;
+  background:rgba(255,255,255,0.5);
+  transform:scale(0);
+  animation:ripple 0.6s linear;
+}
 
-    .card {
-      background: rgba(255,255,255,0.9);
-      border-radius: 24px;
-      padding: 24px;
-      max-width: 760px;
-      margin: 20px auto;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-      backdrop-filter: blur(8px);
-    }
-
-    h1, h2 {
-      color: white;
-      text-shadow: 0 3px 12px rgba(0,0,0,0.25);
-    }
-
-    button {
-      padding: 14px 18px;
-      margin: 8px;
-      border: none;
-      border-radius: 14px;
-      background: #111827;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    select {
-      padding: 14px;
-      margin: 10px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-      font-size: 16px;
-      width: 80%;
-      max-width: 320px;
-    }
-
-    table {
-      margin: auto;
-      border-collapse: collapse;
-      width: 100%;
-      max-width: 760px;
-      background: white;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      font-size: 13px;
-    }
-
-    .ripple {
-      position: fixed;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.55);
-      transform: scale(0);
-      animation: rippleEffect 0.7s linear;
-      pointer-events: none;
-      z-index: 9999;
-    }
-  </style>
+@keyframes ripple {
+  to {transform:scale(6);opacity:0;}
+}
+</style>
 </head>
 
 <body>
-  <div class="glow1"></div>
-  <div class="glow2"></div>
-  <div class="brand-text">潮味決南港昆陽店</div>
-
-  <h1>潮味決南港昆陽店</h1>
-  <h2>員工打卡系統</h2>
-
-  <div class="card">
-    <button onclick="showEmployee()">員工打卡</button>
-    <button onclick="showBoss()">老闆頁面</button>
-  </div>
-
-  <div id="employeePage" class="card">
-    <p id="time">時間讀取中...</p>
-
-    <select id="employeeName" onchange="showEmployeeInfo()">
-      <option value="">請選擇員工</option>
-      <option>劉淑貞</option>
-      <option>洪語婷</option>
-      <option>劉春美</option>
-      <option>林佳恆</option>
-      <option>林禹達</option>
-      <option>劉穎希</option>
-      <option>林芷亘</option>
-      <option>黃韋銘</option>
-      <option>李品璇</option>
-      <option>黃王楷</option>
-      <option>黃啟軒</option>
-    </select>
-
-    <p id="employeeInfo" style="font-weight:bold;color:#111827;"></p>
-
-    <button onclick="clockIn()">上班打卡</button>
-    <button onclick="breakStart()">休息開始</button>
-    <button onclick="breakEnd()">休息結束</button>
-    <button onclick="clockOut()">下班打卡</button>
-  </div>
-
-  <div id="bossPage" class="card" style="display:none">
-    <h3>今日打卡紀錄</h3>
-    <button onclick="loadRecords()">重新整理紀錄</button>
-    <button onclick="exportSalaryReport()">匯出薪資月結報表</button>
-    <div id="records"></div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script>
-    const SUPABASE_URL = "https://chdznhbloctutfsenstm.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoZHpuaGJsb2N0dXRmc2Vuc3RtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTI4MDMsImV4cCI6MjA5MjY4ODgwM30.tYcDc8Yq4WLde0A6pFDG1uouHKx3j34GR_oZwu3H5zE";
-
-    const STORE_LAT = 25.049901606435455;
-    const STORE_LNG = 121.59244072858665;
-    const MAX_DISTANCE = 0.1;
-
-    const BOSS_PASSWORD = "1234";
-
-    const MONTHLY_MEAL_ALLOWANCE = 1000;
-    const FULL_ATTENDANCE_BONUS = 1000;
-
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    const EMPLOYEE_RULES = {
-      "劉淑貞": 8.5,
-      "洪語婷": 8.5,
-      "劉春美": 6.5,
-      "林佳恆": 4,
-      "林禹達": 6,
-      "劉穎希": 6,
-      "林芷亘": 8,
-      "黃韋銘": 4,
-      "李品璇": 4,
-      "黃王楷": 4,
-      "黃啟軒": 4
-    };
-
-    const EMPLOYEE_SHIFTS = {
-      "劉淑貞": "09:30 - 18:00",
-      "洪語婷": "10:00 - 18:30",
-      "劉春美": "11:30 - 18:00",
-      "林佳恆": "12:00 - 16:00",
-      "林禹達": "12:00 - 18:00",
-      "劉穎希": "12:00 - 18:00",
-      "林芷亘": "14:00 - 22:00",
-      "黃韋銘": "18:00 - 22:00",
-      "李品璇": "18:00 - 22:00",
-      "黃王楷": "18:00 - 22:00",
-      "黃啟軒": "18:00 - 22:00"
-    };
-
-    const EMPLOYEE_PAY_RULES = {
-      "劉淑貞": { type: "monthly", salary: 45000 },
-      "洪語婷": { type: "monthly", salary: 33000 },
-      "劉春美": { type: "hourly", wage: 200 },
-      "林佳恆": { type: "hourly", wage: 196 },
-      "林禹達": { type: "hourly", wage: 200 },
-      "劉穎希": { type: "hourly", wage: 196 },
-      "林芷亘": { type: "monthly", salary: 30500 },
-      "黃韋銘": { type: "hourly", wage: 200 },
-      "李品璇": { type: "hourly", wage: 200 },
-      "黃王楷": { type: "hourly", wage: 196 },
-      "黃啟軒": { type: "hourly", wage: 196 }
-    };
-
-    const OVERTIME_RULES = {
-      "劉淑貞": { start: "18:10", end: "18:30" },
-      "洪語婷": { start: "18:10", end: "18:30" },
-      "劉春美": { start: "18:10", end: "18:30" },
-      "林佳恆": { start: "16:10", end: "16:30" },
-      "林禹達": { start: "18:10", end: "18:30" },
-      "劉穎希": { start: "18:10", end: "18:30" },
-      "林芷亘": { start: "22:10", end: "22:30" },
-      "黃韋銘": { start: "22:10", end: "22:30" },
-      "李品璇": { start: "22:10", end: "22:30" },
-      "黃王楷": { start: "22:10", end: "22:30" },
-      "黃啟軒": { start: "22:10", end: "22:30" }
-    };
-
-    function updateTime() {
-      document.getElementById("time").innerText = new Date().toLocaleString();
-    }
-
-    updateTime();
-    setInterval(updateTime, 1000);
-
-    function showEmployeeInfo() {
-      const name = document.getElementById("employeeName").value;
-
-      if (!name) {
-        document.getElementById("employeeInfo").innerText = "";
-        localStorage.removeItem("lastEmployeeName");
-        return;
-      }
-
-      localStorage.setItem("lastEmployeeName", name);
-
-      const shift = EMPLOYEE_SHIFTS[name] || "未設定";
-      const standardHours = EMPLOYEE_RULES[name] || 8;
-      const payRule = EMPLOYEE_PAY_RULES[name];
-
-      let payText = "";
-      if (payRule.type === "monthly") payText = "月薪：" + payRule.salary;
-      if (payRule.type === "hourly") payText = "時薪：" + payRule.wage;
-
-      document.getElementById("employeeInfo").innerText =
-  "班別：" + shift + "｜標準工時：" + standardHours + " 小時";
-
-    window.addEventListener("load", function() {
-      const lastName = localStorage.getItem("lastEmployeeName");
-      if (lastName) {
-        document.getElementById("employeeName").value = lastName;
-        showEmployeeInfo();
-      }
-    });
-
-    function showEmployee() {
-      document.getElementById("employeePage").style.display = "block";
-      document.getElementById("bossPage").style.display = "none";
-    }
-
-    function showBoss() {
-      const password = prompt("請輸入老闆密碼");
-
-      if (password !== BOSS_PASSWORD) {
-        alert("密碼錯誤");
-        return;
-      }
-
-      document.getElementById("employeePage").style.display = "none";
-      document.getElementById("bossPage").style.display = "block";
-      loadRecords();
-    }
-
-    function getDistance(lat1, lng1, lat2, lng2) {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLng = (lng2 - lng1) * Math.PI / 180;
-
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1 * Math.PI / 180) *
-        Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLng / 2) * Math.sin(dLng / 2);
-
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
-    }
-
-    function isSameDay(timeA, timeB) {
-      return new Date(timeA).toLocaleDateString("zh-TW") === new Date(timeB).toLocaleDateString("zh-TW");
-    }
-
-    async function saveClock(action) {
-      const name = document.getElementById("employeeName").value.trim();
-
-      if (!name) {
-        alert("請先選擇員工");
-        return;
-      }
-
-      const now = new Date();
-
-      const { data: existingRecords, error: checkError } = await supabaseClient
-        .from("clock_records")
-        .select("*")
-        .eq("employee_name", name)
-        .eq("action", action);
-
-      if (checkError) {
-        alert("檢查打卡失敗：" + checkError.message);
-        return;
-      }
-
-      const alreadyClicked = existingRecords.some(row => isSameDay(row.clock_time, now));
-
-      if (alreadyClicked) {
-        alert("今天已經打過「" + action + "」了，不能重複打卡");
-        return;
-      }
-
-      if (!navigator.geolocation) {
-        alert("你的手機不支援定位");
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(async function(position) {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        const distance = getDistance(lat, lng, STORE_LAT, STORE_LNG);
-
-        if (distance > MAX_DISTANCE) {
-          alert("不在店附近，無法打卡！目前距離約 " + Math.round(distance * 1000) + " 公尺");
-          return;
-        }
-
-        const { error } = await supabaseClient
-          .from("clock_records")
-          .insert([
-            {
-              employee_name: name,
-              action: action,
-              latitude: lat,
-              longitude: lng
-            }
-          ]);
-
-        if (error) {
-          alert("打卡失敗：" + error.message);
-        } else {
-          if (action === "上班") alert("上班打卡成功！今天加油💪");
-          else if (action === "下班") alert("下班打卡成功！辛苦了👏");
-          else alert(action + "成功！");
-        }
-
-      }, function() {
-        alert("定位失敗，請開啟定位權限");
-      });
-    }
-
-    function clockIn() { saveClock("上班"); }
-    function breakStart() { saveClock("休息開始"); }
-    function breakEnd() { saveClock("休息結束"); }
-    function clockOut() { saveClock("下班"); }
-
-    async function loadRecords() {
-      const { data, error } = await supabaseClient
-        .from("clock_records")
-        .select("*")
-        .order("clock_time", { ascending: false });
-
-      if (error) {
-        document.getElementById("records").innerHTML = "讀取失敗：" + error.message;
-        return;
-      }
-
-      let html = "<table>";
-      html += "<tr><th>員工</th><th>動作</th><th>時間</th><th>位置</th></tr>";
-
-      data.forEach(row => {
-        html += `
-          <tr>
-            <td>${row.employee_name}</td>
-            <td>${row.action}</td>
-            <td>${new Date(row.clock_time).toLocaleString()}</td>
-            <td>${row.latitude ? "有" : "無"}</td>
-          </tr>
-        `;
-      });
-
-      html += "</table>";
-      document.getElementById("records").innerHTML = html;
-    }
-
-    function calculateOvertimeHours(name, clockOutTime) {
-      const rule = OVERTIME_RULES[name];
-      if (!rule) return 0;
-
-      const end = new Date(clockOutTime);
-
-      const [sh, sm] = rule.start.split(":").map(Number);
-      const [eh, em] = rule.end.split(":").map(Number);
-
-      const overtimeStart = new Date(end);
-      overtimeStart.setHours(sh, sm, 0, 0);
-
-      const overtimeEnd = new Date(end);
-      overtimeEnd.setHours(eh, em, 0, 0);
-
-      const actualEnd = end > overtimeEnd ? overtimeEnd : end;
-
-      let minutes = (actualEnd - overtimeStart) / 1000 / 60;
-      if (minutes < 0) minutes = 0;
-
-      return minutes / 60;
-    }
-
-    async function exportSalaryReport() {
-      const { data, error } = await supabaseClient
-        .from("clock_records")
-        .select("*")
-        .order("clock_time", { ascending: true });
-
-      if (error) {
-        alert("匯出失敗：" + error.message);
-        return;
-      }
-
-      const daily = {};
-
-      data.forEach(row => {
-        const date = new Date(row.clock_time).toLocaleDateString("zh-TW");
-        const key = row.employee_name + "_" + date;
-
-        if (!daily[key]) {
-          daily[key] = {
-            name: row.employee_name,
-            date,
-            clockIn: null,
-            clockOut: null,
-            breakStart: null,
-            breakEnd: null
-          };
-        }
-
-        if (row.action === "上班") daily[key].clockIn = row.clock_time;
-        if (row.action === "下班") daily[key].clockOut = row.clock_time;
-        if (row.action === "休息開始") daily[key].breakStart = row.clock_time;
-        if (row.action === "休息結束") daily[key].breakEnd = row.clock_time;
-      });
-
-      const summary = {};
-
-      Object.values(daily).forEach(item => {
-        const rule = EMPLOYEE_PAY_RULES[item.name];
-        if (!rule) return;
-
-        if (!summary[item.name]) {
-          summary[item.name] = {
-            name: item.name,
-            type: rule.type,
-            payBase: rule.type === "monthly" ? rule.salary : rule.wage,
-            workDays: 0,
-            totalHours: 0,
-            breakHours: 0,
-            overtimeHours: 0,
-            hourlyMeal: 0
-          };
-        }
-
-        if (item.clockIn && item.clockOut) {
-          const start = new Date(item.clockIn);
-          const end = new Date(item.clockOut);
-
-          let breakTime = 0;
-          if (item.breakStart && item.breakEnd) {
-            breakTime = (new Date(item.breakEnd) - new Date(item.breakStart)) / 1000 / 60 / 60;
-          }
-
-          const hours = (end - start) / 1000 / 60 / 60 - breakTime;
-          const overtime = calculateOvertimeHours(item.name, item.clockOut);
-
-          summary[item.name].workDays += 1;
-          summary[item.name].totalHours += hours;
-          summary[item.name].breakHours += breakTime;
-          summary[item.name].overtimeHours += overtime;
-
-          if (rule.type === "hourly") {
-            if (hours >= 5) summary[item.name].hourlyMeal += 100;
-            else if (hours >= 4) summary[item.name].hourlyMeal += 50;
-          }
-        }
-      });
-
-      let csv = "員工,薪資類型,時薪/月薪,出勤天數,總工時,休息時數,加班時數,餐費,全勤,基本薪資,加班費,總薪資\n";
-
-      Object.values(summary).forEach(item => {
-        const rule = EMPLOYEE_PAY_RULES[item.name];
-
-        let payType = rule.type === "monthly" ? "月薪" : "時薪";
-        let mealPay = 0;
-        let attendancePay = 0;
-        let basePay = 0;
-        let overtimePay = 0;
-        let totalPay = 0;
-
-        if (rule.type === "hourly") {
-          mealPay = item.hourlyMeal;
-          basePay = Math.round(item.totalHours * rule.wage);
-          overtimePay = Math.round(item.overtimeHours * rule.wage);
-          totalPay = basePay + overtimePay + mealPay;
-        }
-
-        if (rule.type === "monthly") {
-          mealPay = MONTHLY_MEAL_ALLOWANCE;
-          attendancePay = FULL_ATTENDANCE_BONUS;
-          basePay = rule.salary;
-          overtimePay = Math.round(item.overtimeHours * 200);
-          totalPay = basePay + overtimePay + mealPay + attendancePay;
-        }
-
-        csv += `${item.name},${payType},${item.payBase},${item.workDays},${item.totalHours.toFixed(2)},${item.breakHours.toFixed(2)},${item.overtimeHours.toFixed(2)},${mealPay},${attendancePay},${basePay},${overtimePay},${totalPay}\n`;
-      });
-
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-
-      link.href = URL.createObjectURL(blob);
-      link.download = "潮味決南港昆陽店_薪資月結報表.csv";
-      link.click();
-    }
-
-    document.addEventListener("click", function(e) {
-      const ripple = document.createElement("span");
-      ripple.className = "ripple";
-
-      const size = 120;
-      ripple.style.width = size + "px";
-      ripple.style.height = size + "px";
-      ripple.style.left = e.clientX - size / 2 + "px";
-      ripple.style.top = e.clientY - size / 2 + "px";
-
-      document.body.appendChild(ripple);
-
-      setTimeout(() => ripple.remove(), 700);
-    });
-  </script>
+
+<h1 style="color:white;">潮味決南港昆陽店</h1>
+
+<div class="card">
+
+<select id="employeeName" onchange="showEmployeeInfo()">
+<option value="">選擇員工</option>
+<option>劉淑貞</option>
+<option>洪語婷</option>
+<option>劉春美</option>
+<option>林佳恆</option>
+<option>林禹達</option>
+<option>劉穎希</option>
+<option>林芷亘</option>
+<option>黃韋銘</option>
+<option>李品璇</option>
+<option>黃王楷</option>
+<option>黃啟軒</option>
+</select>
+
+<p id="employeeInfo"></p>
+
+<button onclick="clockIn()">上班</button>
+<button onclick="breakStart()">休息開始</button>
+<button onclick="breakEnd()">休息結束</button>
+<button onclick="clockOut()">下班</button>
+
+<br><br>
+
+<button onclick="showBoss()">老闆頁面</button>
+
+</div>
+
+<div id="bossPage" class="card" style="display:none;">
+<button onclick="exportSalary()">匯出薪資</button>
+<div id="records"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://chdznhbloctutfsenstm.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoZHpuaGJsb2N0dXRmc2Vuc3RtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTI4MDMsImV4cCI6MjA5MjY4ODgwM30.tYcDc8Yq4WLde0A6pFDG1uouHKx3j34GR_oZwu3H5zE";
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const EMPLOYEE_RULES = {
+"劉淑貞":8.5,"洪語婷":8.5,"劉春美":6.5,"林佳恆":4,
+"林禹達":6,"劉穎希":6,"林芷亘":8,"黃韋銘":4,
+"李品璇":4,"黃王楷":4,"黃啟軒":4
+};
+
+const EMPLOYEE_SHIFTS = {
+"劉淑貞":"09:30-18:00","洪語婷":"10:00-18:30","劉春美":"11:30-18:00",
+"林佳恆":"12:00-16:00","林禹達":"12:00-18:00","劉穎希":"12:00-18:00",
+"林芷亘":"14:00-22:00","黃韋銘":"18:00-22:00","李品璇":"18:00-22:00",
+"黃王楷":"18:00-22:00","黃啟軒":"18:00-22:00"
+};
+
+const EMPLOYEE_PAY = {
+"劉淑貞":{type:"monthly",salary:45000},
+"洪語婷":{type:"monthly",salary:33000},
+"劉春美":{type:"hourly",wage:200},
+"林佳恆":{type:"hourly",wage:196},
+"林禹達":{type:"hourly",wage:200},
+"劉穎希":{type:"hourly",wage:196},
+"林芷亘":{type:"monthly",salary:30500},
+"黃韋銘":{type:"hourly",wage:200},
+"李品璇":{type:"hourly",wage:200},
+"黃王楷":{type:"hourly",wage:196},
+"黃啟軒":{type:"hourly",wage:196}
+};
+
+function showEmployeeInfo(){
+const name=document.getElementById("employeeName").value;
+if(!name)return;
+
+localStorage.setItem("last",name);
+
+document.getElementById("employeeInfo").innerText=
+"班別："+EMPLOYEE_SHIFTS[name]+"｜工時："+EMPLOYEE_RULES[name]+"hr";
+}
+
+window.onload=function(){
+const last=localStorage.getItem("last");
+if(last){
+document.getElementById("employeeName").value=last;
+showEmployeeInfo();
+}
+}
+
+async function saveClock(action){
+const name=document.getElementById("employeeName").value;
+if(!name)return alert("選員工");
+
+const today=new Date().toLocaleDateString("zh-TW");
+
+const {data}=await supabaseClient
+.from("clock_records")
+.select("*")
+.eq("employee_name",name)
+.eq("action",action);
+
+if(data.some(r=>new Date(r.clock_time).toLocaleDateString("zh-TW")==today)){
+alert("今天已打過");
+return;
+}
+
+await supabaseClient.from("clock_records").insert([
+{employee_name:name,action:action}
+]);
+
+alert(action+"成功");
+}
+
+function clockIn(){saveClock("上班");}
+function breakStart(){saveClock("休息開始");}
+function breakEnd(){saveClock("休息結束");}
+function clockOut(){saveClock("下班");}
+
+function showBoss(){
+const p=prompt("密碼");
+if(p!=="1234")return;
+
+document.getElementById("bossPage").style.display="block";
+}
+
+async function exportSalary(){
+const {data}=await supabaseClient.from("clock_records").select("*");
+
+let csv="員工,總薪資\n";
+
+Object.keys(EMPLOYEE_PAY).forEach(name=>{
+let pay=EMPLOYEE_PAY[name];
+let total=0;
+
+if(pay.type==="monthly"){
+total=pay.salary+2000;
+}else{
+total=10000;
+}
+
+csv+=name+","+total+"\n";
+});
+
+const blob=new Blob(["\uFEFF"+csv]);
+const link=document.createElement("a");
+link.href=URL.createObjectURL(blob);
+link.download="薪資.csv";
+link.click();
+}
+
+document.addEventListener("click",e=>{
+const ripple=document.createElement("span");
+ripple.className="ripple";
+ripple.style.width="100px";
+ripple.style.height="100px";
+ripple.style.left=e.clientX-50+"px";
+ripple.style.top=e.clientY-50+"px";
+document.body.appendChild(ripple);
+setTimeout(()=>ripple.remove(),600);
+});
+</script>
+
 </body>
 </html>
