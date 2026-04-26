@@ -34,6 +34,23 @@
 
   <script>
     const SUPABASE_URL = "https://chdznhbloctutfsenstm.supabase.co";
+    const STORE_LAT = 25.049901606435455;
+const STORE_LNG = 121.59244072858665;
+const MAX_DISTANCE = 0.1; // 單位：公里（0.1 = 100公尺）
+    function getDistance(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoZHpuaGJsb2N0dXRmc2Vuc3RtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTI4MDMsImV4cCI6MjA5MjY4ODgwM30.tYcDc8Yq4WLde0A6pFDG1uouHKx3j34GR_oZwu3H5zE";
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -65,6 +82,12 @@
 
     async function saveClock(action) {
   const name = document.getElementById("employeeName").value;
+      const distance = getDistance(lat, lng, STORE_LAT, STORE_LNG);
+
+if (distance > MAX_DISTANCE) {
+  alert("不在店附近，無法打卡！");
+  return;
+}
 
   if (!name) {
     alert("請先輸入員工名字");
