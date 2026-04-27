@@ -78,8 +78,11 @@ border-radius:10px;
 
 <div id="bossPage" class="card" style="display:none;">
 <input type="month" id="month">
+<input type="month" id="month">
 <button onclick="exportReport()">一鍵月結算</button>
-</div>
+
+<button onclick="loadRecords()">查看打卡紀錄</button>
+<div id="records"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -227,6 +230,32 @@ let a=document.createElement("a");
 a.href=URL.createObjectURL(blob);
 a.download="月結薪資.csv";
 a.click();
+}
+async function loadRecords(){
+  let {data,error}=await db.from("clock_records")
+  .select("*")
+  .order("clock_time",{ascending:false});
+
+  if(error){
+    document.getElementById("records").innerHTML="讀取失敗："+error.message;
+    return;
+  }
+
+  let html="<table border='1' style='margin:auto;border-collapse:collapse;width:100%;'>";
+  html+="<tr><th>員工</th><th>動作</th><th>時間</th><th>位置</th></tr>";
+
+  data.forEach(r=>{
+    html+=`
+    <tr>
+      <td>${r.employee_name}</td>
+      <td>${r.action}</td>
+      <td>${new Date(r.clock_time).toLocaleString()}</td>
+      <td>${r.latitude ? "有定位" : "無定位"}</td>
+    </tr>`;
+  });
+
+  html+="</table>";
+  document.getElementById("records").innerHTML=html;
 }
 </script>
 
