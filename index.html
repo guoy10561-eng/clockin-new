@@ -178,7 +178,12 @@ alert("已打過");
 return;
 }
 
-await db.from("clock_records").insert([{employee_name:name,action:type}]);
+await db.from("clock_records").insert([{
+  employee_name: name,
+  action: type,
+  latitude: pos.coords.latitude,
+  longitude: pos.coords.longitude
+}]);
 
 if(type=="上班")alert("今天加油💪");
 if(type=="下班")alert("辛苦了👏");
