@@ -170,8 +170,37 @@ if(d>0.1)return alert("不在店附近");
 
 let today=new Date().toLocaleDateString("zh-TW");
 
-let {data}=await db.from("clock_records").select("*")
-.eq("employee_name",name).eq("action",type);
+// 先抓今天所有紀錄
+let {data:todayRecords}=await db.from("clock_records")
+.select("*")
+.eq("employee_name",name);
+
+let today=new Date().toLocaleDateString("zh-TW");
+
+// 篩出今天
+let todayList=todayRecords.filter(r=>
+new Date(r.clock_time).toLocaleDateString("zh-TW")==today
+);
+
+// 檢查是否已打過同動作
+if(todayList.some(r=>r.action==type)){
+alert(type+" 已經打過了");
+return;
+}
+
+// 🔥 新增邏輯
+
+// 沒上班不能休息
+if(type=="休息開始" && !todayList.some(r=>r.action=="上班")){
+alert("請先打上班");
+return;
+}
+
+// 沒休息開始不能結束
+if(type=="休息結束" && !todayList.some(r=>r.action=="休息開始")){
+alert("還沒開始休息");
+return;
+}
 
 if(data.some(r=>new Date(r.clock_time).toLocaleDateString("zh-TW")==today)){
 alert("已打過");
