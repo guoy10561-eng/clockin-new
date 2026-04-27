@@ -430,6 +430,16 @@
     }
 
     function switchView(view) {
+  const todayBox = document.getElementById("todayAllBox");
+  const todayTitle = document.getElementById("todayAllTitle");
+
+  if (view === "staff") {
+    todayBox.style.display = "none";
+    todayTitle.style.display = "none";
+  } else {
+    todayBox.style.display = "block";
+    todayTitle.style.display = "block";
+  }
       if (view === "boss" && !bossUnlocked) {
         const input = prompt("請輸入老闆密碼");
         if (input !== BOSS_PASSWORD) {
