@@ -306,8 +306,9 @@
     function exportCsv() {
       const rows = [["員工", "日期", "上班", "休息開始", "休息結束", "下班", "工時分鐘"]];
       filteredRecords().forEach(r => rows.push([r.employee, r.date, time(r.clockIn), time(r.breakStart), time(r.breakEnd), time(r.clockOut), workMinutes(r, r.clockOut ? new Date(r.clockOut) : new Date())]));
-      const csv = rows.map(row => row.map(cell => `"${String(cell).replaceAll('"','""')}"`).join(",")).join("\n");
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+      const csv = rows.map(row => row.map(cell => `"${String(cell).replaceAll('"','""')}"`).join(",")).join("
+");
+      const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -394,6 +395,109 @@
       render();
       setInterval(render, 1000);
     });
+  
+
+    // === 新功能：定位驗證 ===
+    const STORE_LAT = 25.0505; // 你店的位置（可改）
+    const STORE_LNG = 121.5937;
+    const MAX_DISTANCE = 200; // 公尺
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const φ1 = lat1 * Math.PI/180;
+      const φ2 = lat2 * Math.PI/180;
+      const Δφ = (lat2-lat1) * Math.PI/180;
+      const Δλ = (lon2-lon1) * Math.PI/180;
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function checkLocation(callback) {
+      if (!navigator.geolocation) {
+        callback(false, "裝置不支援定位");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude } = pos.coords;
+        const dist = getDistance(latitude, longitude, STORE_LAT, STORE_LNG);
+        if (dist <= MAX_DISTANCE) {
+          callback(true);
+        } else {
+          callback(false, `你不在店附近 (${Math.round(dist)}m)`);
+        }
+      }, () => callback(false, "無法取得定位"));
+    }
+
+    // override punch
+    const oldPunch = punch;
+    punch = function(action) {
+      checkLocation((ok, msg) => {
+        if (!ok) return toast("error", msg);
+        oldPunch(action);
+      });
+    }
+
+    // === 老闆頁面密碼 ===
+    const BOSS_PASSWORD = "931119";
+
+    const oldSwitch = switchView;
+    switchView = function(view) {
+      if (view === "boss") {
+        const input = prompt("請輸入老闆密碼");
+        if (input !== BOSS_PASSWORD) {
+          toast("error", "密碼錯誤");
+          return;
+        }
+      }
+      oldSwitch(view);
+    }
+
   </script>
+
+<script>
+// === 距離顯示 & 觸覺回饋 ===
+function showDistanceFeedback(dist) {
+  const el = document.getElementById('distanceInfo');
+  if (el) {
+    el.textContent = `距離店面：約 ${Math.round(dist)} 公尺`;
+  }
+  if (navigator.vibrate) {
+    if (dist <= MAX_DISTANCE) navigator.vibrate(50);
+    else navigator.vibrate([100, 50, 100]);
+  }
+}
+
+// override checkLocation 加距離顯示
+const _oldCheck = checkLocation;
+checkLocation = function(callback) {
+  if (!navigator.geolocation) {
+    callback(false, "裝置不支援定位");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude, longitude } = pos.coords;
+    const dist = getDistance(latitude, longitude, STORE_LAT, STORE_LNG);
+
+    showDistanceFeedback(dist);
+
+    if (dist <= MAX_DISTANCE) {
+      callback(true);
+    } else {
+      callback(false, `距離過遠 (${Math.round(dist)}m)`);
+    }
+  }, () => callback(false, "無法取得定位"));
+}
+</script>
+
+<!-- 距離顯示 UI -->
+<div id="distanceInfo" style="position:fixed;bottom:16px;right:16px;background:#020617;color:#fff;padding:10px 14px;border-radius:12px;font-size:13px;box-shadow:0 10px 25px rgba(0,0,0,.2);">
+  尚未取得距離
+</div>
+
 </body>
 </html>
