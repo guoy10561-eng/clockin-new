@@ -23,7 +23,7 @@ background:white;
 padding:20px;
 border-radius:20px;
 max-width:600px;
-margin:auto;
+margin:20px auto;
 }
 button{
 padding:12px;
@@ -37,6 +37,16 @@ select,input{
 padding:10px;
 margin:8px;
 border-radius:10px;
+}
+table{
+margin:auto;
+border-collapse:collapse;
+width:100%;
+}
+th,td{
+border:1px solid #ccc;
+padding:8px;
+font-size:14px;
 }
 </style>
 </head>
@@ -77,12 +87,11 @@ border-radius:10px;
 </div>
 
 <div id="bossPage" class="card" style="display:none;">
-<input type="month" id="month">
-<input type="month" id="month">
-<button onclick="exportReport()">一鍵月結算</button>
-
-<button onclick="loadRecords()">查看打卡紀錄</button>
-<div id="records"></div>
+  <input type="month" id="month">
+  <button onclick="exportReport()">一鍵月結算</button>
+  <button onclick="loadRecords()">查看打卡紀錄</button>
+  <div id="records"></div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -104,7 +113,6 @@ const PAY={
 "劉淑貞":{type:"monthly",salary:45000},
 "洪語婷":{type:"monthly",salary:33000},
 "林芷亘":{type:"monthly",salary:30500},
-
 "劉春美":{type:"hourly",wage:200},
 "林佳恆":{type:"hourly",wage:196},
 "林禹達":{type:"hourly",wage:200},
@@ -119,7 +127,8 @@ function updateTime(){
 document.getElementById("timeText").innerText=
 "現在時間："+new Date().toLocaleString();
 }
-setInterval(updateTime,1000);updateTime();
+setInterval(updateTime,1000);
+updateTime();
 
 function dist(a,b,c,d){
 let R=6371;
@@ -134,18 +143,20 @@ navigator.geolocation.getCurrentPosition(pos=>{
 let m=Math.round(dist(pos.coords.latitude,pos.coords.longitude,STORE_LAT,STORE_LNG)*1000);
 let el=document.getElementById("distance");
 
-if(m<50){el.style.color="green"}
-else if(m<100){el.style.color="orange"}
-else{el.style.color="red"}
+if(m<50){el.style.color="green";}
+else if(m<100){el.style.color="orange";}
+else{el.style.color="red";}
 
 el.innerText="距離："+m+"公尺";
 });
 }
-setInterval(updateDistance,5000);updateDistance();
+setInterval(updateDistance,5000);
+updateDistance();
 
 function saveLast(){
 localStorage.setItem("emp",document.getElementById("employee").value);
 }
+
 window.onload=()=>{
 let last=localStorage.getItem("emp");
 if(last)document.getElementById("employee").value=last;
@@ -156,7 +167,7 @@ if(!SHIFT[name])return false;
 let [h,m]=SHIFT[name].split(":");
 let t=new Date(time);
 let base=new Date(time);
-base.setHours(h,m);
+base.setHours(h,m,0,0);
 return t>base;
 }
 
@@ -170,65 +181,82 @@ if(d>0.1)return alert("不在店附近");
 
 let today=new Date().toLocaleDateString("zh-TW");
 
-// 先抓今天所有紀錄
-let {data:todayRecords}=await db.from("clock_records")
+let {data:todayRecords,error}=await db.from("clock_records")
 .select("*")
 .eq("employee_name",name);
 
-let today=new Date().toLocaleDateString("zh-TW");
+if(error){
+alert("讀取失敗："+error.message);
+return;
+}
 
-// 篩出今天
 let todayList=todayRecords.filter(r=>
 new Date(r.clock_time).toLocaleDateString("zh-TW")==today
 );
 
-// 檢查是否已打過同動作
 if(todayList.some(r=>r.action==type)){
 alert(type+" 已經打過了");
 return;
 }
 
-// 🔥 新增邏輯
-
-// 沒上班不能休息
 if(type=="休息開始" && !todayList.some(r=>r.action=="上班")){
 alert("請先打上班");
 return;
 }
 
-// 沒休息開始不能結束
 if(type=="休息結束" && !todayList.some(r=>r.action=="休息開始")){
 alert("還沒開始休息");
 return;
 }
 
-if(data.some(r=>new Date(r.clock_time).toLocaleDateString("zh-TW")==today)){
-alert("已打過");
+if(type=="下班" && !todayList.some(r=>r.action=="上班")){
+alert("請先打上班");
 return;
 }
 
-await db.from("clock_records").insert([{
-  employee_name: name,
-  action: type,
-  latitude: pos.coords.latitude,
-  longitude: pos.coords.longitude
+let {error:insertError}=await db.from("clock_records").insert([{
+employee_name:name,
+action:type,
+latitude:pos.coords.latitude,
+longitude:pos.coords.longitude
 }]);
 
+if(insertError){
+alert("打卡失敗："+insertError.message);
+return;
+}
+
 if(type=="上班")alert("今天加油💪");
-if(type=="下班")alert("辛苦了👏");
+else if(type=="下班")alert("辛苦了👏");
+else alert(type+"成功");
+
+},()=>{
+alert("定位失敗，請開啟定位權限");
 });
 }
 
 function boss(){
-if(prompt("密碼")!="1234")return;
+let password=prompt("密碼");
+
+if(password!="931119"){
+alert("密碼錯誤");
+return;
+}
+
 document.getElementById("bossPage").style.display="block";
+loadRecords();
 }
 
 async function exportReport(){
 let m=document.getElementById("month").value;
 if(!m)return alert("選月份");
 
-let {data}=await db.from("clock_records").select("*");
+let {data,error}=await db.from("clock_records").select("*");
+
+if(error){
+alert("匯出失敗："+error.message);
+return;
+}
 
 let sum={};
 
@@ -265,31 +293,32 @@ a.href=URL.createObjectURL(blob);
 a.download="月結薪資.csv";
 a.click();
 }
+
 async function loadRecords(){
-  let {data,error}=await db.from("clock_records")
-  .select("*")
-  .order("clock_time",{ascending:false});
+let {data,error}=await db.from("clock_records")
+.select("*")
+.order("clock_time",{ascending:false});
 
-  if(error){
-    document.getElementById("records").innerHTML="讀取失敗："+error.message;
-    return;
-  }
+if(error){
+document.getElementById("records").innerHTML="讀取失敗："+error.message;
+return;
+}
 
-  let html="<table border='1' style='margin:auto;border-collapse:collapse;width:100%;'>";
-  html+="<tr><th>員工</th><th>動作</th><th>時間</th><th>位置</th></tr>";
+let html="<table>";
+html+="<tr><th>員工</th><th>動作</th><th>時間</th><th>位置</th></tr>";
 
-  data.forEach(r=>{
-    html+=`
-    <tr>
-      <td>${r.employee_name}</td>
-      <td>${r.action}</td>
-      <td>${new Date(r.clock_time).toLocaleString()}</td>
-      <td>${r.latitude ? "有定位" : "無定位"}</td>
-    </tr>`;
-  });
+data.forEach(r=>{
+html+=`
+<tr>
+<td>${r.employee_name}</td>
+<td>${r.action}</td>
+<td>${new Date(r.clock_time).toLocaleString()}</td>
+<td>${r.latitude ? "有定位" : "無定位"}</td>
+</tr>`;
+});
 
-  html+="</table>";
-  document.getElementById("records").innerHTML=html;
+html+="</table>";
+document.getElementById("records").innerHTML=html;
 }
 </script>
 
