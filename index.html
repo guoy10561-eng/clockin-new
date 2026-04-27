@@ -9,46 +9,67 @@
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
-      background: linear-gradient(135deg, #f8fafc, #eef2ff);
       color: #0f172a;
+      min-height: 100vh;
+      background: linear-gradient(-45deg, #f8fafc, #eef2ff, #dcfce7, #e0f2fe, #f5f3ff);
+      background-size: 420% 420%;
+      animation: gradientMove 16s ease infinite;
     }
-    .page { max-width: 1100px; margin: 0 auto; padding: 24px; padding-bottom: 86px; }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(255,255,255,.75), transparent 26%),
+        radial-gradient(circle at 85% 20%, rgba(186,230,253,.45), transparent 28%),
+        radial-gradient(circle at 35% 90%, rgba(187,247,208,.45), transparent 32%);
+      z-index: -1;
+    }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .page { max-width: 1180px; margin: 0 auto; padding: 22px 16px 92px; }
     .header, .card {
-      background: rgba(255,255,255,.92);
-      border: 1px solid rgba(255,255,255,.9);
-      border-radius: 28px;
-      box-shadow: 0 18px 45px rgba(15,23,42,.09);
+      background: rgba(255,255,255,.86);
+      border: 1px solid rgba(255,255,255,.75);
+      border-radius: 26px;
+      box-shadow: 0 18px 46px rgba(15,23,42,.09);
+      backdrop-filter: blur(14px);
     }
     .header {
-      padding: 22px;
+      padding: 20px;
       display: flex;
       justify-content: space-between;
-      gap: 16px;
       align-items: center;
-      margin-bottom: 20px;
+      gap: 14px;
       flex-wrap: wrap;
+      margin-bottom: 18px;
     }
     h1, h2, h3, p { margin: 0; }
-    h1 { font-size: 28px; font-weight: 900; }
-    h2 { font-size: 22px; font-weight: 900; margin-bottom: 14px; }
-    h3 { font-size: 18px; font-weight: 900; margin-bottom: 12px; }
-    .muted { color: #64748b; font-size: 14px; }
+    h1 { font-size: 26px; font-weight: 950; letter-spacing: -.5px; }
+    h2 { font-size: 21px; font-weight: 950; margin-bottom: 12px; }
+    h3 { font-size: 18px; font-weight: 950; margin-bottom: 12px; }
+    .muted { color: #64748b; font-size: 13px; }
     .tabs { display: flex; gap: 8px; }
     button {
       border: 0;
       cursor: pointer;
-      font-weight: 800;
+      font-weight: 850;
       border-radius: 16px;
       transition: .15s ease;
       font-size: 15px;
       touch-action: manipulation;
     }
     button:hover { transform: translateY(-1px); }
-    .tab { padding: 10px 16px; background: #fff; color: #475569; }
-    .tab.active { background: #020617; color: white; }
-    .grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; }
+    button:disabled { cursor: not-allowed; transform: none; opacity: .65; }
+    .tab { padding: 10px 16px; background: #fff; color: #475569; border: 1px solid #e2e8f0; }
+    .tab.active { background: #020617; color: #fff; border-color: #020617; }
+    .grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 18px; }
     .card { padding: 22px; margin-bottom: 18px; }
-    .timeRow { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: end; }
+    .timeRow { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
     .time { font-size: 52px; font-weight: 950; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
     .summaryBox { background: #020617; color: white; border-radius: 22px; padding: 18px; min-width: 190px; }
     .summaryBox .big { font-size: 24px; font-weight: 950; margin-top: 4px; }
@@ -75,43 +96,66 @@
     .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
     .darkBtn { background: #020617; color: white; padding: 12px 16px; }
     .lightBtn { background: white; color: #334155; border: 1px solid #e2e8f0; padding: 12px 16px; }
-    input { width: 100%; max-width: 260px; border: 1px solid #cbd5e1; border-radius: 14px; padding: 12px 14px; font-size: 15px; outline: none; }
+    input { width: 100%; max-width: 280px; border: 1px solid #cbd5e1; border-radius: 14px; padding: 12px 14px; font-size: 15px; outline: none; background: white; }
     input:focus { border-color: #020617; }
-    .tableHeader, .recordLine { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 1fr; gap: 10px; align-items: center; }
+    .tableWrap { overflow: auto; border-radius: 18px; }
+    .recordTable { min-width: 980px; }
+    .tableHeader, .recordLine {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr .9fr .9fr .9fr .9fr .9fr .9fr .9fr;
+      gap: 10px;
+      align-items: center;
+    }
     .tableHeader { padding: 12px; background: #f8fafc; color: #64748b; font-size: 13px; font-weight: 900; border-radius: 16px; }
-    .recordLine { padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+    .recordLine { padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; background: rgba(255,255,255,.65); }
+    .salaryTable { min-width: 1060px; }
+    .salaryHeader, .salaryLine {
+      display: grid;
+      grid-template-columns: 1fr .7fr .8fr .8fr .8fr .8fr .8fr .8fr .8fr .9fr;
+      gap: 10px;
+      align-items: center;
+    }
+    .salaryHeader { padding: 12px; background: #f8fafc; color: #64748b; font-size: 13px; font-weight: 900; border-radius: 16px; }
+    .salaryLine { padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; background: rgba(255,255,255,.65); }
+    .detail { color: #475569; font-size: 12px; margin-top: 4px; line-height: 1.5; }
     .hidden { display: none !important; }
     #toast { position: fixed; right: 18px; top: 18px; z-index: 99; color: white; border-radius: 16px; padding: 13px 16px; font-weight: 900; box-shadow: 0 18px 38px rgba(15,23,42,.22); max-width: calc(100vw - 36px); }
     #toast.success { background: #059669; }
     #toast.error { background: #e11d48; }
-    #distanceBox {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      z-index: 80;
-      background: #020617;
-      color: white;
-      padding: 11px 14px;
-      border-radius: 16px;
-      font-size: 13px;
-      font-weight: 800;
-      box-shadow: 0 14px 28px rgba(15,23,42,.22);
-      max-width: calc(100vw - 32px);
-    }
+    #distanceBox { position: fixed; right: 16px; bottom: 16px; z-index: 80; background: #020617; color: white; padding: 11px 14px; border-radius: 16px; font-size: 13px; font-weight: 850; box-shadow: 0 14px 28px rgba(15,23,42,.22); max-width: calc(100vw - 32px); }
     #distanceBox.ok { background: #059669; }
     #distanceBox.bad { background: #e11d48; }
+    .modal { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: none; align-items: center; justify-content: center; z-index: 120; padding: 16px; }
+    .modal.show { display: flex; }
+    .modalBox { background: white; border-radius: 22px; padding: 22px; width: min(360px, 100%); box-shadow: 0 24px 60px rgba(0,0,0,.25); }
+    .modalBox input { max-width: 100%; margin: 12px 0; }
+    .modalActions { display: flex; gap: 8px; }
     @media (max-width: 850px) {
       .grid { grid-template-columns: 1fr; }
       .employees { grid-template-columns: repeat(2, 1fr); }
       .time { font-size: 42px; }
-      .tableHeader { display: none; }
-      .recordLine { grid-template-columns: 1fr 1fr; border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 10px; }
+      .actions { grid-template-columns: 1fr; }
+      .header, .card { border-radius: 20px; }
+      .card { padding: 18px; }
+      h1 { font-size: 22px; }
     }
   </style>
 </head>
 <body>
   <div id="toast" class="hidden"></div>
   <div id="distanceBox">尚未取得定位距離</div>
+
+  <div id="passwordModal" class="modal">
+    <div class="modalBox">
+      <h3>老闆頁面</h3>
+      <p class="muted">請輸入密碼</p>
+      <input id="passwordInput" type="password" inputmode="numeric" placeholder="密碼" />
+      <div class="modalActions">
+        <button id="passwordSubmit" class="darkBtn" type="button" style="flex:1">確認</button>
+        <button id="passwordCancel" class="lightBtn" type="button" style="flex:1">取消</button>
+      </div>
+    </div>
+  </div>
 
   <main class="page">
     <header class="header">
@@ -135,8 +179,8 @@
               <p id="currentDate" class="muted">--</p>
             </div>
             <div class="summaryBox">
-              <p class="muted" style="color:#cbd5e1">今日累積工時</p>
-              <p id="todayDuration" class="big">0 分</p>
+              <p class="muted" style="color:#cbd5e1">今日狀態</p>
+              <p id="todayStatusText" class="big">尚未上班</p>
             </div>
           </div>
         </section>
@@ -169,62 +213,102 @@
 
       <aside>
         <section class="card">
-          <h3>今日紀錄</h3>
-          <div id="todayRecordBox"></div>
-        </section>
-        <section class="card">
-          <h3>今日已打卡</h3>
-          <div id="todayAllBox"></div>
+          <h3>員工提示</h3>
+          <div class="row"><span>定位限制</span><strong>100 公尺</strong></div>
+          <div class="row"><span>打卡紀錄</span><strong>老闆端查看</strong></div>
+          <p class="muted">測試版：員工端不顯示紀錄與薪水，只顯示成功或失敗提示。</p>
         </section>
       </aside>
     </section>
 
-    <section id="bossView" class="grid hidden">
-      <div>
+    <section id="bossView" class="hidden">
+      <div class="grid">
         <section class="card">
           <h2>老闆總覽</h2>
           <div class="summaryBox" style="margin-bottom:12px;">
-            <p class="muted" style="color:#cbd5e1">本月總工時</p>
-            <p id="monthlyTotal" class="big">0 分</p>
+            <p class="muted" style="color:#cbd5e1">本月預估總薪資</p>
+            <p id="monthlyPayrollTotal" class="big">$0</p>
           </div>
           <div class="toolbar">
-            <button id="exportBtn" class="darkBtn" type="button">匯出 CSV</button>
+            <button id="exportRecordsBtn" class="darkBtn" type="button">匯出打卡 CSV</button>
+            <button id="exportSalaryBtn" class="darkBtn" type="button">匯出薪資 CSV</button>
             <button id="resetBtn" class="lightBtn" type="button">清空紀錄</button>
           </div>
+          <p class="muted" style="margin-top:12px">測試版薪資會依目前固定班表自動計算，之後可再接 5 月班表。</p>
         </section>
+
         <section class="card">
-          <h3>一鍵月結算</h3>
-          <div id="monthlySummary"></div>
+          <h2>搜尋紀錄</h2>
+          <input id="searchInput" placeholder="搜尋員工或日期" />
+          <div style="height:12px"></div>
+          <div class="row"><span>本月打卡筆數</span><strong id="recordCount">0</strong></div>
+          <div class="row"><span>今日打卡筆數</span><strong id="todayCount">0</strong></div>
         </section>
       </div>
+
       <section class="card">
-        <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">
-          <div>
-            <p class="muted">Record Center</p>
-            <h2>查看打卡紀錄</h2>
+        <h2>薪資明細</h2>
+        <div class="tableWrap">
+          <div class="salaryTable">
+            <div class="salaryHeader">
+              <span>員工</span><span>類型</span><span>工時</span><span>休息</span><span>加班</span><span>基本</span><span>加班費</span><span>餐費</span><span>全勤</span><span>總薪資</span>
+            </div>
+            <div id="salaryTable"></div>
           </div>
-          <input id="searchInput" placeholder="搜尋員工或日期" />
         </div>
-        <div class="tableHeader">
-          <span>員工 / 日期</span><span>上班</span><span>休息開始</span><span>休息結束</span><span>下班</span><span>工時</span>
+      </section>
+
+      <section class="card">
+        <h2>打卡紀錄</h2>
+        <div class="tableWrap">
+          <div class="recordTable">
+            <div class="tableHeader">
+              <span>員工 / 日期</span><span>上班</span><span>休息開始</span><span>休息結束</span><span>下班</span><span>工時</span><span>休息</span><span>加班</span><span>遲到</span>
+            </div>
+            <div id="recordsTable"></div>
+          </div>
         </div>
-        <div id="recordsTable"></div>
       </section>
     </section>
   </main>
 
   <script>
     const EMPLOYEES = ["劉淑貞", "洪語婷", "劉春美", "林佳恆", "林禹達", "劉穎希", "林芷亘", "黃韋銘", "李品璇", "黃王楷", "黃啟軒"];
-    const STORAGE_KEY = "clockin-nangang-kunyang-v4";
-    const ACTION_LABELS = { clockIn: "上班", breakStart: "休息開始", breakEnd: "休息結束", clockOut: "下班" };
+    const STORAGE_KEY = "clockin-test-payroll-v1";
+    const BOSS_PASSWORD = "931119";
 
-    // 這裡改店面定位與允許距離
+    // 店面定位。之後你可以改成更精準的經緯度。
     const STORE_LAT = 25.0505;
     const STORE_LNG = 121.5937;
-    const MAX_DISTANCE = 200;
+    const MAX_DISTANCE = 100;
 
-    // 老闆頁面密碼，記得改掉
-    const BOSS_PASSWORD = "1234";
+    const STAFF = {
+      "劉淑貞": { type: "monthly", monthlySalary: 45000, start: "09:30", end: "18:00", standardHours: 8.5, shift: "morning" },
+      "洪語婷": { type: "monthly", monthlySalary: 33000, start: "10:00", end: "18:30", standardHours: 8.5, shift: "morning" },
+      "劉春美": { type: "hourly", hourlyRate: 200, start: "11:30", end: "18:00", standardHours: 6.5, shift: "morning" },
+      "林佳恆": { type: "hourly", hourlyRate: 196, start: "12:00", end: "16:00", standardHours: 4, shift: "morning" },
+      "林禹達": { type: "hourly", hourlyRate: 200, start: "12:00", end: "18:00", standardHours: 6, shift: "morning" },
+      "劉穎希": { type: "hourly", hourlyRate: 196, start: "12:00", end: "18:00", standardHours: 6, shift: "morning" },
+      "林芷亘": { type: "monthly", monthlySalary: 30500, start: "14:00", end: "22:00", standardHours: 8, shift: "night" },
+      "黃韋銘": { type: "hourly", hourlyRate: 200, start: "18:00", end: "22:00", standardHours: 4, shift: "night" },
+      "李品璇": { type: "hourly", hourlyRate: 200, start: "18:00", end: "22:00", standardHours: 4, shift: "night" },
+      "黃王楷": { type: "hourly", hourlyRate: 196, start: "18:00", end: "22:00", standardHours: 4, shift: "night" },
+      "黃啟軒": { type: "hourly", hourlyRate: 196, start: "18:00", end: "22:00", standardHours: 4, shift: "night" }
+    };
+
+    const ACTION_LABELS = {
+      clockIn: "上班",
+      breakStart: "休息開始",
+      breakEnd: "休息結束",
+      clockOut: "下班"
+    };
+
+    const ACTION_MESSAGES = {
+      clockIn: "今天加油",
+      breakStart: "休息一下吧",
+      breakEnd: "再努力一下",
+      clockOut: "今天辛苦了"
+    };
 
     let selectedEmployee = EMPLOYEES[0];
     let records = [];
@@ -241,6 +325,10 @@
       return `${y}-${m}-${d}`;
     }
 
+    function monthKey(date = new Date()) {
+      return todayKey(date).slice(0, 7);
+    }
+
     function time(dateLike) {
       if (!dateLike) return "--:--";
       return new Intl.DateTimeFormat("zh-TW", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(new Date(dateLike));
@@ -254,34 +342,69 @@
       return new Intl.DateTimeFormat("zh-TW", { month: "2-digit", day: "2-digit", weekday: "short" }).format(new Date(dateLike));
     }
 
+    function money(n) {
+      return `$${Math.round(n).toLocaleString("zh-TW")}`;
+    }
+
+    function duration(mins) {
+      const rounded = Math.round(mins);
+      const h = Math.floor(rounded / 60);
+      const m = rounded % 60;
+      return h > 0 ? `${h} 小時 ${m} 分` : `${m} 分`;
+    }
+
     function minutesBetween(start, end) {
       if (!start || !end) return 0;
       return Math.max(0, Math.round((new Date(end) - new Date(start)) / 60000));
     }
 
-    function duration(mins) {
-      const h = Math.floor(mins / 60);
-      const m = mins % 60;
-      return h > 0 ? `${h} 小時 ${m} 分` : `${m} 分`;
+    function minutesOfDay(dateLike) {
+      const d = new Date(dateLike);
+      return d.getHours() * 60 + d.getMinutes();
     }
 
-    function workMinutes(record, now = new Date()) {
-      if (!record || !record.clockIn) return 0;
-      const gross = minutesBetween(record.clockIn, record.clockOut || now);
-      const rest = record.breakStart ? minutesBetween(record.breakStart, record.breakEnd || now) : 0;
-      return Math.max(0, gross - rest);
-    }
-
-    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); }
-
-    function load() {
-      try { records = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
-      catch (e) { records = []; }
+    function timeToMinutes(str) {
+      const [h, m] = str.split(":").map(Number);
+      return h * 60 + m;
     }
 
     function currentRecord() {
       const date = todayKey();
       return records.find(r => r.employee === selectedEmployee && r.date === date);
+    }
+
+    function breakMinutes(record, now = new Date()) {
+      if (!record || !record.breakStart) return 0;
+      const end = record.breakEnd || record.clockOut || now;
+      return minutesBetween(record.breakStart, end);
+    }
+
+    function workMinutes(record, now = new Date()) {
+      if (!record || !record.clockIn) return 0;
+      const end = record.clockOut || now;
+      return Math.max(0, minutesBetween(record.clockIn, end) - breakMinutes(record, now));
+    }
+
+    function overtimeMinutes(record) {
+      if (!record || !record.clockOut) return 0;
+      const staff = STAFF[record.employee];
+      if (!staff) return 0;
+      const out = minutesOfDay(record.clockOut);
+      const start = staff.shift === "night" ? timeToMinutes("22:10") : timeToMinutes("18:10");
+      const end = staff.shift === "night" ? timeToMinutes("22:30") : timeToMinutes("18:30");
+      return Math.max(0, Math.min(out, end) - start);
+    }
+
+    function isLate(record) {
+      if (!record || !record.clockIn) return false;
+      const staff = STAFF[record.employee];
+      if (!staff) return false;
+      return minutesOfDay(record.clockIn) > timeToMinutes(staff.start);
+    }
+
+    function hasMissingCard(record) {
+      if (!record) return false;
+      return !record.clockIn || !record.clockOut || (record.breakStart && !record.breakEnd);
     }
 
     function statusOf(record) {
@@ -293,7 +416,7 @@
 
     function validate(record, action) {
       if (action === "clockIn" && record && record.clockIn && !record.clockOut) return "今天已經上班了。";
-      if (action === "clockIn" && record && record.clockOut) return "今天已經下班，不能再次上班。";
+      if (action === "clockIn" && record && record.clockOut) return "測試版先不開放分段班，今天已下班就不能再次上班。";
       if (action === "breakStart" && (!record || !record.clockIn)) return "還沒上班，不能休息。";
       if (action === "breakStart" && record.clockOut) return "今天已經下班了。";
       if (action === "breakStart" && record.breakStart && !record.breakEnd) return "已經在休息中了。";
@@ -306,17 +429,26 @@
       return "";
     }
 
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function load() {
+      try { records = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
+      catch (e) { records = []; }
+    }
+
     function toast(type, text) {
       const el = document.getElementById("toast");
       el.className = type;
       el.textContent = text;
       clearTimeout(window.toastTimer);
-      window.toastTimer = setTimeout(() => el.className = "hidden", 2400);
+      window.toastTimer = setTimeout(() => el.className = "hidden", 2600);
     }
 
     function vibrate(ok) {
       if (!navigator.vibrate) return;
-      navigator.vibrate(ok ? 50 : [100, 50, 100]);
+      navigator.vibrate(ok ? 50 : [120, 60, 120]);
     }
 
     function getDistance(lat1, lon1, lat2, lon2) {
@@ -346,9 +478,7 @@
 
       navigator.geolocation.getCurrentPosition(
         function (pos) {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-          const dist = getDistance(lat, lng, STORE_LAT, STORE_LNG);
+          const dist = getDistance(pos.coords.latitude, pos.coords.longitude, STORE_LAT, STORE_LNG);
           const rounded = Math.round(dist);
           const ok = dist <= MAX_DISTANCE;
           setDistanceBox(`距離店面：約 ${rounded} 公尺`, ok ? "ok" : "bad");
@@ -371,7 +501,7 @@
       if (error) { toast("error", error); vibrate(false); return; }
 
       isPunching = true;
-      document.querySelectorAll(".action").forEach(btn => btn.disabled = true);
+      render();
 
       checkLocation(function (ok, msg) {
         if (!ok) {
@@ -382,20 +512,25 @@
         }
 
         const stamp = new Date().toISOString();
-        let next;
         const existing = currentRecord();
+        let next;
         if (existing) {
           next = { ...existing, [action]: stamp, updatedAt: stamp };
           records = records.map(r => r.id === existing.id ? next : r);
         } else {
-          next = { id: id(), employee: selectedEmployee, date: todayKey(), [action]: stamp, updatedAt: stamp };
+          next = { id: id(), employee: selectedEmployee, date: todayKey(), clockIn: stamp, updatedAt: stamp };
           records.unshift(next);
         }
         save();
-        toast("success", `${selectedEmployee} ${ACTION_LABELS[action]}成功：${time(stamp)}`);
+        toast("success", `${ACTION_MESSAGES[action]}｜${selectedEmployee} ${ACTION_LABELS[action]}成功：${time(stamp)}`);
         isPunching = false;
         render();
       });
+    }
+
+    function recordsThisMonth() {
+      const m = monthKey();
+      return records.filter(r => r.date.startsWith(m));
     }
 
     function filteredRecords() {
@@ -404,51 +539,135 @@
         .sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     }
 
-    function monthlySummary() {
-      const month = todayKey().slice(0, 7);
-      const map = new Map();
-      records.filter(r => r.date.startsWith(month)).forEach(r => {
-        const item = map.get(r.employee) || { employee: r.employee, days: 0, minutes: 0 };
-        item.days += r.clockIn ? 1 : 0;
-        item.minutes += workMinutes(r, r.clockOut ? new Date(r.clockOut) : new Date());
-        map.set(r.employee, item);
-      });
-      return Array.from(map.values()).sort((a,b) => b.minutes - a.minutes);
+    function hourlyMealAllowance(minutes) {
+      if (minutes >= 300) return 100;
+      if (minutes >= 240) return 50;
+      return 0;
     }
 
-    function exportCsv() {
-      const rows = [["員工", "日期", "上班", "休息開始", "休息結束", "下班", "工時分鐘"]];
-      filteredRecords().forEach(r => rows.push([r.employee, r.date, time(r.clockIn), time(r.breakStart), time(r.breakEnd), time(r.clockOut), workMinutes(r, r.clockOut ? new Date(r.clockOut) : new Date())]));
-      const csv = rows.map(row => row.map(cell => `"${String(cell).replaceAll('"','""')}"`).join(",")).join("\n");
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+    function calcSalaryFor(employee) {
+      const staff = STAFF[employee];
+      const monthRecords = recordsThisMonth().filter(r => r.employee === employee);
+      let work = 0;
+      let rest = 0;
+      let overtime = 0;
+      let hourlyMeal = 0;
+      let lateCount = 0;
+      let missingCount = 0;
+
+      monthRecords.forEach(r => {
+        const wm = workMinutes(r, r.clockOut ? new Date(r.clockOut) : new Date());
+        const bm = breakMinutes(r, r.clockOut ? new Date(r.clockOut) : new Date());
+        work += wm;
+        rest += bm;
+        overtime += overtimeMinutes(r);
+        if (staff.type === "hourly") hourlyMeal += hourlyMealAllowance(wm);
+        if (isLate(r)) lateCount += 1;
+        if (hasMissingCard(r)) missingCount += 1;
+      });
+
+      const overtimePay = (overtime / 60) * 200;
+      let basePay = 0;
+      let mealPay = 0;
+      let attendanceBonus = 0;
+
+      if (staff.type === "monthly") {
+        basePay = staff.monthlySalary;
+        mealPay = 1000;
+        attendanceBonus = lateCount === 0 && missingCount === 0 ? 1000 : 0;
+      } else {
+        basePay = (work / 60) * staff.hourlyRate;
+        mealPay = hourlyMeal;
+        const required = staff.shift === "night" ? 60 * 60 : 80 * 60;
+        attendanceBonus = work >= required && lateCount === 0 ? 1000 : 0;
+      }
+
+      const total = basePay + overtimePay + mealPay + attendanceBonus;
+      return { employee, staff, work, rest, overtime, basePay, overtimePay, mealPay, attendanceBonus, total, lateCount, missingCount, records: monthRecords.length };
+    }
+
+    function calcAllSalaries() {
+      return EMPLOYEES.map(calcSalaryFor);
+    }
+
+    function exportCsv(filename, rows) {
+      const csv = rows
+        .map(row => row.map(cell => `"${String(cell ?? "").replaceAll('"', '""')}"`).join(","))
+        .join("
+");
+      const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `clockin-${todayKey()}.csv`;
+      a.download = filename;
       a.click();
       URL.revokeObjectURL(url);
     }
 
-    function switchView(view) {
-  const todayBox = document.getElementById("todayAllBox");
-  const todayTitle = document.getElementById("todayAllTitle");
+    function exportRecords() {
+      const rows = [["員工", "日期", "上班", "休息開始", "休息結束", "下班", "工時分鐘", "休息分鐘", "加班分鐘", "遲到", "缺卡"]];
+      filteredRecords().forEach(r => rows.push([
+        r.employee,
+        r.date,
+        time(r.clockIn),
+        time(r.breakStart),
+        time(r.breakEnd),
+        time(r.clockOut),
+        workMinutes(r, r.clockOut ? new Date(r.clockOut) : new Date()),
+        breakMinutes(r, r.clockOut ? new Date(r.clockOut) : new Date()),
+        overtimeMinutes(r),
+        isLate(r) ? "是" : "否",
+        hasMissingCard(r) ? "是" : "否"
+      ]));
+      exportCsv(`clockin-records-${todayKey()}.csv`, rows);
+    }
 
-  if (view === "staff") {
-    todayBox.style.display = "none";
-    todayTitle.style.display = "none";
-  } else {
-    todayBox.style.display = "block";
-    todayTitle.style.display = "block";
-  }
+    function exportSalary() {
+      const rows = [["員工", "類型", "工時分鐘", "休息分鐘", "加班分鐘", "基本薪資", "加班費", "餐費", "全勤", "總薪資", "遲到次數", "缺卡次數"]];
+      calcAllSalaries().forEach(s => rows.push([
+        s.employee,
+        s.staff.type === "monthly" ? "月薪" : "時薪",
+        s.work,
+        s.rest,
+        s.overtime,
+        Math.round(s.basePay),
+        Math.round(s.overtimePay),
+        Math.round(s.mealPay),
+        Math.round(s.attendanceBonus),
+        Math.round(s.total),
+        s.lateCount,
+        s.missingCount
+      ]));
+      exportCsv(`salary-${monthKey()}.csv`, rows);
+    }
+
+    function showPasswordModal() {
+      document.getElementById("passwordModal").classList.add("show");
+      document.getElementById("passwordInput").value = "";
+      setTimeout(() => document.getElementById("passwordInput").focus(), 50);
+    }
+
+    function hidePasswordModal() {
+      document.getElementById("passwordModal").classList.remove("show");
+    }
+
+    function submitPassword() {
+      const value = document.getElementById("passwordInput").value;
+      if (value !== BOSS_PASSWORD) {
+        toast("error", "密碼錯誤");
+        vibrate(false);
+        return;
+      }
+      bossUnlocked = true;
+      hidePasswordModal();
+      switchView("boss");
+      toast("success", "老闆頁面已解鎖");
+    }
+
+    function switchView(view) {
       if (view === "boss" && !bossUnlocked) {
-        const input = prompt("請輸入老闆密碼");
-        if (input !== BOSS_PASSWORD) {
-          toast("error", "密碼錯誤");
-          vibrate(false);
-          return;
-        }
-        bossUnlocked = true;
-        toast("success", "老闆頁面已解鎖");
+        showPasswordModal();
+        return;
       }
       document.getElementById("staffView").classList.toggle("hidden", view !== "staff");
       document.getElementById("bossView").classList.toggle("hidden", view !== "boss");
@@ -469,11 +688,12 @@
       const record = currentRecord();
       const status = statusOf(record);
       const todayRecords = records.filter(r => r.date === todayKey());
-      const summary = monthlySummary();
+      const salaries = calcAllSalaries();
+      const totalPayroll = salaries.reduce((sum, s) => sum + s.total, 0);
 
       document.getElementById("currentTime").textContent = time(now);
       document.getElementById("currentDate").textContent = fullDate(now);
-      document.getElementById("todayDuration").textContent = duration(workMinutes(record, now));
+      document.getElementById("todayStatusText").textContent = status.label;
       document.getElementById("selectedEmployeeText").textContent = selectedEmployee;
       document.getElementById("statusHint").textContent = status.hint;
       const badge = document.getElementById("statusBadge");
@@ -488,42 +708,51 @@
         btn.disabled = isPunching;
       });
 
-      document.getElementById("todayRecordBox").innerHTML = [
-        ["上班", record && record.clockIn],
-        ["休息開始", record && record.breakStart],
-        ["休息結束", record && record.breakEnd],
-        ["下班", record && record.clockOut]
-      ].map(([label, value]) => `<div class="row"><span>${label}</span><strong>${time(value)}</strong></div>`).join("");
+      document.getElementById("monthlyPayrollTotal").textContent = money(totalPayroll);
+      document.getElementById("recordCount").textContent = recordsThisMonth().length;
+      document.getElementById("todayCount").textContent = todayRecords.length;
 
-      document.getElementById("todayAllBox").innerHTML = todayRecords.length
-        ? todayRecords.map(r => `<div class="row"><div><strong>${r.employee}</strong><br><span class="muted">${statusOf(r).label}</span></div><strong>${duration(workMinutes(r, now))}</strong></div>`).join("")
-        : `<p class="muted">今天還沒有人打卡。</p>`;
-
-      document.getElementById("monthlyTotal").textContent = duration(summary.reduce((sum, item) => sum + item.minutes, 0));
-      document.getElementById("monthlySummary").innerHTML = summary.length
-        ? summary.map(item => `<div class="row"><div><strong>${item.employee}</strong><br><span class="muted">出勤 ${item.days} 天</span></div><strong>${duration(item.minutes)}</strong></div>`).join("")
-        : `<p class="muted">本月還沒有紀錄。</p>`;
+      document.getElementById("salaryTable").innerHTML = salaries.map(s => `
+        <div class="salaryLine">
+          <div><strong>${s.employee}</strong><div class="detail">${s.staff.start}-${s.staff.end}｜${s.staff.shift === "night" ? "晚班" : "早班"}</div></div>
+          <div>${s.staff.type === "monthly" ? "月薪" : "時薪"}</div>
+          <div>${duration(s.work)}</div>
+          <div>${duration(s.rest)}</div>
+          <div>${s.overtime} 分</div>
+          <div>${money(s.basePay)}</div>
+          <div>${money(s.overtimePay)}</div>
+          <div>${money(s.mealPay)}</div>
+          <div>${money(s.attendanceBonus)}</div>
+          <div><strong>${money(s.total)}</strong><div class="detail">遲到 ${s.lateCount}｜缺卡 ${s.missingCount}</div></div>
+        </div>
+      `).join("");
 
       document.getElementById("recordsTable").innerHTML = filteredRecords().map(r => `
         <div class="recordLine">
-          <div><strong>${r.employee}</strong><br><span class="muted">${shortDate(r.date + "T00:00:00")}</span></div>
+          <div><strong>${r.employee}</strong><div class="detail">${shortDate(r.date + "T00:00:00")}</div></div>
           <div>${time(r.clockIn)}</div>
           <div>${time(r.breakStart)}</div>
           <div>${time(r.breakEnd)}</div>
           <div>${time(r.clockOut)}</div>
-          <strong>${duration(workMinutes(r, r.clockOut ? new Date(r.clockOut) : now))}</strong>
-        </div>`).join("");
+          <div>${duration(workMinutes(r, r.clockOut ? new Date(r.clockOut) : now))}</div>
+          <div>${duration(breakMinutes(r, r.clockOut ? new Date(r.clockOut) : now))}</div>
+          <div>${overtimeMinutes(r)} 分</div>
+          <div>${isLate(r) ? "是" : "否"}</div>
+        </div>
+      `).join("");
     }
 
     window.addEventListener("DOMContentLoaded", function () {
       load();
       document.getElementById("staffTab").onclick = () => switchView("staff");
       document.getElementById("bossTab").onclick = () => switchView("boss");
-      document.querySelectorAll(".action").forEach(btn => {
-        btn.onclick = () => punch(btn.dataset.action);
-      });
+      document.querySelectorAll(".action").forEach(btn => btn.onclick = () => punch(btn.dataset.action));
       document.getElementById("searchInput").oninput = e => { query = e.target.value.trim(); render(); };
-      document.getElementById("exportBtn").onclick = exportCsv;
+      document.getElementById("exportRecordsBtn").onclick = exportRecords;
+      document.getElementById("exportSalaryBtn").onclick = exportSalary;
+      document.getElementById("passwordSubmit").onclick = submitPassword;
+      document.getElementById("passwordCancel").onclick = hidePasswordModal;
+      document.getElementById("passwordInput").addEventListener("keydown", e => { if (e.key === "Enter") submitPassword(); });
       document.getElementById("resetBtn").onclick = function () {
         if (!confirm("確定要清空所有打卡紀錄嗎？")) return;
         records = [];
