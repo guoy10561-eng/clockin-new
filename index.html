@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <me([clockin-new.vercel.app](https://clockin-new.vercel.app/))8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>潮味決南港昆陽店打卡</title>
   <style>
@@ -12,10 +12,10 @@
       background: linear-gradient(135deg, #f8fafc, #eef2ff);
       color: #0f172a;
     }
-    .page { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .page { max-width: 1100px; margin: 0 auto; padding: 24px; padding-bottom: 86px; }
     .header, .card {
-      background: rgba(255,255,255,.9);
-      border: 1px solid rgba(255,255,255,.8);
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.9);
       border-radius: 28px;
       box-shadow: 0 18px 45px rgba(15,23,42,.09);
     }
@@ -41,6 +41,7 @@
       border-radius: 16px;
       transition: .15s ease;
       font-size: 15px;
+      touch-action: manipulation;
     }
     button:hover { transform: translateY(-1px); }
     .tab { padding: 10px 16px; background: #fff; color: #475569; }
@@ -68,7 +69,7 @@
     .yellowBtn { background: #f59e0b; }
     .blueBtn { background: #0284c7; }
     .redBtn { background: #e11d48; }
-    .action.disabled { background: #e2e8f0; color: #94a3b8; box-shadow: none; }
+    .action.disabled { background: #e2e8f0 !important; color: #94a3b8; box-shadow: none; }
     .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 13px 14px; background: #f8fafc; border-radius: 16px; margin-bottom: 8px; }
     .row strong { font-variant-numeric: tabular-nums; }
     .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
@@ -80,9 +81,25 @@
     .tableHeader { padding: 12px; background: #f8fafc; color: #64748b; font-size: 13px; font-weight: 900; border-radius: 16px; }
     .recordLine { padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
     .hidden { display: none !important; }
-    #toast { position: fixed; right: 18px; top: 18px; z-index: 99; color: white; border-radius: 16px; padding: 13px 16px; font-weight: 900; box-shadow: 0 18px 38px rgba(15,23,42,.22); }
+    #toast { position: fixed; right: 18px; top: 18px; z-index: 99; color: white; border-radius: 16px; padding: 13px 16px; font-weight: 900; box-shadow: 0 18px 38px rgba(15,23,42,.22); max-width: calc(100vw - 36px); }
     #toast.success { background: #059669; }
     #toast.error { background: #e11d48; }
+    #distanceBox {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 80;
+      background: #020617;
+      color: white;
+      padding: 11px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 0 14px 28px rgba(15,23,42,.22);
+      max-width: calc(100vw - 32px);
+    }
+    #distanceBox.ok { background: #059669; }
+    #distanceBox.bad { background: #e11d48; }
     @media (max-width: 850px) {
       .grid { grid-template-columns: 1fr; }
       .employees { grid-template-columns: repeat(2, 1fr); }
@@ -94,6 +111,8 @@
 </head>
 <body>
   <div id="toast" class="hidden"></div>
+  <div id="distanceBox">尚未取得定位距離</div>
+
   <main class="page">
     <header class="header">
       <div>
@@ -101,8 +120,8 @@
         <h1>潮味決南港昆陽店打卡</h1>
       </div>
       <div class="tabs">
-        <button id="staffTab" class="tab active">員工打卡</button>
-        <button id="bossTab" class="tab">老闆頁面</button>
+        <button id="staffTab" class="tab active" type="button">員工打卡</button>
+        <button id="bossTab" class="tab" type="button">老闆頁面</button>
       </div>
     </header>
 
@@ -141,10 +160,10 @@
         </section>
 
         <section class="actions">
-          <button class="action greenBtn" data-action="clockIn"><small>打卡動作</small><span>上班</span></button>
-          <button class="action yellowBtn" data-action="breakStart"><small>打卡動作</small><span>休息開始</span></button>
-          <button class="action blueBtn" data-action="breakEnd"><small>打卡動作</small><span>休息結束</span></button>
-          <button class="action redBtn" data-action="clockOut"><small>打卡動作</small><span>下班</span></button>
+          <button class="action greenBtn" type="button" data-action="clockIn"><small>打卡動作</small><span>上班</span></button>
+          <button class="action yellowBtn" type="button" data-action="breakStart"><small>打卡動作</small><span>休息開始</span></button>
+          <button class="action blueBtn" type="button" data-action="breakEnd"><small>打卡動作</small><span>休息結束</span></button>
+          <button class="action redBtn" type="button" data-action="clockOut"><small>打卡動作</small><span>下班</span></button>
         </section>
       </div>
 
@@ -169,8 +188,8 @@
             <p id="monthlyTotal" class="big">0 分</p>
           </div>
           <div class="toolbar">
-            <button id="exportBtn" class="darkBtn">匯出 CSV</button>
-            <button id="resetBtn" class="lightBtn">清空紀錄</button>
+            <button id="exportBtn" class="darkBtn" type="button">匯出 CSV</button>
+            <button id="resetBtn" class="lightBtn" type="button">清空紀錄</button>
           </div>
         </section>
         <section class="card">
@@ -196,59 +215,82 @@
 
   <script>
     const EMPLOYEES = ["劉淑貞", "洪語婷", "劉春美", "林佳恆", "林禹達", "劉穎希", "林芷亘", "黃韋銘", "李品璇", "黃王楷", "黃啟軒"];
-    const STORAGE_KEY = "clockin-nangang-kunyang-v2";
+    const STORAGE_KEY = "clockin-nangang-kunyang-v4";
     const ACTION_LABELS = { clockIn: "上班", breakStart: "休息開始", breakEnd: "休息結束", clockOut: "下班" };
+
+    // 這裡改店面定位與允許距離
+    const STORE_LAT = 25.0505;
+    const STORE_LNG = 121.5937;
+    const MAX_DISTANCE = 200;
+
+    // 老闆頁面密碼，記得改掉
+    const BOSS_PASSWORD = "1234";
+
     let selectedEmployee = EMPLOYEES[0];
     let records = [];
     let query = "";
+    let bossUnlocked = false;
+    let isPunching = false;
 
     function id() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
     function todayKey(date = new Date()) {
       const y = date.getFullYear();
       const m = String(date.getMonth() + 1).padStart(2, "0");
       const d = String(date.getDate()).padStart(2, "0");
       return `${y}-${m}-${d}`;
     }
+
     function time(dateLike) {
       if (!dateLike) return "--:--";
       return new Intl.DateTimeFormat("zh-TW", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(new Date(dateLike));
     }
+
     function fullDate(date) {
       return new Intl.DateTimeFormat("zh-TW", { dateStyle: "full" }).format(date);
     }
+
     function shortDate(dateLike) {
       return new Intl.DateTimeFormat("zh-TW", { month: "2-digit", day: "2-digit", weekday: "short" }).format(new Date(dateLike));
     }
+
     function minutesBetween(start, end) {
       if (!start || !end) return 0;
       return Math.max(0, Math.round((new Date(end) - new Date(start)) / 60000));
     }
+
     function duration(mins) {
       const h = Math.floor(mins / 60);
       const m = mins % 60;
       return h > 0 ? `${h} 小時 ${m} 分` : `${m} 分`;
     }
+
     function workMinutes(record, now = new Date()) {
       if (!record || !record.clockIn) return 0;
       const gross = minutesBetween(record.clockIn, record.clockOut || now);
       const rest = record.breakStart ? minutesBetween(record.breakStart, record.breakEnd || now) : 0;
       return Math.max(0, gross - rest);
     }
+
     function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); }
+
     function load() {
       try { records = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
       catch (e) { records = []; }
     }
+
     function currentRecord() {
       const date = todayKey();
       return records.find(r => r.employee === selectedEmployee && r.date === date);
     }
+
     function statusOf(record) {
       if (!record || !record.clockIn) return { label: "尚未上班", hint: "請先選擇員工並打上班卡", color: "gray" };
       if (record.clockOut) return { label: "今日已下班", hint: `下班時間 ${time(record.clockOut)}`, color: "gray" };
       if (record.breakStart && !record.breakEnd) return { label: "休息中", hint: `休息開始 ${time(record.breakStart)}`, color: "yellow" };
       return { label: "上班中", hint: `上班時間 ${time(record.clockIn)}`, color: "green" };
     }
+
     function validate(record, action) {
       if (action === "clockIn" && record && record.clockIn && !record.clockOut) return "今天已經上班了。";
       if (action === "clockIn" && record && record.clockOut) return "今天已經下班，不能再次上班。";
@@ -263,6 +305,7 @@
       if (action === "clockOut" && record.clockOut) return "今天已經下班了。";
       return "";
     }
+
     function toast(type, text) {
       const el = document.getElementById("toast");
       el.className = type;
@@ -270,28 +313,97 @@
       clearTimeout(window.toastTimer);
       window.toastTimer = setTimeout(() => el.className = "hidden", 2400);
     }
+
+    function vibrate(ok) {
+      if (!navigator.vibrate) return;
+      navigator.vibrate(ok ? 50 : [100, 50, 100]);
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const p1 = lat1 * Math.PI / 180;
+      const p2 = lat2 * Math.PI / 180;
+      const dp = (lat2 - lat1) * Math.PI / 180;
+      const dl = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dp / 2) * Math.sin(dp / 2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) * Math.sin(dl / 2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function setDistanceBox(text, state) {
+      const el = document.getElementById("distanceBox");
+      el.textContent = text;
+      el.className = state || "";
+    }
+
+    function checkLocation(callback) {
+      setDistanceBox("正在取得定位...", "");
+      if (!navigator.geolocation) {
+        setDistanceBox("裝置不支援定位", "bad");
+        vibrate(false);
+        callback(false, "裝置不支援定位");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        function (pos) {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const dist = getDistance(lat, lng, STORE_LAT, STORE_LNG);
+          const rounded = Math.round(dist);
+          const ok = dist <= MAX_DISTANCE;
+          setDistanceBox(`距離店面：約 ${rounded} 公尺`, ok ? "ok" : "bad");
+          vibrate(ok);
+          callback(ok, ok ? "" : `距離過遠：約 ${rounded} 公尺`);
+        },
+        function () {
+          setDistanceBox("無法取得定位，請允許定位權限", "bad");
+          vibrate(false);
+          callback(false, "無法取得定位，請允許定位權限");
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+      );
+    }
+
     function punch(action) {
+      if (isPunching) return;
       const record = currentRecord();
       const error = validate(record, action);
-      if (error) { toast("error", error); return; }
-      const stamp = new Date().toISOString();
-      let next;
-      if (record) {
-        next = { ...record, [action]: stamp, updatedAt: stamp };
-        records = records.map(r => r.id === record.id ? next : r);
-      } else {
-        next = { id: id(), employee: selectedEmployee, date: todayKey(), [action]: stamp, updatedAt: stamp };
-        records.unshift(next);
-      }
-      save();
-      toast("success", `${selectedEmployee} ${ACTION_LABELS[action]}成功：${time(stamp)}`);
-      render();
+      if (error) { toast("error", error); vibrate(false); return; }
+
+      isPunching = true;
+      document.querySelectorAll(".action").forEach(btn => btn.disabled = true);
+
+      checkLocation(function (ok, msg) {
+        if (!ok) {
+          toast("error", msg);
+          isPunching = false;
+          render();
+          return;
+        }
+
+        const stamp = new Date().toISOString();
+        let next;
+        const existing = currentRecord();
+        if (existing) {
+          next = { ...existing, [action]: stamp, updatedAt: stamp };
+          records = records.map(r => r.id === existing.id ? next : r);
+        } else {
+          next = { id: id(), employee: selectedEmployee, date: todayKey(), [action]: stamp, updatedAt: stamp };
+          records.unshift(next);
+        }
+        save();
+        toast("success", `${selectedEmployee} ${ACTION_LABELS[action]}成功：${time(stamp)}`);
+        isPunching = false;
+        render();
+      });
     }
+
     function filteredRecords() {
       return records
         .filter(r => !query || r.employee.includes(query) || r.date.includes(query))
         .sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     }
+
     function monthlySummary() {
       const month = todayKey().slice(0, 7);
       const map = new Map();
@@ -303,12 +415,12 @@
       });
       return Array.from(map.values()).sort((a,b) => b.minutes - a.minutes);
     }
+
     function exportCsv() {
       const rows = [["員工", "日期", "上班", "休息開始", "休息結束", "下班", "工時分鐘"]];
       filteredRecords().forEach(r => rows.push([r.employee, r.date, time(r.clockIn), time(r.breakStart), time(r.breakEnd), time(r.clockOut), workMinutes(r, r.clockOut ? new Date(r.clockOut) : new Date())]));
-      const csv = rows.map(row => row.map(cell => `"${String(cell).replaceAll('"','""')}"`).join(",")).join("
-");
-      const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+      const csv = rows.map(row => row.map(cell => `"${String(cell).replaceAll('"','""')}"`).join(",")).join("\n");
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -316,19 +428,32 @@
       a.click();
       URL.revokeObjectURL(url);
     }
+
     function switchView(view) {
+      if (view === "boss" && !bossUnlocked) {
+        const input = prompt("請輸入老闆密碼");
+        if (input !== BOSS_PASSWORD) {
+          toast("error", "密碼錯誤");
+          vibrate(false);
+          return;
+        }
+        bossUnlocked = true;
+        toast("success", "老闆頁面已解鎖");
+      }
       document.getElementById("staffView").classList.toggle("hidden", view !== "staff");
       document.getElementById("bossView").classList.toggle("hidden", view !== "boss");
       document.getElementById("staffTab").classList.toggle("active", view === "staff");
       document.getElementById("bossTab").classList.toggle("active", view === "boss");
       render();
     }
+
     function renderEmployees() {
-      document.getElementById("employeeList").innerHTML = EMPLOYEES.map(name => `<button class="employeeBtn ${name === selectedEmployee ? "active" : ""}" data-name="${name}">${name}</button>`).join("");
+      document.getElementById("employeeList").innerHTML = EMPLOYEES.map(name => `<button type="button" class="employeeBtn ${name === selectedEmployee ? "active" : ""}" data-name="${name}">${name}</button>`).join("");
       document.querySelectorAll(".employeeBtn").forEach(btn => {
         btn.onclick = function () { selectedEmployee = this.dataset.name; render(); };
       });
     }
+
     function render() {
       const now = new Date();
       const record = currentRecord();
@@ -348,7 +473,9 @@
       renderEmployees();
 
       document.querySelectorAll(".action").forEach(btn => {
-        btn.classList.toggle("disabled", Boolean(validate(record, btn.dataset.action)));
+        const disabledByRule = Boolean(validate(record, btn.dataset.action));
+        btn.classList.toggle("disabled", disabledByRule || isPunching);
+        btn.disabled = isPunching;
       });
 
       document.getElementById("todayRecordBox").innerHTML = [
@@ -382,7 +509,9 @@
       load();
       document.getElementById("staffTab").onclick = () => switchView("staff");
       document.getElementById("bossTab").onclick = () => switchView("boss");
-      document.querySelectorAll(".action").forEach(btn => btn.onclick = () => punch(btn.dataset.action));
+      document.querySelectorAll(".action").forEach(btn => {
+        btn.onclick = () => punch(btn.dataset.action);
+      });
       document.getElementById("searchInput").oninput = e => { query = e.target.value.trim(); render(); };
       document.getElementById("exportBtn").onclick = exportCsv;
       document.getElementById("resetBtn").onclick = function () {
@@ -395,109 +524,6 @@
       render();
       setInterval(render, 1000);
     });
-  
-
-    // === 新功能：定位驗證 ===
-    const STORE_LAT = 25.0505; // 你店的位置（可改）
-    const STORE_LNG = 121.5937;
-    const MAX_DISTANCE = 200; // 公尺
-
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371e3;
-      const φ1 = lat1 * Math.PI/180;
-      const φ2 = lat2 * Math.PI/180;
-      const Δφ = (lat2-lat1) * Math.PI/180;
-      const Δλ = (lon2-lon1) * Math.PI/180;
-      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                Math.cos(φ1) * Math.cos(φ2) *
-                Math.sin(Δλ/2) * Math.sin(Δλ/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
-    }
-
-    function checkLocation(callback) {
-      if (!navigator.geolocation) {
-        callback(false, "裝置不支援定位");
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(pos => {
-        const { latitude, longitude } = pos.coords;
-        const dist = getDistance(latitude, longitude, STORE_LAT, STORE_LNG);
-        if (dist <= MAX_DISTANCE) {
-          callback(true);
-        } else {
-          callback(false, `你不在店附近 (${Math.round(dist)}m)`);
-        }
-      }, () => callback(false, "無法取得定位"));
-    }
-
-    // override punch
-    const oldPunch = punch;
-    punch = function(action) {
-      checkLocation((ok, msg) => {
-        if (!ok) return toast("error", msg);
-        oldPunch(action);
-      });
-    }
-
-    // === 老闆頁面密碼 ===
-    const BOSS_PASSWORD = "931119";
-
-    const oldSwitch = switchView;
-    switchView = function(view) {
-      if (view === "boss") {
-        const input = prompt("請輸入老闆密碼");
-        if (input !== BOSS_PASSWORD) {
-          toast("error", "密碼錯誤");
-          return;
-        }
-      }
-      oldSwitch(view);
-    }
-
   </script>
-
-<script>
-// === 距離顯示 & 觸覺回饋 ===
-function showDistanceFeedback(dist) {
-  const el = document.getElementById('distanceInfo');
-  if (el) {
-    el.textContent = `距離店面：約 ${Math.round(dist)} 公尺`;
-  }
-  if (navigator.vibrate) {
-    if (dist <= MAX_DISTANCE) navigator.vibrate(50);
-    else navigator.vibrate([100, 50, 100]);
-  }
-}
-
-// override checkLocation 加距離顯示
-const _oldCheck = checkLocation;
-checkLocation = function(callback) {
-  if (!navigator.geolocation) {
-    callback(false, "裝置不支援定位");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(pos => {
-    const { latitude, longitude } = pos.coords;
-    const dist = getDistance(latitude, longitude, STORE_LAT, STORE_LNG);
-
-    showDistanceFeedback(dist);
-
-    if (dist <= MAX_DISTANCE) {
-      callback(true);
-    } else {
-      callback(false, `距離過遠 (${Math.round(dist)}m)`);
-    }
-  }, () => callback(false, "無法取得定位"));
-}
-</script>
-
-<!-- 距離顯示 UI -->
-<div id="distanceInfo" style="position:fixed;bottom:16px;right:16px;background:#020617;color:#fff;padding:10px 14px;border-radius:12px;font-size:13px;box-shadow:0 10px 25px rgba(0,0,0,.2);">
-  尚未取得距離
-</div>
-
 </body>
 </html>
