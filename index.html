@@ -1,23 +1,20 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Clock,
-  Coffee,
-  LogIn,
-  LogOut,
-  ShieldCheck,
-  Users,
-  CalendarDays,
-  Search,
-  Download,
-  RefreshCcw,
-  CheckCircle2,
-  AlertTriangle,
-  Store,
-  TimerReset,
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+
+type ActionKey = "clockIn" | "breakStart" | "breakEnd" | "clockOut";
+
+type ClockRecord = {
+  id: string;
+  employee: string;
+  date: string;
+  clockIn?: string;
+  breakStart?: string;
+  breakEnd?: string;
+  clockOut?: string;
+  note?: string;
+  updatedAt: string;
+};
 
 const EMPLOYEES = [
   "劉淑貞",
@@ -33,139 +30,133 @@ const EMPLOYEES = [
   "黃啟軒",
 ];
 
-const ACTIONS = {
+const STORAGE_KEY = "clockin-records-v3";
+
+const ACTIONS: Record<ActionKey, { label: string; icon: string; className: string }> = {
   clockIn: {
     label: "上班",
-    tone: "emerald",
-    icon: LogIn,
+    icon: "➜",
+    className: "bg-emerald-600 hover:bg-emerald-700 text-white",
   },
   breakStart: {
     label: "休息開始",
-    tone: "amber",
-    icon: Coffee,
+    icon: "☕",
+    className: "bg-amber-500 hover:bg-amber-600 text-white",
   },
   breakEnd: {
     label: "休息結束",
-    tone: "sky",
-    icon: TimerReset,
+    icon: "↻",
+    className: "bg-sky-600 hover:bg-sky-700 text-white",
   },
   clockOut: {
     label: "下班",
-    tone: "rose",
-    icon: LogOut,
+    icon: "←",
+    className: "bg-rose-600 hover:bg-rose-700 text-white",
   },
 };
 
-const STORAGE_KEY = "cw-clockin-records-v2";
-
-function cn(...classes) {
+function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-function formatDateKey(date = new Date()) {
-  return date.toISOString().slice(0, 10);
+function createId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function formatTime(dateLike) {
+function formatDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatTime(dateLike?: string | Date) {
   if (!dateLike) return "--:--";
   return new Intl.DateTimeFormat("zh-TW", {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
     hour12: false,
+    timeZone: "Asia/Taipei",
   }).format(new Date(dateLike));
 }
 
-function formatShortDate(dateLike) {
+function formatFullDate(date: Date) {
+  return new Intl.DateTimeFormat("zh-TW", {
+    dateStyle: "full",
+    timeZone: "Asia/Taipei",
+  }).format(date);
+}
+
+function formatShortDate(dateLike?: string) {
+  if (!dateLike) return "--";
   return new Intl.DateTimeFormat("zh-TW", {
     month: "2-digit",
     day: "2-digit",
     weekday: "short",
+    timeZone: "Asia/Taipei",
   }).format(new Date(dateLike));
 }
 
-function minutesBetween(start, end) {
+function minutesBetween(start?: string, end?: string | Date) {
   if (!start || !end) return 0;
-  return Math.max(0, Math.round((new Date(end) - new Date(start)) / 60000));
+  return Math.max(0, Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000));
 }
 
-function formatDuration(minutes) {
+function formatDuration(minutes: number) {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   if (h <= 0) return `${m} 分`;
   return `${h} 小時 ${m} 分`;
 }
 
-function readRecords() {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function writeRecords(records) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-}
-
-function getInitialRecords() {
-  const now = new Date();
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-  const twoDaysAgo = new Date(now);
-  twoDaysAgo.setDate(now.getDate() - 2);
-
-  return [
-    {
-      id: crypto.randomUUID?.() || String(Date.now()),
-      employee: "林佳恆",
-      date: formatDateKey(yesterday),
-      clockIn: `${formatDateKey(yesterday)}T10:02:00+08:00`,
-      breakStart: `${formatDateKey(yesterday)}T14:21:00+08:00`,
-      breakEnd: `${formatDateKey(yesterday)}T15:02:00+08:00`,
-      clockOut: `${formatDateKey(yesterday)}T20:08:00+08:00`,
-      note: "示範資料",
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: crypto.randomUUID?.() || String(Date.now() + 1),
-      employee: "洪語婷",
-      date: formatDateKey(twoDaysAgo),
-      clockIn: `${formatDateKey(twoDaysAgo)}T09:58:00+08:00`,
-      breakStart: `${formatDateKey(twoDaysAgo)}T13:54:00+08:00`,
-      breakEnd: `${formatDateKey(twoDaysAgo)}T14:26:00+08:00`,
-      clockOut: `${formatDateKey(twoDaysAgo)}T19:56:00+08:00`,
-      note: "示範資料",
-      updatedAt: new Date().toISOString(),
-    },
-  ];
-}
-
-function calculateWorkMinutes(record, now = new Date()) {
+function calculateWorkMinutes(record?: ClockRecord, now = new Date()) {
   if (!record?.clockIn) return 0;
   const end = record.clockOut || now;
   const gross = minutesBetween(record.clockIn, end);
-  let breakMinutes = 0;
-  if (record.breakStart) {
-    breakMinutes = minutesBetween(record.breakStart, record.breakEnd || now);
-  }
+  const breakMinutes = record.breakStart ? minutesBetween(record.breakStart, record.breakEnd || now) : 0;
   return Math.max(0, gross - breakMinutes);
 }
 
-function getStatus(record) {
-  if (!record?.clockIn) return { label: "尚未上班", color: "slate", hint: "請先選擇員工並打上班卡" };
-  if (record.clockOut) return { label: "今日已下班", color: "slate", hint: `下班時間 ${formatTime(record.clockOut)}` };
-  if (record.breakStart && !record.breakEnd) return { label: "休息中", color: "amber", hint: `休息開始 ${formatTime(record.breakStart)}` };
-  return { label: "上班中", color: "emerald", hint: `上班時間 ${formatTime(record.clockIn)}` };
+function getStatus(record?: ClockRecord) {
+  if (!record?.clockIn) {
+    return {
+      label: "尚未上班",
+      hint: "請先選擇員工並打上班卡",
+      className: "bg-slate-100 text-slate-600",
+    };
+  }
+  if (record.clockOut) {
+    return {
+      label: "今日已下班",
+      hint: `下班時間 ${formatTime(record.clockOut)}`,
+      className: "bg-slate-100 text-slate-600",
+    };
+  }
+  if (record.breakStart && !record.breakEnd) {
+    return {
+      label: "休息中",
+      hint: `休息開始 ${formatTime(record.breakStart)}`,
+      className: "bg-amber-100 text-amber-700",
+    };
+  }
+  return {
+    label: "上班中",
+    hint: `上班時間 ${formatTime(record.clockIn)}`,
+    className: "bg-emerald-100 text-emerald-700",
+  };
 }
 
-function validateAction(record, action) {
+function validateAction(record: ClockRecord | undefined, action: ActionKey) {
   if (action === "clockIn" && record?.clockIn && !record?.clockOut) return "今天已經上班了，別重複打卡。";
+  if (action === "clockIn" && record?.clockOut) return "今天已經完成下班，不能再次上班。";
   if (action === "breakStart" && !record?.clockIn) return "還沒上班，不能先休息。";
   if (action === "breakStart" && record?.clockOut) return "今天已經下班了。";
   if (action === "breakStart" && record?.breakStart && !record?.breakEnd) return "已經在休息中了。";
+  if (action === "breakStart" && record?.breakStart && record?.breakEnd) return "今天已經休息過了。";
   if (action === "breakEnd" && !record?.breakStart) return "尚未開始休息。";
   if (action === "breakEnd" && record?.breakEnd) return "休息已經結束了。";
   if (action === "clockOut" && !record?.clockIn) return "還沒上班，不能下班。";
@@ -174,63 +165,106 @@ function validateAction(record, action) {
   return "";
 }
 
-function ActionButton({ actionKey, record, onClick }) {
-  const action = ACTIONS[actionKey];
-  const Icon = action.icon;
-  const blocked = Boolean(validateAction(record, actionKey));
-  const styles = {
-    emerald: blocked ? "bg-slate-100 text-slate-400" : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-200",
-    amber: blocked ? "bg-slate-100 text-slate-400" : "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-200",
-    sky: blocked ? "bg-slate-100 text-slate-400" : "bg-sky-600 hover:bg-sky-700 text-white shadow-sky-200",
-    rose: blocked ? "bg-slate-100 text-slate-400" : "bg-rose-600 hover:bg-rose-700 text-white shadow-rose-200",
-  };
-
-  return (
-    <button
-      onClick={() => onClick(actionKey)}
-      className={cn(
-        "group rounded-2xl p-4 text-left transition-all duration-200",
-        "border border-white/70 shadow-lg hover:-translate-y-0.5",
-        styles[action.tone]
-      )}
-    >
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <p className="text-sm opacity-80">打卡動作</p>
-          <p className="mt-1 text-xl font-bold">{action.label}</p>
-        </div>
-        <span className="rounded-2xl bg-white/20 p-3">
-          <Icon className="h-6 w-6" />
-        </span>
-      </div>
-    </button>
-  );
+function readRecords(): ClockRecord[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
 }
 
-export default function ClockInUpgrade() {
-  const [records, setRecords] = useState([]);
+function writeRecords(records: ClockRecord[]) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+}
+
+function getDemoRecords(): ClockRecord[] {
+  const now = new Date();
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const twoDaysAgo = new Date(now);
+  twoDaysAgo.setDate(now.getDate() - 2);
+  const d1 = formatDateKey(yesterday);
+  const d2 = formatDateKey(twoDaysAgo);
+
+  return [
+    {
+      id: createId(),
+      employee: "林佳恆",
+      date: d1,
+      clockIn: `${d1}T10:02:00+08:00`,
+      breakStart: `${d1}T14:21:00+08:00`,
+      breakEnd: `${d1}T15:02:00+08:00`,
+      clockOut: `${d1}T20:08:00+08:00`,
+      note: "示範資料",
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: createId(),
+      employee: "洪語婷",
+      date: d2,
+      clockIn: `${d2}T09:58:00+08:00`,
+      breakStart: `${d2}T13:54:00+08:00`,
+      breakEnd: `${d2}T14:26:00+08:00`,
+      clockOut: `${d2}T19:56:00+08:00`,
+      note: "示範資料",
+      updatedAt: new Date().toISOString(),
+    },
+  ];
+}
+
+function exportCsv(records: ClockRecord[], todayKey: string, now: Date) {
+  const rows = [
+    ["員工", "日期", "上班", "休息開始", "休息結束", "下班", "工時分鐘"],
+    ...records.map((r) => [
+      r.employee,
+      r.date,
+      formatTime(r.clockIn),
+      formatTime(r.breakStart),
+      formatTime(r.breakEnd),
+      formatTime(r.clockOut),
+      String(calculateWorkMinutes(r, r.clockOut ? new Date(r.clockOut) : now)),
+    ]),
+  ];
+
+  const csv = rows
+    .map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(","))
+    .join("\n");
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `clockin-${todayKey}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export default function Home() {
+  const [records, setRecords] = useState<ClockRecord[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState(EMPLOYEES[0]);
   const [now, setNow] = useState(new Date());
-  const [toast, setToast] = useState(null);
+  const [toast, setToast] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [query, setQuery] = useState("");
-  const [view, setView] = useState("staff");
+  const [view, setView] = useState<"staff" | "boss">("staff");
 
   useEffect(() => {
     const existing = readRecords();
-    const data = existing.length ? existing : getInitialRecords();
+    const data = existing.length ? existing : getDemoRecords();
     setRecords(data);
     writeRecords(data);
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(timer);
+    const timer = window.setInterval(() => setNow(new Date()), 1000);
+    return () => window.clearInterval(timer);
   }, []);
 
   useEffect(() => {
     if (!toast) return;
-    const timer = setTimeout(() => setToast(null), 2600);
-    return () => clearTimeout(timer);
+    const timer = window.setTimeout(() => setToast(null), 2600);
+    return () => window.clearTimeout(timer);
   }, [toast]);
 
   const todayKey = formatDateKey(now);
@@ -238,20 +272,20 @@ export default function ClockInUpgrade() {
     () => records.find((r) => r.employee === selectedEmployee && r.date === todayKey),
     [records, selectedEmployee, todayKey]
   );
-
+  const todayAll = useMemo(() => records.filter((r) => r.date === todayKey), [records, todayKey]);
   const status = getStatus(todayRecord);
   const todayMinutes = calculateWorkMinutes(todayRecord, now);
 
-  const todayAll = useMemo(() => records.filter((r) => r.date === todayKey), [records, todayKey]);
   const filteredRecords = useMemo(() => {
     return records
       .filter((r) => !query || r.employee.includes(query) || r.date.includes(query))
-      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
   }, [records, query]);
 
   const monthlySummary = useMemo(() => {
-    const map = new Map();
     const month = todayKey.slice(0, 7);
+    const map = new Map<string, { employee: string; days: number; minutes: number }>();
+
     records
       .filter((r) => r.date.startsWith(month))
       .forEach((r) => {
@@ -260,15 +294,16 @@ export default function ClockInUpgrade() {
         current.minutes += calculateWorkMinutes(r, r.clockOut ? new Date(r.clockOut) : now);
         map.set(r.employee, current);
       });
+
     return Array.from(map.values()).sort((a, b) => b.minutes - a.minutes);
   }, [records, todayKey, now]);
 
-  function persist(nextRecords) {
+  function persist(nextRecords: ClockRecord[]) {
     setRecords(nextRecords);
     writeRecords(nextRecords);
   }
 
-  function handleAction(action) {
+  function handleAction(action: ActionKey) {
     const error = validateAction(todayRecord, action);
     if (error) {
       setToast({ type: "error", text: error });
@@ -276,14 +311,15 @@ export default function ClockInUpgrade() {
     }
 
     const stamp = new Date().toISOString();
-    const existing = todayRecord || {
-      id: crypto.randomUUID?.() || `${Date.now()}`,
+    const existing: ClockRecord = todayRecord || {
+      id: createId(),
       employee: selectedEmployee,
       date: todayKey,
       note: "",
+      updatedAt: stamp,
     };
 
-    const nextRecord = {
+    const nextRecord: ClockRecord = {
       ...existing,
       [action]: stamp,
       updatedAt: stamp,
@@ -298,42 +334,28 @@ export default function ClockInUpgrade() {
   }
 
   function resetDemoData() {
-    const data = getInitialRecords();
+    const data = getDemoRecords();
     persist(data);
     setToast({ type: "success", text: "已重置示範資料。" });
   }
 
-  function exportCsv() {
-    const rows = [
-      ["員工", "日期", "上班", "休息開始", "休息結束", "下班", "工時分鐘"],
-      ...filteredRecords.map((r) => [
-        r.employee,
-        r.date,
-        formatTime(r.clockIn),
-        formatTime(r.breakStart),
-        formatTime(r.breakEnd),
-        formatTime(r.clockOut),
-        calculateWorkMinutes(r, r.clockOut ? new Date(r.clockOut) : now),
-      ]),
-    ];
-    const csv = rows.map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `clockin-${todayKey}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#dcfce7,transparent_32%),linear-gradient(135deg,#f8fafc,#eef2ff)] p-4 text-slate-900 sm:p-6 lg:p-8">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#dcfce7,transparent_32%),linear-gradient(135deg,#f8fafc,#eef2ff)] p-4 text-slate-900 sm:p-6 lg:p-8">
+      {toast && (
+        <div
+          className={cn(
+            "fixed right-4 top-4 z-50 rounded-2xl px-4 py-3 text-sm font-bold text-white shadow-xl",
+            toast.type === "success" ? "bg-emerald-600" : "bg-rose-600"
+          )}
+        >
+          {toast.text}
+        </div>
+      )}
+
       <div className="mx-auto max-w-7xl">
-        <header className="mb-6 flex flex-col gap-4 rounded-[2rem] border border-white/70 bg-white/75 p-5 shadow-xl shadow-slate-200/60 backdrop-blur md:flex-row md:items-center md:justify-between">
+        <header className="mb-6 flex flex-col gap-4 rounded-[2rem] border border-white/70 bg-white/80 p-5 shadow-xl shadow-slate-200/60 backdrop-blur md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
-            <div className="rounded-3xl bg-slate-950 p-4 text-white shadow-lg">
-              <Store className="h-7 w-7" />
-            </div>
+            <div className="rounded-3xl bg-slate-950 p-4 text-2xl text-white shadow-lg">店</div>
             <div>
               <p className="text-sm font-medium text-slate-500">Clock-in Dashboard</p>
               <h1 className="text-2xl font-black tracking-tight sm:text-3xl">潮味決南港昆陽店打卡</h1>
@@ -342,139 +364,131 @@ export default function ClockInUpgrade() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setView("staff")}
-              className={cn("rounded-full px-4 py-2 text-sm font-bold transition", view === "staff" ? "bg-slate-950 text-white" : "bg-white text-slate-600")}
+              className={cn(
+                "rounded-full px-4 py-2 text-sm font-bold transition",
+                view === "staff" ? "bg-slate-950 text-white" : "bg-white text-slate-600 hover:bg-slate-100"
+              )}
             >
               員工打卡
             </button>
             <button
               onClick={() => setView("boss")}
-              className={cn("rounded-full px-4 py-2 text-sm font-bold transition", view === "boss" ? "bg-slate-950 text-white" : "bg-white text-slate-600")}
+              className={cn(
+                "rounded-full px-4 py-2 text-sm font-bold transition",
+                view === "boss" ? "bg-slate-950 text-white" : "bg-white text-slate-600 hover:bg-slate-100"
+              )}
             >
               老闆頁面
             </button>
           </div>
         </header>
 
-        <AnimatePresence>
-          {toast && (
-            <motion.div
-              initial={{ opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              className={cn(
-                "fixed right-4 top-4 z-50 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold shadow-xl",
-                toast.type === "success" ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
-              )}
-            >
-              {toast.type === "success" ? <CheckCircle2 className="h-5 w-5" /> : <AlertTriangle className="h-5 w-5" />}
-              {toast.text}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {view === "staff" ? (
-          <main className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             <section className="space-y-6">
-              <Card className="overflow-hidden rounded-[2rem] border-white/70 bg-white/80 shadow-xl shadow-slate-200/70 backdrop-blur">
-                <CardContent className="p-6 sm:p-8">
-                  <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+              <section className="rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur sm:p-8">
+                <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-slate-500">現在時間</p>
+                    <div className="mt-2 flex items-end gap-3">
+                      <span className="mb-2 text-3xl text-slate-400">◷</span>
+                      <p className="text-5xl font-black tabular-nums tracking-tight sm:text-6xl">{formatTime(now)}</p>
+                    </div>
+                    <p className="mt-2 text-slate-500">{formatFullDate(now)}</p>
+                  </div>
+                  <div className="rounded-3xl bg-slate-950 px-5 py-4 text-white">
+                    <p className="text-sm text-white/60">今日累積工時</p>
+                    <p className="mt-1 text-2xl font-black">{formatDuration(todayMinutes)}</p>
+                  </div>
+                </div>
+              </section>
+
+              <section className="rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur sm:p-8">
+                <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-slate-500">選擇員工</p>
+                    <h2 className="mt-1 text-2xl font-black">今天誰要打卡？</h2>
+                  </div>
+                  <div className={cn("rounded-full px-4 py-2 text-sm font-black", status.className)}>{status.label}</div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                  {EMPLOYEES.map((name) => (
+                    <button
+                      key={name}
+                      onClick={() => setSelectedEmployee(name)}
+                      className={cn(
+                        "rounded-2xl border px-4 py-3 text-left text-sm font-bold transition-all",
+                        selectedEmployee === name
+                          ? "border-slate-950 bg-slate-950 text-white shadow-lg"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50"
+                      )}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mt-6 rounded-3xl bg-slate-50 p-5">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p className="text-sm font-bold text-slate-500">現在時間</p>
-                      <div className="mt-2 flex items-end gap-3">
-                        <Clock className="mb-2 h-7 w-7 text-slate-400" />
-                        <p className="text-5xl font-black tabular-nums tracking-tight sm:text-6xl">{formatTime(now)}</p>
+                      <p className="text-sm font-bold text-slate-500">目前員工</p>
+                      <p className="text-3xl font-black">{selectedEmployee}</p>
+                    </div>
+                    <p className="text-sm font-medium text-slate-500">{status.hint}</p>
+                  </div>
+                </div>
+              </section>
+
+              <section className="grid gap-3 sm:grid-cols-2">
+                {(Object.keys(ACTIONS) as ActionKey[]).map((key) => {
+                  const action = ACTIONS[key];
+                  const blocked = Boolean(validateAction(todayRecord, key));
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => handleAction(key)}
+                      className={cn(
+                        "rounded-2xl border border-white/70 p-4 text-left shadow-lg transition-all hover:-translate-y-0.5",
+                        blocked ? "bg-slate-100 text-slate-400 hover:bg-slate-100" : action.className
+                      )}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm opacity-80">打卡動作</p>
+                          <p className="mt-1 text-xl font-bold">{action.label}</p>
+                        </div>
+                        <span className="rounded-2xl bg-white/20 px-4 py-3 text-2xl">{action.icon}</span>
                       </div>
-                      <p className="mt-2 text-slate-500">{new Intl.DateTimeFormat("zh-TW", { dateStyle: "full" }).format(now)}</p>
-                    </div>
-                    <div className="rounded-3xl bg-slate-950 px-5 py-4 text-white">
-                      <p className="text-sm text-white/60">今日累積工時</p>
-                      <p className="mt-1 text-2xl font-black">{formatDuration(todayMinutes)}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="rounded-[2rem] border-white/70 bg-white/80 shadow-xl shadow-slate-200/70 backdrop-blur">
-                <CardContent className="p-6 sm:p-8">
-                  <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm font-bold text-slate-500">選擇員工</p>
-                      <h2 className="mt-1 text-2xl font-black">今天誰要打卡？</h2>
-                    </div>
-                    <div className={cn(
-                      "rounded-full px-4 py-2 text-sm font-black",
-                      status.color === "emerald" && "bg-emerald-100 text-emerald-700",
-                      status.color === "amber" && "bg-amber-100 text-amber-700",
-                      status.color === "slate" && "bg-slate-100 text-slate-600"
-                    )}>
-                      {status.label}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-                    {EMPLOYEES.map((name) => (
-                      <button
-                        key={name}
-                        onClick={() => setSelectedEmployee(name)}
-                        className={cn(
-                          "rounded-2xl border px-4 py-3 text-left text-sm font-bold transition-all",
-                          selectedEmployee === name
-                            ? "border-slate-950 bg-slate-950 text-white shadow-lg"
-                            : "border-slate-200 bg-white text-slate-700 hover:border-slate-400"
-                        )}
-                      >
-                        {name}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="mt-6 rounded-3xl bg-slate-50 p-5">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-sm font-bold text-slate-500">目前員工</p>
-                        <p className="text-3xl font-black">{selectedEmployee}</p>
-                      </div>
-                      <p className="text-sm font-medium text-slate-500">{status.hint}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                {Object.keys(ACTIONS).map((key) => (
-                  <ActionButton key={key} actionKey={key} record={todayRecord} onClick={handleAction} />
-                ))}
-              </div>
+                    </button>
+                  );
+                })}
+              </section>
             </section>
 
             <aside className="space-y-6">
-              <Card className="rounded-[2rem] border-white/70 bg-white/80 shadow-xl shadow-slate-200/70 backdrop-blur">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-black">今日紀錄</h3>
-                  <div className="mt-4 space-y-3">
-                    {[
-                      ["上班", todayRecord?.clockIn],
-                      ["休息開始", todayRecord?.breakStart],
-                      ["休息結束", todayRecord?.breakEnd],
-                      ["下班", todayRecord?.clockOut],
-                    ].map(([label, value]) => (
-                      <div key={label} className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-                        <span className="font-bold text-slate-600">{label}</span>
-                        <span className="font-black tabular-nums">{formatTime(value)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <section className="rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur">
+                <h3 className="text-xl font-black">今日紀錄</h3>
+                <div className="mt-4 space-y-3">
+                  {[
+                    ["上班", todayRecord?.clockIn],
+                    ["休息開始", todayRecord?.breakStart],
+                    ["休息結束", todayRecord?.breakEnd],
+                    ["下班", todayRecord?.clockOut],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+                      <span className="font-bold text-slate-600">{label}</span>
+                      <span className="font-black tabular-nums">{formatTime(value)}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
 
-              <Card className="rounded-[2rem] border-white/70 bg-white/80 shadow-xl shadow-slate-200/70 backdrop-blur">
-                <CardContent className="p-6">
-                  <div className="mb-4 flex items-center gap-3">
-                    <Users className="h-5 w-5 text-slate-400" />
-                    <h3 className="text-xl font-black">今日已打卡</h3>
-                  </div>
-                  <div className="space-y-2">
-                    {todayAll.length ? todayAll.map((r) => (
+              <section className="rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur">
+                <h3 className="text-xl font-black">今日已打卡</h3>
+                <div className="mt-4 space-y-2">
+                  {todayAll.length ? (
+                    todayAll.map((r) => (
                       <div key={r.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-4 py-3">
                         <div>
                           <p className="font-black">{r.employee}</p>
@@ -482,56 +496,56 @@ export default function ClockInUpgrade() {
                         </div>
                         <p className="text-sm font-bold text-slate-500">{formatDuration(calculateWorkMinutes(r, now))}</p>
                       </div>
-                    )) : <p className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">今天還沒有人打卡。很安靜，安靜到有點可疑。</p>}
-                  </div>
-                </CardContent>
-              </Card>
+                    ))
+                  ) : (
+                    <p className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">今天還沒有人打卡。很安靜，安靜到有點可疑。</p>
+                  )}
+                </div>
+              </section>
             </aside>
-          </main>
+          </div>
         ) : (
-          <main className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
             <section className="space-y-6">
-              <Card className="rounded-[2rem] border-white/70 bg-white/80 shadow-xl shadow-slate-200/70 backdrop-blur">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <ShieldCheck className="h-6 w-6 text-slate-400" />
-                    <h2 className="text-2xl font-black">老闆總覽</h2>
+              <section className="rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur">
+                <h2 className="text-2xl font-black">老闆總覽</h2>
+                <div className="mt-5 grid gap-3">
+                  <div className="rounded-3xl bg-slate-950 p-5 text-white">
+                    <p className="text-sm text-white/60">本月總工時</p>
+                    <p className="mt-1 text-3xl font-black">{formatDuration(monthlySummary.reduce((sum, item) => sum + item.minutes, 0))}</p>
                   </div>
-                  <div className="mt-5 grid gap-3">
-                    <div className="rounded-3xl bg-slate-950 p-5 text-white">
-                      <p className="text-sm text-white/60">本月總工時</p>
-                      <p className="mt-1 text-3xl font-black">{formatDuration(monthlySummary.reduce((sum, item) => sum + item.minutes, 0))}</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-3xl bg-white p-5 shadow-sm">
+                      <p className="text-sm font-bold text-slate-500">員工數</p>
+                      <p className="mt-1 text-3xl font-black">{EMPLOYEES.length}</p>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="rounded-3xl bg-white p-5 shadow-sm">
-                        <p className="text-sm font-bold text-slate-500">員工數</p>
-                        <p className="mt-1 text-3xl font-black">{EMPLOYEES.length}</p>
-                      </div>
-                      <div className="rounded-3xl bg-white p-5 shadow-sm">
-                        <p className="text-sm font-bold text-slate-500">今日筆數</p>
-                        <p className="mt-1 text-3xl font-black">{todayAll.length}</p>
-                      </div>
+                    <div className="rounded-3xl bg-white p-5 shadow-sm">
+                      <p className="text-sm font-bold text-slate-500">今日筆數</p>
+                      <p className="mt-1 text-3xl font-black">{todayAll.length}</p>
                     </div>
                   </div>
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    <Button onClick={exportCsv} className="rounded-2xl bg-slate-950 px-4 py-2 text-white hover:bg-slate-800">
-                      <Download className="mr-2 h-4 w-4" /> 匯出 CSV
-                    </Button>
-                    <Button onClick={resetDemoData} variant="outline" className="rounded-2xl">
-                      <RefreshCcw className="mr-2 h-4 w-4" /> 重置示範
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <button
+                    onClick={() => exportCsv(filteredRecords, todayKey, now)}
+                    className="rounded-2xl bg-slate-950 px-4 py-3 text-sm font-bold text-white hover:bg-slate-800"
+                  >
+                    匯出 CSV
+                  </button>
+                  <button
+                    onClick={resetDemoData}
+                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                  >
+                    重置示範
+                  </button>
+                </div>
+              </section>
 
-              <Card className="rounded-[2rem] border-white/70 bg-white/80 shadow-xl shadow-slate-200/70 backdrop-blur">
-                <CardContent className="p-6">
-                  <div className="mb-4 flex items-center gap-3">
-                    <CalendarDays className="h-5 w-5 text-slate-400" />
-                    <h3 className="text-xl font-black">一鍵月結算</h3>
-                  </div>
-                  <div className="space-y-2">
-                    {monthlySummary.map((item) => (
+              <section className="rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur">
+                <h3 className="text-xl font-black">一鍵月結算</h3>
+                <div className="mt-4 space-y-2">
+                  {monthlySummary.length ? (
+                    monthlySummary.map((item) => (
                       <div key={item.employee} className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
                         <div>
                           <p className="font-black">{item.employee}</p>
@@ -539,61 +553,57 @@ export default function ClockInUpgrade() {
                         </div>
                         <p className="font-black">{formatDuration(item.minutes)}</p>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                    ))
+                  ) : (
+                    <p className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">本月還沒有紀錄。</p>
+                  )}
+                </div>
+              </section>
             </section>
 
-            <section>
-              <Card className="rounded-[2rem] border-white/70 bg-white/80 shadow-xl shadow-slate-200/70 backdrop-blur">
-                <CardContent className="p-6">
-                  <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div>
-                      <p className="text-sm font-bold text-slate-500">Record Center</p>
-                      <h2 className="text-2xl font-black">查看打卡紀錄</h2>
-                    </div>
-                    <div className="relative">
-                      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                      <input
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="搜尋員工或日期"
-                        className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm font-medium outline-none focus:border-slate-950 md:w-64"
-                      />
-                    </div>
-                  </div>
+            <section className="rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur">
+              <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="text-sm font-bold text-slate-500">Record Center</p>
+                  <h2 className="text-2xl font-black">查看打卡紀錄</h2>
+                </div>
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="搜尋員工或日期"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium outline-none focus:border-slate-950 md:w-64"
+                />
+              </div>
 
-                  <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white">
-                    <div className="hidden grid-cols-[1.1fr_1fr_1fr_1fr_1fr_1fr] gap-3 bg-slate-50 px-4 py-3 text-xs font-black text-slate-500 md:grid">
-                      <span>員工 / 日期</span>
-                      <span>上班</span>
-                      <span>休息開始</span>
-                      <span>休息結束</span>
-                      <span>下班</span>
-                      <span>工時</span>
+              <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white">
+                <div className="hidden grid-cols-[1.1fr_1fr_1fr_1fr_1fr_1fr] gap-3 bg-slate-50 px-4 py-3 text-xs font-black text-slate-500 md:grid">
+                  <span>員工 / 日期</span>
+                  <span>上班</span>
+                  <span>休息開始</span>
+                  <span>休息結束</span>
+                  <span>下班</span>
+                  <span>工時</span>
+                </div>
+                <div className="divide-y divide-slate-100">
+                  {filteredRecords.map((r) => (
+                    <div key={r.id} className="grid gap-3 px-4 py-4 text-sm md:grid-cols-[1.1fr_1fr_1fr_1fr_1fr_1fr] md:items-center">
+                      <div>
+                        <p className="font-black">{r.employee}</p>
+                        <p className="text-xs text-slate-500">{formatShortDate(r.clockIn || `${r.date}T00:00:00+08:00`)}</p>
+                      </div>
+                      <p className="font-bold tabular-nums">{formatTime(r.clockIn)}</p>
+                      <p className="font-bold tabular-nums">{formatTime(r.breakStart)}</p>
+                      <p className="font-bold tabular-nums">{formatTime(r.breakEnd)}</p>
+                      <p className="font-bold tabular-nums">{formatTime(r.clockOut)}</p>
+                      <p className="font-black">{formatDuration(calculateWorkMinutes(r, r.clockOut ? new Date(r.clockOut) : now))}</p>
                     </div>
-                    <div className="divide-y divide-slate-100">
-                      {filteredRecords.map((r) => (
-                        <div key={r.id} className="grid gap-3 px-4 py-4 text-sm md:grid-cols-[1.1fr_1fr_1fr_1fr_1fr_1fr] md:items-center">
-                          <div>
-                            <p className="font-black">{r.employee}</p>
-                            <p className="text-xs text-slate-500">{formatShortDate(r.clockIn || r.date)}</p>
-                          </div>
-                          <p className="font-bold tabular-nums">{formatTime(r.clockIn)}</p>
-                          <p className="font-bold tabular-nums">{formatTime(r.breakStart)}</p>
-                          <p className="font-bold tabular-nums">{formatTime(r.breakEnd)}</p>
-                          <p className="font-bold tabular-nums">{formatTime(r.clockOut)}</p>
-                          <p className="font-black">{formatDuration(calculateWorkMinutes(r, r.clockOut ? new Date(r.clockOut) : now))}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  ))}
+                </div>
+              </div>
             </section>
-          </main>
+          </div>
         )}
       </div>
-    </div>
+    </main>
   );
+}
