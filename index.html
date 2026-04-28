@@ -491,6 +491,11 @@ function renderButtons(){
 }
 
 function clock(action){
+  const done = getTodayRecords().map(r => r.action);
+if(done.includes(action)){
+  alert("這個已經打過卡了");
+  return;
+}
   if(!locationOK){
     alert("目前定位未通過，不能打卡。");
     return;
