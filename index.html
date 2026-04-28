@@ -658,6 +658,18 @@ function getTodayRecords(){
 
 function renderButtons(){
   const done = getTodayRecords().map(r => r.action);
+
+let allowedActions = [];
+
+if(!done.includes("上班")){
+  allowedActions = ["上班"];
+}else if(done.includes("上班") && !done.includes("休息開始") && !done.includes("下班")){
+  allowedActions = ["休息開始", "下班"];
+}else if(done.includes("休息開始") && !done.includes("休息結束")){
+  allowedActions = ["休息結束"];
+}else if(done.includes("休息結束") && !done.includes("下班")){
+  allowedActions = ["下班"];
+}
   const next = ACTIONS.find(a => !done.includes(a));
   const box = document.getElementById("buttons");
   box.innerHTML = "";
@@ -665,7 +677,7 @@ function renderButtons(){
   ACTIONS.forEach(action => {
     const btn = document.createElement("button");
     const isDone = done.includes(action);
-    const isNext = action === next;
+    const isNext = allowedActions.includes(action);
 
     btn.className = "action-btn " + (isDone ? "done" : (isNext && locationOK ? "enabled" : "locked"));
     btn.disabled = !(isNext && locationOK) || isDone;
@@ -749,7 +761,7 @@ function renderToday(){
 function unlock(){
   if(document.getElementById("pwd").value === PASSWORD){
     document.getElementById("admin").style.display = "block";
-    document.getElementById("recordSection").style.display = "block"; // ⭐這行
+    document.getElementById("recordSection").style.display = "block";
     document.getElementById("pwd").value = "";
   }else{
     alert("密碼錯誤");
