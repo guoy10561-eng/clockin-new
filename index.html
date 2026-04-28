@@ -343,7 +343,7 @@ button:disabled{cursor:not-allowed;transform:none}
       <div class="actions" id="buttons"></div>
     </section>
 
-    <aside class="card" style="display:none;">
+    <aside class="card" id="recordSection" style="display:none;">
   <h2 class="section-title">今日紀錄</h2>
   <div class="record-list" id="today"></div>
 </aside>
@@ -535,6 +535,8 @@ function renderToday(){
 function unlock(){
   if(document.getElementById("pwd").value === PASSWORD){
     document.getElementById("admin").style.display = "block";
+    document.getElementById("recordSection").style.display = "block"; // ⭐這行
+    document.getElementById("pwd").value = "";
   }else{
     alert("密碼錯誤");
   }
