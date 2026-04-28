@@ -732,6 +732,27 @@ if(done.includes(action)){
   alert("這個已經打過卡了");
   return;
 }
+  function clock(action){
+  ...
+  ...
+}  // 👈 這是結束
+
+// 👇👇👇 就貼在這裡
+async function loadCloudRecords(){
+  const { data, error } = await supabaseClient
+    .from("clock_records")
+    .select("*")
+    .order("created_at", { ascending:false });
+
+  if(error){
+    alert("讀取雲端失敗：" + error.message);
+    return;
+  }
+
+  records = data || [];
+  localStorage.setItem("clock_records", JSON.stringify(records));
+  renderButtons();
+}
   if(!locationOK){
     alert("目前定位未通過，不能打卡。");
     return;
@@ -819,7 +840,7 @@ function clearData(){
 }
 
 getLocation();
-renderButtons();
+loadCloudRecords();
 </script>
 </body>
 </html>
