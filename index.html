@@ -460,6 +460,142 @@ function calcDistance(lat,lng){
     Math.sin(dLng/2)**2;
   return Math.round(2 * R * Math.asin(Math.sqrt(a)));
 }
+  // ========================
+// 💰 薪資設定
+// ========================
+const PAY_CONFIG = {
+  // 月薪
+  "劉淑貞": { type: "monthly", base: 45000 },
+  "洪語婷": { type: "monthly", base: 33000 },
+  "林芷亘": { type: "monthly", base: 30500 },
+
+  // 時薪
+  "劉春美": { type: "hourly", rate: 200 },
+  "林佳恆": { type: "hourly", rate: 196 },
+  "林禹達": { type: "hourly", rate: 200 },
+  "劉穎希": { type: "hourly", rate: 196 },
+  "黃韋銘": { type: "hourly", rate: 200 },
+  "李品璇": { type: "hourly", rate: 200 },
+  "黃王楷": { type: "hourly", rate: 196 },
+  "黃啟軒": { type: "hourly", rate: 196 }
+};
+
+
+// ========================
+// ⏱️ 工時 + 加班
+// ========================
+function calcHoursDetail(records){
+  let start = records.find(r=>r.action==="上班");
+  let end = records.find(r=>r.action==="下班");
+
+  if(!start || !end) return {work:0, overtime:0};
+
+  let startTime = new Date(start.time);
+  let endTime = new Date(end.time);
+
+  let total = (endTime - startTime) / 1000 / 60 / 60;
+
+  let shift = start.shift || "早班";
+
+  let overtimeStart = new Date(startTime);
+
+  if(shift === "早班"){
+    overtimeStart.setHours(18,10,0);
+  }else{
+    overtimeStart.setHours(22,10,0);
+  }
+
+  let overtime = 0;
+
+  if(endTime > overtimeStart){
+    overtime = (endTime - overtimeStart) / 1000 / 60 / 60;
+  }
+
+  let work = total - overtime;
+
+  return {
+    work: work > 0 ? work : 0,
+    overtime: overtime > 0 ? overtime : 0
+  };
+}
+
+
+// ========================
+// 🍱 餐費
+// ========================
+function calcMeal(hours){
+  if(hours >= 5) return 100;
+  if(hours >= 4) return 50;
+  return 0;
+}
+
+
+// ========================
+// 🎯 全勤判斷
+// ========================
+function checkFullAttendance(name){
+  let month = new Date().toISOString().slice(0,7);
+
+  let userRecords = records.filter(r=>r.name===name && r.date.startsWith(month));
+
+  let days = {};
+
+  userRecords.forEach(r=>{
+    if(!days[r.date]) days[r.date] = [];
+    days[r.date].push(r.action);
+  });
+
+  for(let d in days){
+    if(!(days[d].includes("上班") && days[d].includes("下班"))){
+      return 0;
+    }
+  }
+
+  return 1000;
+}
+
+
+// ========================
+// 💵 薪資計算（主核心🔥）
+// ========================
+function calcSalaryDetail(name, records){
+  const config = PAY_CONFIG[name];
+  if(!config) return null;
+
+  const {work, overtime} = calcHoursDetail(records);
+  const meal = calcMeal(work);
+
+  // 🧑‍🔧 時薪
+  if(config.type === "hourly"){
+    const base = work * config.rate;
+    const ot = overtime * config.rate;
+
+    return {
+      type: "hourly",
+      work,
+      overtime,
+      base: Math.round(base),
+      overtimePay: Math.round(ot),
+      meal,
+      total: Math.round(base + ot + meal)
+    };
+  }
+
+  // 🧑‍💼 月薪
+  if(config.type === "monthly"){
+    const ot = overtime * 200;
+    const full = checkFullAttendance(name);
+
+    return {
+      type: "monthly",
+      base: config.base,
+      meal: 1000,
+      fullAttendance: full,
+      overtimePay: Math.round(ot),
+      total: config.base + 1000 + full + Math.round(ot)
+    };
+  }
+}
 
 function getTodayRecords(){
   return records.filter(r => r.name === empSelect.value && r.date === getToday());
