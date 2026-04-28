@@ -508,6 +508,7 @@ function clock(action){
   localStorage.setItem("clock_records", JSON.stringify(records));
   renderButtons();
 }
+alert(`${empSelect.value} 已完成「${action}」打卡`);
 
 function renderToday(){
   const data = getTodayRecords();
