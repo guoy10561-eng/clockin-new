@@ -1,583 +1,326 @@
-<!doctype html>
-<html lang="zh-Hant">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>潮味決南港昆陽店打卡</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
-      background: linear-gradient(135deg, #f8fafc, #eef2ff);
-      color: #0f172a;
-    }
-    .page { max-width: 1100px; margin: 0 auto; padding: 24px; padding-bottom: 86px; }
-    .header, .card {
-      background: rgba(255,255,255,.92);
-      border: 1px solid rgba(255,255,255,.9);
-      border-radius: 28px;
-      box-shadow: 0 18px 45px rgba(15,23,42,.09);
-    }
-    .header {
-      padding: 22px;
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    h1, h2, h3, p { margin: 0; }
-    h1 { font-size: 28px; font-weight: 900; }
-    h2 { font-size: 22px; font-weight: 900; margin-bottom: 14px; }
-    h3 { font-size: 18px; font-weight: 900; margin-bottom: 12px; }
-    .muted { color: #64748b; font-size: 14px; }
-    .tabs { display: flex; gap: 8px; }
-    button {
-      border: 0;
-      cursor: pointer;
-      font-weight: 800;
-      border-radius: 16px;
-      transition: .15s ease;
-      font-size: 15px;
-      touch-action: manipulation;
-    }
-    button:hover { transform: translateY(-1px); }
-    .tab { padding: 10px 16px; background: #fff; color: #475569; }
-    .tab.active { background: #020617; color: white; }
-    .grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; }
-    .card { padding: 22px; margin-bottom: 18px; }
-    .timeRow { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: end; }
-    .time { font-size: 52px; font-weight: 950; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
-    .summaryBox { background: #020617; color: white; border-radius: 22px; padding: 18px; min-width: 190px; }
-    .summaryBox .big { font-size: 24px; font-weight: 950; margin-top: 4px; }
-    .employees { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .employeeBtn { padding: 14px; background: white; color: #334155; border: 1px solid #e2e8f0; text-align: left; }
-    .employeeBtn.active { background: #020617; color: white; border-color: #020617; }
-    .statusPanel { margin-top: 16px; background: #f8fafc; border-radius: 22px; padding: 16px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .name { font-size: 28px; font-weight: 950; }
-    .badge { display: inline-block; padding: 9px 14px; border-radius: 999px; font-size: 14px; font-weight: 900; }
-    .badge.gray { background: #f1f5f9; color: #475569; }
-    .badge.green { background: #dcfce7; color: #15803d; }
-    .badge.yellow { background: #fef3c7; color: #b45309; }
-    .actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .action { color: white; padding: 20px; min-height: 88px; text-align: left; box-shadow: 0 12px 28px rgba(15,23,42,.12); }
-    .action small { display: block; opacity: .82; margin-bottom: 5px; }
-    .action span { font-size: 22px; display: block; }
-    .greenBtn { background: #059669; }
-    .yellowBtn { background: #f59e0b; }
-    .blueBtn { background: #0284c7; }
-    .redBtn { background: #e11d48; }
-    .action.disabled { background: #e2e8f0 !important; color: #94a3b8; box-shadow: none; }
-    .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 13px 14px; background: #f8fafc; border-radius: 16px; margin-bottom: 8px; }
-    .row strong { font-variant-numeric: tabular-nums; }
-    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
-    .darkBtn { background: #020617; color: white; padding: 12px 16px; }
-    .lightBtn { background: white; color: #334155; border: 1px solid #e2e8f0; padding: 12px 16px; }
-    input { width: 100%; max-width: 260px; border: 1px solid #cbd5e1; border-radius: 14px; padding: 12px 14px; font-size: 15px; outline: none; }
-    input:focus { border-color: #020617; }
-    .tableHeader, .recordLine { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 1fr; gap: 10px; align-items: center; }
-    .tableHeader { padding: 12px; background: #f8fafc; color: #64748b; font-size: 13px; font-weight: 900; border-radius: 16px; }
-    .recordLine { padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
-    .hidden { display: none !important; }
-    #toast { position: fixed; right: 18px; top: 18px; z-index: 99; color: white; border-radius: 16px; padding: 13px 16px; font-weight: 900; box-shadow: 0 18px 38px rgba(15,23,42,.22); max-width: calc(100vw - 36px); }
-    #toast.success { background: #059669; }
-    #toast.error { background: #e11d48; }
-    #distanceBox {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      z-index: 80;
-      background: #020617;
-      color: white;
-      padding: 11px 14px;
-      border-radius: 16px;
-      font-size: 13px;
-      font-weight: 800;
-      box-shadow: 0 14px 28px rgba(15,23,42,.22);
-      max-width: calc(100vw - 32px);
-    }
-    #distanceBox.ok { background: #059669; }
-    #distanceBox.bad { background: #e11d48; }
-    @media (max-width: 850px) {
-      .grid { grid-template-columns: 1fr; }
-      .employees { grid-template-columns: repeat(2, 1fr); }
-      .time { font-size: 42px; }
-      .tableHeader { display: none; }
-      .recordLine { grid-template-columns: 1fr 1fr; border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 10px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>潮味決南港昆陽店打卡</title>
+
+<style>
+body{
+font-family:sans-serif;
+text-align:center;
+padding:30px;
+background:linear-gradient(270deg,#ff7e5f,#feb47b,#ff7e5f);
+background-size:600% 600%;
+animation:bg 10s infinite;
+}
+@keyframes bg{
+0%{background-position:0%}
+50%{background-position:100%}
+100%{background-position:0%}
+}
+.card{
+background:white;
+padding:20px;
+border-radius:20px;
+max-width:600px;
+margin:20px auto;
+}
+button{
+padding:12px;
+margin:6px;
+border:none;
+border-radius:12px;
+background:black;
+color:white;
+}
+select,input{
+padding:10px;
+margin:8px;
+border-radius:10px;
+}
+table{
+margin:auto;
+border-collapse:collapse;
+width:100%;
+}
+th,td{
+border:1px solid #ccc;
+padding:8px;
+font-size:14px;
+}
+</style>
 </head>
-<div id="bossPasswordBox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center;">
-  <div style="background:white;padding:24px;border-radius:18px;width:300px;">
-    <h3>老闆頁面</h3>
-    <input id="bossPasswordInput" type="password" placeholder="請輸入密碼" style="width:100%;padding:12px;margin:16px 0;border:1px solid #ddd;border-radius:10px;">
-    <button id="bossTab" class="tab" type="button" onclick="openBossLogin()">老闆頁面</button>
-  </div>
+
+<body>
+
+<h1 style="color:white;">潮味決南港昆陽店</h1>
+
+<div class="card">
+
+<p id="timeText"></p>
+
+<select id="employee" onchange="saveLast()">
+<option value="">選擇員工</option>
+<option>劉淑貞</option>
+<option>洪語婷</option>
+<option>劉春美</option>
+<option>林佳恆</option>
+<option>林禹達</option>
+<option>劉穎希</option>
+<option>林芷亘</option>
+<option>黃韋銘</option>
+<option>李品璇</option>
+<option>黃王楷</option>
+<option>黃啟軒</option>
+</select>
+
+<p id="distance"></p>
+
+<button onclick="clock('上班')">上班</button>
+<button onclick="clock('休息開始')">休息開始</button>
+<button onclick="clock('休息結束')">休息結束</button>
+<button onclick="clock('下班')">下班</button>
+
+<br><br>
+<button onclick="boss()">老闆頁面</button>
+
 </div>
 
+<div id="bossPage" class="card" style="display:none;">
+  <input type="month" id="month">
+  <button onclick="exportReport()">一鍵月結算</button>
+  <button onclick="loadRecords()">查看打卡紀錄</button>
+  <div id="records"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const bossBtn = document.getElementById("bossTab");
-  const staffBtn = document.getElementById("staffTab");
-  const bossView = document.getElementById("bossView");
-  const staffView = document.getElementById("staffView");
-  const box = document.getElementById("bossPasswordBox");
-  const input = document.getElementById("bossPasswordInput");
-  const submit = document.getElementById("bossPasswordSubmit");
+const SUPABASE_URL="https://chdznhbloctutfsenstm.supabase.co";
+const SUPABASE_KEY="你的KEY貼這裡";
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-  bossBtn.onclick = function () {
-    box.style.display = "flex";
-    input.value = "";
-    input.focus();
-  };
+const STORE_LAT=25.049901606435455;
+const STORE_LNG=121.59244072858665;
 
-  submit.onclick = function () {
-    if (input.value === "931119") {
-      box.style.display = "none";
-      staffView.classList.add("hidden");
-      bossView.classList.remove("hidden");
-      bossBtn.classList.add("active");
-      staffBtn.classList.remove("active");
-    } else {
-      alert("密碼錯誤");
-    }
-  };
+const SHIFT={
+"劉淑貞":"09:30",
+"洪語婷":"10:00",
+"林芷亘":"14:00"
+};
 
-  staffBtn.onclick = function () {
-    bossView.classList.add("hidden");
-    staffView.classList.remove("hidden");
-    staffBtn.classList.add("active");
-    bossBtn.classList.remove("active");
-  };
+const PAY={
+"劉淑貞":{type:"monthly",salary:45000},
+"洪語婷":{type:"monthly",salary:33000},
+"林芷亘":{type:"monthly",salary:30500},
+"劉春美":{type:"hourly",wage:200},
+"林佳恆":{type:"hourly",wage:196},
+"林禹達":{type:"hourly",wage:200},
+"劉穎希":{type:"hourly",wage:196},
+"黃韋銘":{type:"hourly",wage:200},
+"李品璇":{type:"hourly",wage:200},
+"黃王楷":{type:"hourly",wage:196},
+"黃啟軒":{type:"hourly",wage:196}
+};
+
+function updateTime(){
+document.getElementById("timeText").innerText=
+"現在時間："+new Date().toLocaleString();
+}
+setInterval(updateTime,1000);
+updateTime();
+
+function dist(a,b,c,d){
+let R=6371;
+let dLat=(c-a)*Math.PI/180;
+let dLng=(d-b)*Math.PI/180;
+let x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLng/2)**2;
+return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+function updateDistance(){
+navigator.geolocation.getCurrentPosition(pos=>{
+let m=Math.round(dist(pos.coords.latitude,pos.coords.longitude,STORE_LAT,STORE_LNG)*1000);
+let el=document.getElementById("distance");
+
+if(m<50){el.style.color="green";}
+else if(m<100){el.style.color="orange";}
+else{el.style.color="red";}
+
+el.innerText="距離："+m+"公尺";
 });
+}
+setInterval(updateDistance,5000);
+updateDistance();
+
+function saveLast(){
+localStorage.setItem("emp",document.getElementById("employee").value);
+}
+
+window.onload=()=>{
+let last=localStorage.getItem("emp");
+if(last)document.getElementById("employee").value=last;
+};
+
+function isLate(name,time){
+if(!SHIFT[name])return false;
+let [h,m]=SHIFT[name].split(":");
+let t=new Date(time);
+let base=new Date(time);
+base.setHours(h,m,0,0);
+return t>base;
+}
+
+async function clock(type){
+let name=document.getElementById("employee").value;
+if(!name)return alert("選員工");
+
+navigator.geolocation.getCurrentPosition(async pos=>{
+let d=dist(pos.coords.latitude,pos.coords.longitude,STORE_LAT,STORE_LNG);
+if(d>0.1)return alert("不在店附近");
+
+let today=new Date().toLocaleDateString("zh-TW");
+
+let {data:todayRecords,error}=await db.from("clock_records")
+.select("*")
+.eq("employee_name",name);
+
+if(error){
+alert("讀取失敗："+error.message);
+return;
+}
+
+let todayList=todayRecords.filter(r=>
+new Date(r.clock_time).toLocaleDateString("zh-TW")==today
+);
+
+if(todayList.some(r=>r.action==type)){
+alert(type+" 已經打過了");
+return;
+}
+
+if(type=="休息開始" && !todayList.some(r=>r.action=="上班")){
+alert("請先打上班");
+return;
+}
+
+if(type=="休息結束" && !todayList.some(r=>r.action=="休息開始")){
+alert("還沒開始休息");
+return;
+}
+
+if(type=="下班" && !todayList.some(r=>r.action=="上班")){
+alert("請先打上班");
+return;
+}
+
+let {error:insertError}=await db.from("clock_records").insert([{
+employee_name:name,
+action:type,
+latitude:pos.coords.latitude,
+longitude:pos.coords.longitude
+}]);
+
+if(insertError){
+alert("打卡失敗："+insertError.message);
+return;
+}
+
+if(type=="上班")alert("今天加油💪");
+else if(type=="下班")alert("辛苦了👏");
+else alert(type+"成功");
+
+},()=>{
+alert("定位失敗，請開啟定位權限");
+});
+}
+
+function boss(){
+let password=prompt("密碼");
+
+if(password!="1234"){
+alert("密碼錯誤");
+return;
+}
+
+document.getElementById("bossPage").style.display="block";
+loadRecords();
+}
+
+async function exportReport(){
+let m=document.getElementById("month").value;
+if(!m)return alert("選月份");
+
+let {data,error}=await db.from("clock_records").select("*");
+
+if(error){
+alert("匯出失敗："+error.message);
+return;
+}
+
+let sum={};
+
+data.filter(r=>{
+let d=new Date(r.clock_time);
+return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")==m;
+}).forEach(r=>{
+let n=r.employee_name;
+
+if(!sum[n])sum[n]={late:0,miss:0};
+
+if(r.action=="上班" && isLate(n,r.clock_time))sum[n].late++;
+});
+
+let csv="員工,總薪資\n";
+
+Object.keys(PAY).forEach(n=>{
+let p=PAY[n];
+let total=0;
+
+if(p.type=="monthly"){
+let full=(sum[n]?.late||0)==0;
+total=p.salary+1000+(full?1000:0);
+}else{
+total=0;
+}
+
+csv+=n+","+total+"\n";
+});
+
+let blob=new Blob(["\uFEFF"+csv]);
+let a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="月結薪資.csv";
+a.click();
+}
+
+async function loadRecords(){
+let {data,error}=await db.from("clock_records")
+.select("*")
+.order("clock_time",{ascending:false});
+
+if(error){
+document.getElementById("records").innerHTML="讀取失敗："+error.message;
+return;
+}
+
+let html="<table>";
+html+="<tr><th>員工</th><th>動作</th><th>時間</th><th>位置</th></tr>";
+
+data.forEach(r=>{
+html+=`
+<tr>
+<td>${r.employee_name}</td>
+<td>${r.action}</td>
+<td>${new Date(r.clock_time).toLocaleString()}</td>
+<td>${r.latitude ? "有定位" : "無定位"}</td>
+</tr>`;
+});
+
+html+="</table>";
+document.getElementById("records").innerHTML=html;
+}
 </script>
-  <body>
-  <div id="toast" class="hidden"></div>
-  <div id="distanceBox">尚未取得定位距離</div>
 
-  <main class="page">
-    <header class="header">
-      <div>
-        <p class="muted">Clock-in Dashboard</p>
-        <h1>潮味決南港昆陽店打卡</h1>
-      </div>
-      <div class="tabs">
-        <button id="staffTab" class="tab active" type="button">員工打卡</button>
-        <button id="bossTab" class="tab" type="button">老闆頁面</button>
-      </div>
-    </header>
-
-    <section id="staffView" class="grid">
-      <div>
-        <section class="card">
-          <div class="timeRow">
-            <div>
-              <p class="muted">現在時間</p>
-              <p id="currentTime" class="time">--:--:--</p>
-              <p id="currentDate" class="muted">--</p>
-            </div>
-            <div class="summaryBox">
-              <p class="muted" style="color:#cbd5e1">今日累積工時</p>
-              <p id="todayDuration" class="big">0 分</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="card">
-          <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:14px;">
-            <div>
-              <p class="muted">選擇員工</p>
-              <h2>今天誰要打卡？</h2>
-            </div>
-            <span id="statusBadge" class="badge gray">尚未上班</span>
-          </div>
-          <div id="employeeList" class="employees"></div>
-          <div class="statusPanel">
-            <div>
-              <p class="muted">目前員工</p>
-              <p id="selectedEmployeeText" class="name">--</p>
-            </div>
-            <p id="statusHint" class="muted">請先選擇員工並打上班卡</p>
-          </div>
-        </section>
-
-        <section class="actions">
-          <button class="action greenBtn" type="button" data-action="clockIn"><small>打卡動作</small><span>上班</span></button>
-          <button class="action yellowBtn" type="button" data-action="breakStart"><small>打卡動作</small><span>休息開始</span></button>
-          <button class="action blueBtn" type="button" data-action="breakEnd"><small>打卡動作</small><span>休息結束</span></button>
-          <button class="action redBtn" type="button" data-action="clockOut"><small>打卡動作</small><span>下班</span></button>
-        </section>
-      </div>
-
-      <aside id="staffRightPanel" class="hidden">
-        <section class="card">
-          <h3>今日紀錄</h3>
-          <div id="todayRecordBox"></div>
-        </section>
-        <section class="card">
-          <h3>今日已打卡</h3>
-          <div id="todayAllBox"></div>
-        </section>
-      </aside>
-    </section>
-
-    <section id="bossView" class="grid hidden">
-      <div>
-        <section class="card">
-          <h2>老闆總覽</h2>
-          <div class="summaryBox" style="margin-bottom:12px;">
-            <p class="muted" style="color:#cbd5e1">本月總工時</p>
-            <p id="monthlyTotal" class="big">0 分</p>
-          </div>
-          <div class="toolbar">
-            <button id="exportBtn" class="darkBtn" type="button">匯出 CSV</button>
-            <button id="resetBtn" class="lightBtn" type="button">清空紀錄</button>
-          </div>
-        </section>
-        <section class="card">
-          <h3>一鍵月結算</h3>
-          <div id="monthlySummary"></div>
-        </section>
-      </div>
-      <section class="card">
-        <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">
-          <div>
-            <p class="muted">Record Center</p>
-            <h2>查看打卡紀錄</h2>
-          </div>
-          <input id="searchInput" placeholder="搜尋員工或日期" />
-        </div>
-        <div class="tableHeader">
-          <span>員工 / 日期</span><span>上班</span><span>休息開始</span><span>休息結束</span><span>下班</span><span>工時</span>
-        </div>
-        <div id="recordsTable"></div>
-      </section>
-    </section>
-  </main>
-
-  <script>
-    const EMPLOYEES = ["劉淑貞", "洪語婷", "劉春美", "林佳恆", "林禹達", "劉穎希", "林芷亘", "黃韋銘", "李品璇", "黃王楷", "黃啟軒"];
-    const STORAGE_KEY = "clockin-nangang-kunyang-v4";
-    const ACTION_LABELS = { clockIn: "上班", breakStart: "休息開始", breakEnd: "休息結束", clockOut: "下班" };
-
-    // 這裡改店面定位與允許距離
-    const STORE_LAT = 25.0505;
-    const STORE_LNG = 121.5937;
-    const MAX_DISTANCE = 200;
-
-    // 老闆頁面密碼，記得改掉
-    const BOSS_PASSWORD = "931119";
-
-    let selectedEmployee = EMPLOYEES[0];
-    let records = [];
-    let query = "";
-    let bossUnlocked = false;
-    let isPunching = false;
-
-    function id() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
-
-    function todayKey(date = new Date()) {
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, "0");
-      const d = String(date.getDate()).padStart(2, "0");
-      return `${y}-${m}-${d}`;
-    }
-
-    function time(dateLike) {
-      if (!dateLike) return "--:--";
-      return new Intl.DateTimeFormat("zh-TW", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(new Date(dateLike));
-    }
-
-    function fullDate(date) {
-      return new Intl.DateTimeFormat("zh-TW", { dateStyle: "full" }).format(date);
-    }
-
-    function shortDate(dateLike) {
-      return new Intl.DateTimeFormat("zh-TW", { month: "2-digit", day: "2-digit", weekday: "short" }).format(new Date(dateLike));
-    }
-
-    function minutesBetween(start, end) {
-      if (!start || !end) return 0;
-      return Math.max(0, Math.round((new Date(end) - new Date(start)) / 60000));
-    }
-
-    function duration(mins) {
-      const h = Math.floor(mins / 60);
-      const m = mins % 60;
-      return h > 0 ? `${h} 小時 ${m} 分` : `${m} 分`;
-    }
-
-    function workMinutes(record, now = new Date()) {
-      if (!record || !record.clockIn) return 0;
-      const gross = minutesBetween(record.clockIn, record.clockOut || now);
-      const rest = record.breakStart ? minutesBetween(record.breakStart, record.breakEnd || now) : 0;
-      return Math.max(0, gross - rest);
-    }
-
-    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); }
-
-    function load() {
-      try { records = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
-      catch (e) { records = []; }
-    }
-
-    function currentRecord() {
-      const date = todayKey();
-      return records.find(r => r.employee === selectedEmployee && r.date === date);
-    }
-
-    function statusOf(record) {
-      if (!record || !record.clockIn) return { label: "尚未上班", hint: "請先選擇員工並打上班卡", color: "gray" };
-      if (record.clockOut) return { label: "今日已下班", hint: `下班時間 ${time(record.clockOut)}`, color: "gray" };
-      if (record.breakStart && !record.breakEnd) return { label: "休息中", hint: `休息開始 ${time(record.breakStart)}`, color: "yellow" };
-      return { label: "上班中", hint: `上班時間 ${time(record.clockIn)}`, color: "green" };
-    }
-
-    function validate(record, action) {
-      if (action === "clockIn" && record && record.clockIn && !record.clockOut) return "今天已經上班了。";
-      if (action === "clockIn" && record && record.clockOut) return "今天已經下班，不能再次上班。";
-      if (action === "breakStart" && (!record || !record.clockIn)) return "還沒上班，不能休息。";
-      if (action === "breakStart" && record.clockOut) return "今天已經下班了。";
-      if (action === "breakStart" && record.breakStart && !record.breakEnd) return "已經在休息中了。";
-      if (action === "breakStart" && record.breakStart && record.breakEnd) return "今天已經休息過了。";
-      if (action === "breakEnd" && (!record || !record.breakStart)) return "尚未開始休息。";
-      if (action === "breakEnd" && record.breakEnd) return "休息已經結束了。";
-      if (action === "clockOut" && (!record || !record.clockIn)) return "還沒上班，不能下班。";
-      if (action === "clockOut" && record.breakStart && !record.breakEnd) return "休息尚未結束，先打休息結束。";
-      if (action === "clockOut" && record.clockOut) return "今天已經下班了。";
-      return "";
-    }
-
-    function toast(type, text) {
-      const el = document.getElementById("toast");
-      el.className = type;
-      el.textContent = text;
-      clearTimeout(window.toastTimer);
-      window.toastTimer = setTimeout(() => el.className = "hidden", 2400);
-    }
-
-    function vibrate(ok) {
-      if (!navigator.vibrate) return;
-      navigator.vibrate(ok ? 50 : [100, 50, 100]);
-    }
-
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371e3;
-      const p1 = lat1 * Math.PI / 180;
-      const p2 = lat2 * Math.PI / 180;
-      const dp = (lat2 - lat1) * Math.PI / 180;
-      const dl = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dp / 2) * Math.sin(dp / 2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) * Math.sin(dl / 2);
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    }
-
-    function setDistanceBox(text, state) {
-      const el = document.getElementById("distanceBox");
-      el.textContent = text;
-      el.className = state || "";
-    }
-
-    function checkLocation(callback) {
-      setDistanceBox("正在取得定位...", "");
-      if (!navigator.geolocation) {
-        setDistanceBox("裝置不支援定位", "bad");
-        vibrate(false);
-        callback(false, "裝置不支援定位");
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        function (pos) {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-          const dist = getDistance(lat, lng, STORE_LAT, STORE_LNG);
-          const rounded = Math.round(dist);
-          const ok = dist <= MAX_DISTANCE;
-          setDistanceBox(`距離店面：約 ${rounded} 公尺`, ok ? "ok" : "bad");
-          vibrate(ok);
-          callback(ok, ok ? "" : `距離過遠：約 ${rounded} 公尺`);
-        },
-        function () {
-          setDistanceBox("無法取得定位，請允許定位權限", "bad");
-          vibrate(false);
-          callback(false, "無法取得定位，請允許定位權限");
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
-      );
-    }
-
-    function punch(action) {
-      if (isPunching) return;
-      const record = currentRecord();
-      const error = validate(record, action);
-      if (error) { toast("error", error); vibrate(false); return; }
-
-      isPunching = true;
-      document.querySelectorAll(".action").forEach(btn => btn.disabled = true);
-
-      checkLocation(function (ok, msg) {
-        if (!ok) {
-          toast("error", msg);
-          isPunching = false;
-          render();
-          return;
-        }
-
-        const stamp = new Date().toISOString();
-        let next;
-        const existing = currentRecord();
-        if (existing) {
-          next = { ...existing, [action]: stamp, updatedAt: stamp };
-          records = records.map(r => r.id === existing.id ? next : r);
-        } else {
-          next = { id: id(), employee: selectedEmployee, date: todayKey(), [action]: stamp, updatedAt: stamp };
-          records.unshift(next);
-        }
-        save();
-        toast("success", `${selectedEmployee} ${ACTION_LABELS[action]}成功：${time(stamp)}`);
-        isPunching = false;
-        render();
-      });
-    }
-
-    function filteredRecords() {
-      return records
-        .filter(r => !query || r.employee.includes(query) || r.date.includes(query))
-        .sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-    }
-
-    function monthlySummary() {
-      const month = todayKey().slice(0, 7);
-      const map = new Map();
-      records.filter(r => r.date.startsWith(month)).forEach(r => {
-        const item = map.get(r.employee) || { employee: r.employee, days: 0, minutes: 0 };
-        item.days += r.clockIn ? 1 : 0;
-        item.minutes += workMinutes(r, r.clockOut ? new Date(r.clockOut) : new Date());
-        map.set(r.employee, item);
-      });
-      return Array.from(map.values()).sort((a,b) => b.minutes - a.minutes);
-    }
-
-    function exportCsv() {
-      const rows = [["員工", "日期", "上班", "休息開始", "休息結束", "下班", "工時分鐘"]];
-      filteredRecords().forEach(r => rows.push([r.employee, r.date, time(r.clockIn), time(r.breakStart), time(r.breakEnd), time(r.clockOut), workMinutes(r, r.clockOut ? new Date(r.clockOut) : new Date())]));
-      const csv = rows.map(row => row.map(cell => `"${String(cell).replaceAll('"','""')}"`).join(",")).join("\n");
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `clockin-${todayKey()}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function switchView(view) {
-  const todayBox = document.getElementById("todayAllBox");
-  const todayTitle = document.getElementById("todayAllTitle");
-
-  if (view === "staff") {
-    todayBox.style.display = "none";
-    todayTitle.style.display = "none";
-  } else {
-    todayBox.style.display = "block";
-    todayTitle.style.display = "block";
-  }
-      if (view === "boss" && !bossUnlocked) {
-        const input = prompt("請輸入老闆密碼");
-        if (input !== BOSS_PASSWORD) {
-          toast("error", "密碼錯誤");
-          vibrate(false);
-          return;
-        }
-        bossUnlocked = true;
-        toast("success", "老闆頁面已解鎖");
-      }
-      document.getElementById("staffView").classList.toggle("hidden", view !== "staff");
-      document.getElementById("bossView").classList.toggle("hidden", view !== "boss");
-      document.getElementById("staffTab").classList.toggle("active", view === "staff");
-      document.getElementById("bossTab").classList.toggle("active", view === "boss");
-      render();
-    }
-
-    function renderEmployees() {
-      document.getElementById("employeeList").innerHTML = EMPLOYEES.map(name => `<button type="button" class="employeeBtn ${name === selectedEmployee ? "active" : ""}" data-name="${name}">${name}</button>`).join("");
-      document.querySelectorAll(".employeeBtn").forEach(btn => {
-        btn.onclick = function () { selectedEmployee = this.dataset.name; render(); };
-      });
-    }
-
-    function render() {
-      const now = new Date();
-      const record = currentRecord();
-      const status = statusOf(record);
-      const todayRecords = records.filter(r => r.date === todayKey());
-      const summary = monthlySummary();
-
-      document.getElementById("currentTime").textContent = time(now);
-      document.getElementById("currentDate").textContent = fullDate(now);
-      document.getElementById("todayDuration").textContent = duration(workMinutes(record, now));
-      document.getElementById("selectedEmployeeText").textContent = selectedEmployee;
-      document.getElementById("statusHint").textContent = status.hint;
-      const badge = document.getElementById("statusBadge");
-      badge.textContent = status.label;
-      badge.className = `badge ${status.color}`;
-
-      renderEmployees();
-
-      document.querySelectorAll(".action").forEach(btn => {
-        const disabledByRule = Boolean(validate(record, btn.dataset.action));
-        btn.classList.toggle("disabled", disabledByRule || isPunching);
-        btn.disabled = isPunching;
-      });
-
-      document.getElementById("todayRecordBox").innerHTML = [
-        ["上班", record && record.clockIn],
-        ["休息開始", record && record.breakStart],
-        ["休息結束", record && record.breakEnd],
-        ["下班", record && record.clockOut]
-      ].map(([label, value]) => `<div class="row"><span>${label}</span><strong>${time(value)}</strong></div>`).join("");
-
-      document.getElementById("todayAllBox").innerHTML = todayRecords.length
-        ? todayRecords.map(r => `<div class="row"><div><strong>${r.employee}</strong><br><span class="muted">${statusOf(r).label}</span></div><strong>${duration(workMinutes(r, now))}</strong></div>`).join("")
-        : `<p class="muted">今天還沒有人打卡。</p>`;
-
-      document.getElementById("monthlyTotal").textContent = duration(summary.reduce((sum, item) => sum + item.minutes, 0));
-      document.getElementById("monthlySummary").innerHTML = summary.length
-        ? summary.map(item => `<div class="row"><div><strong>${item.employee}</strong><br><span class="muted">出勤 ${item.days} 天</span></div><strong>${duration(item.minutes)}</strong></div>`).join("")
-        : `<p class="muted">本月還沒有紀錄。</p>`;
-
-      document.getElementById("recordsTable").innerHTML = filteredRecords().map(r => `
-        <div class="recordLine">
-          <div><strong>${r.employee}</strong><br><span class="muted">${shortDate(r.date + "T00:00:00")}</span></div>
-          <div>${time(r.clockIn)}</div>
-          <div>${time(r.breakStart)}</div>
-          <div>${time(r.breakEnd)}</div>
-          <div>${time(r.clockOut)}</div>
-          <strong>${duration(workMinutes(r, r.clockOut ? new Date(r.clockOut) : now))}</strong>
-        </div>`).join("");
-    }
-
-    window.addEventListener("DOMContentLoaded", function () {
-      load();
-      document.getElementById("staffTab").onclick = () => switchView("staff");
-      document.getElementById("bossTab").onclick = () => switchView("boss");
-      document.querySelectorAll(".action").forEach(btn => {
-        btn.onclick = () => punch(btn.dataset.action);
-      });
-      document.getElementById("searchInput").oninput = e => { query = e.target.value.trim(); render(); };
-      document.getElementById("exportBtn").onclick = exportCsv;
-      document.getElementById("resetBtn").onclick = function () {
-        if (!confirm("確定要清空所有打卡紀錄嗎？")) return;
-        records = [];
-        save();
-        toast("success", "已清空紀錄。");
-        render();
-      };
-      render();
-      setInterval(render, 1000);
-    });
-  </script>
 </body>
 </html>
