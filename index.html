@@ -1,341 +1,581 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<title>潮味決南港昆陽店打卡</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>潮味決南港昆陽店｜員工打卡系統</title>
 
 <style>
+:root{
+  --bg:#f4f7fb;
+  --card:#ffffff;
+  --text:#172033;
+  --muted:#6b7280;
+  --primary:#0f766e;
+  --primary-dark:#115e59;
+  --success:#16a34a;
+  --warning:#f59e0b;
+  --danger:#dc2626;
+  --border:#e5e7eb;
+  --shadow:0 20px 45px rgba(15,23,42,.08);
+}
+
+*{box-sizing:border-box}
+
 body{
-font-family:sans-serif;
-text-align:center;
-padding:30px;
-background:linear-gradient(270deg,#ff7e5f,#feb47b,#ff7e5f);
-background-size:600% 600%;
-animation:bg 10s infinite;
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",Arial,sans-serif;
+  background:
+    radial-gradient(circle at top left,rgba(15,118,110,.14),transparent 32%),
+    linear-gradient(180deg,#f8fafc 0%,var(--bg) 100%);
+  color:var(--text);
 }
-@keyframes bg{
-0%{background-position:0%}
-50%{background-position:100%}
-100%{background-position:0%}
+
+.app{
+  width:min(1080px,100%);
+  margin:0 auto;
+  padding:24px;
 }
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items:center;
+  margin-bottom:22px;
+}
+
+.brand{
+  display:flex;
+  gap:14px;
+  align-items:center;
+}
+
+.logo{
+  width:52px;
+  height:52px;
+  border-radius:16px;
+  background:linear-gradient(135deg,var(--primary),#14b8a6);
+  color:white;
+  display:grid;
+  place-items:center;
+  font-weight:800;
+  box-shadow:0 12px 25px rgba(15,118,110,.22);
+}
+
+h1,h2,h3,p{margin:0}
+
+h1{
+  font-size:24px;
+  letter-spacing:.5px;
+}
+
+.sub{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.time-pill{
+  padding:10px 14px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:rgba(255,255,255,.8);
+  color:#334155;
+  font-weight:600;
+  white-space:nowrap;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1.15fr .85fr;
+  gap:18px;
+}
+
 .card{
-background:white;
-padding:20px;
-border-radius:20px;
-max-width:600px;
-margin:20px auto;
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(226,232,240,.9);
+  border-radius:24px;
+  box-shadow:var(--shadow);
+  padding:22px;
 }
-button{
-padding:12px;
-margin:6px;
-border:none;
-border-radius:12px;
-background:black;
-color:white;
+
+.section-title{
+  font-size:18px;
+  font-weight:800;
+  margin-bottom:14px;
 }
+
+label{
+  display:block;
+  font-size:14px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
 select,input{
-padding:10px;
-margin:8px;
-border-radius:10px;
+  width:100%;
+  height:48px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:0 14px;
+  font-size:16px;
+  background:#fff;
+  color:var(--text);
+  outline:none;
 }
-table{
-margin:auto;
-border-collapse:collapse;
-width:100%;
+
+select:focus,input:focus{
+  border-color:#14b8a6;
+  box-shadow:0 0 0 4px rgba(20,184,166,.12);
 }
-th,td{
-border:1px solid #ccc;
-padding:8px;
-font-size:14px;
+
+.status{
+  margin-top:16px;
+  padding:14px;
+  border-radius:18px;
+  background:#f8fafc;
+  border:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+}
+
+.status-text strong{
+  display:block;
+  margin-bottom:4px;
+}
+
+.status-text span{
+  color:var(--muted);
+  font-size:14px;
+}
+
+button{
+  border:0;
+  border-radius:16px;
+  padding:14px 16px;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+  transition:.18s ease;
+}
+
+button:hover{transform:translateY(-1px)}
+button:disabled{cursor:not-allowed;transform:none}
+
+.btn-small{
+  width:auto;
+  background:#e6fffb;
+  color:var(--primary-dark);
+}
+
+.actions{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.action-btn{
+  min-height:96px;
+  text-align:left;
+  padding:18px;
+}
+
+.action-btn .name{
+  display:block;
+  font-size:20px;
+  margin-bottom:8px;
+}
+
+.action-btn .hint{
+  display:block;
+  font-size:13px;
+  font-weight:600;
+  opacity:.75;
+}
+
+.enabled{
+  background:linear-gradient(135deg,var(--primary),#14b8a6);
+  color:white;
+  box-shadow:0 16px 30px rgba(15,118,110,.22);
+}
+
+.done{
+  background:#ecfdf5;
+  color:var(--success);
+  border:1px solid #bbf7d0;
+}
+
+.locked{
+  background:#f1f5f9;
+  color:#94a3b8;
+  border:1px solid #e2e8f0;
+}
+
+.record-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.record{
+  padding:13px 14px;
+  background:#f8fafc;
+  border:1px solid var(--border);
+  border-radius:16px;
+}
+
+.record b{
+  display:block;
+  margin-bottom:4px;
+}
+
+.record span{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.empty{
+  color:var(--muted);
+  padding:16px;
+  border:1px dashed #cbd5e1;
+  border-radius:16px;
+  background:#f8fafc;
+}
+
+.admin-card{
+  margin-top:18px;
+}
+
+.admin-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+}
+
+.admin-panel{
+  display:none;
+  margin-top:16px;
+  gap:12px;
+}
+
+.admin-actions{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.admin-actions button{
+  background:#0f172a;
+  color:white;
+}
+
+.danger-box{
+  margin-top:12px;
+  padding:14px;
+  border-radius:18px;
+  background:#fef2f2;
+  border:1px solid #fecaca;
+}
+
+.danger-box p{
+  color:#991b1b;
+  font-weight:800;
+  margin-bottom:10px;
+}
+
+.danger-btn{
+  width:100%;
+  margin-top:10px;
+  background:var(--danger);
+  color:white;
+}
+
+.footer-note{
+  margin-top:18px;
+  color:var(--muted);
+  text-align:center;
+  font-size:12px;
+}
+
+@media(max-width:820px){
+  .app{padding:18px}
+  .header{align-items:flex-start;flex-direction:column}
+  .grid{grid-template-columns:1fr}
+  .actions{grid-template-columns:1fr}
+  .admin-row,.admin-actions{grid-template-columns:1fr}
+  .time-pill{width:100%;text-align:center}
 }
 </style>
 </head>
 
 <body>
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <div class="logo">潮</div>
+      <div>
+        <h1>潮味決南港昆陽店</h1>
+        <p class="sub">員工打卡系統｜Clock-in Management</p>
+      </div>
+    </div>
+    <div class="time-pill" id="nowTime">--</div>
+  </header>
 
-<h1 style="color:white;">潮味決南港昆陽店</h1>
+  <div class="grid">
+    <section class="card">
+      <h2 class="section-title">員工打卡</h2>
 
-<div class="card">
+      <label for="employee">選擇員工</label>
+      <select id="employee"></select>
 
-<p id="timeText"></p>
+      <div class="status">
+        <div class="status-text">
+          <strong id="locationTitle">定位中</strong>
+          <span id="locationText">正在取得目前位置...</span>
+        </div>
+        <button class="btn-small" onclick="getLocation()">重新定位</button>
+      </div>
 
-<select id="employee" onchange="saveLast()">
-<option value="">選擇員工</option>
-<option>劉淑貞</option>
-<option>洪語婷</option>
-<option>劉春美</option>
-<option>林佳恆</option>
-<option>林禹達</option>
-<option>劉穎希</option>
-<option>林芷亘</option>
-<option>黃韋銘</option>
-<option>李品璇</option>
-<option>黃王楷</option>
-<option>黃啟軒</option>
-</select>
+      <div class="actions" id="buttons"></div>
+    </section>
 
-<p id="distance"></p>
+    <aside class="card">
+      <h2 class="section-title">今日紀錄</h2>
+      <div class="record-list" id="today"></div>
+    </aside>
+  </div>
 
-<button onclick="clock('上班')">上班</button>
-<button onclick="clock('休息開始')">休息開始</button>
-<button onclick="clock('休息結束')">休息結束</button>
-<button onclick="clock('下班')">下班</button>
+  <section class="card admin-card">
+    <h2 class="section-title">管理專區</h2>
+    <div class="admin-row">
+      <input type="password" id="pwd" placeholder="請輸入管理密碼" />
+      <button class="btn-small" onclick="unlock()">解鎖管理</button>
+    </div>
 
-<br><br>
-<button onclick="boss()">老闆頁面</button>
+    <div class="admin-panel" id="admin">
+      <div class="admin-actions">
+        <button onclick="exportCSV()">匯出全部紀錄 CSV</button>
+        <button onclick="monthly()">匯出本月紀錄</button>
+      </div>
 
+      <div class="danger-box">
+        <p>危險操作：清空所有本機紀錄</p>
+        <input id="confirm" placeholder="輸入 DELETE 才能清空" />
+        <button class="danger-btn" onclick="clearData()">清空紀錄</button>
+      </div>
+    </div>
+  </section>
+
+  <p class="footer-note">資料目前儲存在本機瀏覽器。正式營運建議升級雲端資料庫。</p>
 </div>
-
-<div id="bossPage" class="card" style="display:none;">
-  <input type="month" id="month">
-  <button onclick="exportReport()">一鍵月結算</button>
-  <button onclick="loadRecords()">查看打卡紀錄</button>
-  <div id="records"></div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const SUPABASE_URL="https://chdznhbloctutfsenstm.supabase.co";
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoZHpuaGJsb2N0dXRmc2Vuc3RtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTI4MDMsImV4cCI6MjA5MjY4ODgwM30.tYcDc8Yq4WLde0A6pFDG1uouHKx3j34GR_oZwu3H5zE";
-const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const EMPLOYEES = [
+  "劉淑貞","洪語婷","劉春美","林佳恆","林禹達","劉穎希",
+  "林芷亘","黃韋銘","李品璇","黃王楷","黃啟軒"
+];
 
-const STORE_LAT=25.049901606435455;
-const STORE_LNG=121.59244072858665;
+const ACTIONS = ["上班","休息開始","休息結束","下班"];
+const PASSWORD = "931119";
+const SHOP = { lat:25.05068, lng:121.59259 };
+const MAX_DISTANCE = 150;
 
-const SHIFT={
-"劉淑貞":"09:30",
-"洪語婷":"10:00",
-"林芷亘":"14:00"
-};
+let records = JSON.parse(localStorage.getItem("clock_records") || "[]");
+let distance = null;
+let locationOK = false;
 
-const PAY={
-"劉淑貞":{type:"monthly",salary:45000},
-"洪語婷":{type:"monthly",salary:33000},
-"林芷亘":{type:"monthly",salary:30500},
-"劉春美":{type:"hourly",wage:200},
-"林佳恆":{type:"hourly",wage:196},
-"林禹達":{type:"hourly",wage:200},
-"劉穎希":{type:"hourly",wage:196},
-"黃韋銘":{type:"hourly",wage:200},
-"李品璇":{type:"hourly",wage:200},
-"黃王楷":{type:"hourly",wage:196},
-"黃啟軒":{type:"hourly",wage:196}
-};
+const empSelect = document.getElementById("employee");
 
-function updateTime(){
-document.getElementById("timeText").innerText=
-"現在時間："+new Date().toLocaleString();
-}
-setInterval(updateTime,1000);
-updateTime();
-
-function dist(a,b,c,d){
-let R=6371;
-let dLat=(c-a)*Math.PI/180;
-let dLng=(d-b)*Math.PI/180;
-let x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLng/2)**2;
-return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
-}
-
-function updateDistance(){
-navigator.geolocation.getCurrentPosition(pos=>{
-let m=Math.round(dist(pos.coords.latitude,pos.coords.longitude,STORE_LAT,STORE_LNG)*1000);
-let el=document.getElementById("distance");
-
-if(m<50){el.style.color="green";}
-else if(m<100){el.style.color="orange";}
-else{el.style.color="red";}
-
-el.innerText="距離："+m+"公尺";
+EMPLOYEES.forEach(name => {
+  const opt = document.createElement("option");
+  opt.value = name;
+  opt.textContent = name;
+  empSelect.appendChild(opt);
 });
+
+empSelect.addEventListener("change", renderButtons);
+
+function updateClock(){
+  document.getElementById("nowTime").textContent = new Date().toLocaleString("zh-TW",{
+    year:"numeric",month:"2-digit",day:"2-digit",
+    hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false
+  });
 }
-setInterval(updateDistance,5000);
-updateDistance();
+setInterval(updateClock,1000);
+updateClock();
 
-function saveLast(){
-localStorage.setItem("emp",document.getElementById("employee").value);
-}
-
-window.onload=()=>{
-let last=localStorage.getItem("emp");
-if(last)document.getElementById("employee").value=last;
-};
-
-function isLate(name,time){
-if(!SHIFT[name])return false;
-let [h,m]=SHIFT[name].split(":");
-let t=new Date(time);
-let base=new Date(time);
-base.setHours(h,m,0,0);
-return t>base;
+function getToday(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
 }
 
-async function clock(type){
-  let name=document.getElementById("employee").value;
-  if(!name)return alert("選員工");
-
-  alert("正在取得定位，請稍等...");
+function getLocation(){
+  setLocationStatus("定位中", "正在取得目前位置...", false);
 
   if(!navigator.geolocation){
-    alert("手機不支援定位");
+    setLocationStatus("無法定位", "此裝置不支援定位功能", false);
     return;
   }
 
-  navigator.geolocation.getCurrentPosition(async pos=>{
-    try{
-      let d=dist(pos.coords.latitude,pos.coords.longitude,STORE_LAT,STORE_LNG);
-      if(d>0.1)return alert("不在店附近");
+  navigator.geolocation.getCurrentPosition(pos => {
+    distance = calcDistance(pos.coords.latitude, pos.coords.longitude);
+    locationOK = distance <= MAX_DISTANCE;
 
-      let today=new Date().toLocaleDateString("zh-TW");
-
-      let {data:todayRecords,error}=await db.from("clock_records")
-      .select("*")
-      .eq("employee_name",name);
-
-      if(error){
-        alert("讀取失敗："+error.message);
-        return;
-      }
-
-      let todayList=todayRecords.filter(r=>
-        new Date(r.clock_time).toLocaleDateString("zh-TW")==today
-      );
-
-      if(todayList.some(r=>r.action==type)){
-        alert(type+" 已經打過了");
-        return;
-      }
-
-      if(type=="休息開始" && !todayList.some(r=>r.action=="上班")){
-        alert("請先打上班");
-        return;
-      }
-
-      if(type=="休息結束" && !todayList.some(r=>r.action=="休息開始")){
-        alert("還沒開始休息");
-        return;
-      }
-
-      if(type=="下班" && !todayList.some(r=>r.action=="上班")){
-        alert("請先打上班");
-        return;
-      }
-
-      let {error:insertError}=await db.from("clock_records").insert([{
-        employee_name:name,
-        action:type,
-        latitude:pos.coords.latitude,
-        longitude:pos.coords.longitude
-      }]);
-
-      if(insertError){
-        alert("打卡失敗："+insertError.message);
-        return;
-      }
-
-      if(type=="上班")alert("上班成功！今天加油💪");
-      else if(type=="下班")alert("下班成功！辛苦了👏");
-      else alert(type+"成功");
-
-    }catch(e){
-      alert("系統錯誤："+e.message);
+    if(locationOK){
+      setLocationStatus("定位通過", `距離店鋪約 ${distance} 公尺，可以打卡`, true);
+    }else{
+      setLocationStatus("距離過遠", `距離店鋪約 ${distance} 公尺，超過 ${MAX_DISTANCE} 公尺限制`, false);
     }
-  }, error=>{
-    alert("定位失敗，請開啟定位權限後再試一次");
+
+    renderButtons();
+  }, () => {
+    setLocationStatus("定位失敗", "請開啟瀏覽器定位權限後重新定位", false);
+    renderButtons();
   }, {
     enableHighAccuracy:true,
     timeout:10000,
-    maximumAge:0
+    maximumAge:30000
   });
 }
 
-function boss(){
-let password=prompt("密碼");
-
-if(password!="931119"){
-alert("密碼錯誤");
-return;
+function setLocationStatus(title, text, ok){
+  document.getElementById("locationTitle").textContent = title;
+  document.getElementById("locationText").textContent = text;
+  locationOK = ok;
 }
 
-document.getElementById("bossPage").style.display="block";
-loadRecords();
+function calcDistance(lat,lng){
+  const R = 6371000;
+  const dLat = (SHOP.lat - lat) * Math.PI / 180;
+  const dLng = (SHOP.lng - lng) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 +
+    Math.cos(lat*Math.PI/180) * Math.cos(SHOP.lat*Math.PI/180) *
+    Math.sin(dLng/2)**2;
+  return Math.round(2 * R * Math.asin(Math.sqrt(a)));
 }
 
-async function exportReport(){
-let m=document.getElementById("month").value;
-if(!m)return alert("選月份");
-
-let {data,error}=await db.from("clock_records").select("*");
-
-if(error){
-alert("匯出失敗："+error.message);
-return;
+function getTodayRecords(){
+  return records.filter(r => r.name === empSelect.value && r.date === getToday());
 }
 
-let sum={};
+function renderButtons(){
+  const done = getTodayRecords().map(r => r.action);
+  const next = ACTIONS.find(a => !done.includes(a));
+  const box = document.getElementById("buttons");
+  box.innerHTML = "";
 
-data.filter(r=>{
-let d=new Date(r.clock_time);
-return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")==m;
-}).forEach(r=>{
-let n=r.employee_name;
+  ACTIONS.forEach(action => {
+    const btn = document.createElement("button");
+    const isDone = done.includes(action);
+    const isNext = action === next;
 
-if(!sum[n])sum[n]={late:0,miss:0};
+    btn.className = "action-btn " + (isDone ? "done" : (isNext && locationOK ? "enabled" : "locked"));
+    btn.disabled = !(isNext && locationOK) || isDone;
+    btn.innerHTML = `<span class="name">${action}</span><span class="hint">${isDone ? "已完成" : isNext ? "下一個步驟" : "尚未開放"}</span>`;
 
-if(r.action=="上班" && isLate(n,r.clock_time))sum[n].late++;
-});
+    if(isNext && locationOK && !isDone){
+      btn.onclick = () => clock(action);
+    }
 
-let csv="員工,總薪資\n";
+    box.appendChild(btn);
+  });
 
-Object.keys(PAY).forEach(n=>{
-let p=PAY[n];
-let total=0;
-
-if(p.type=="monthly"){
-let full=(sum[n]?.late||0)==0;
-total=p.salary+1000+(full?1000:0);
-}else{
-total=0;
+  renderToday();
 }
 
-csv+=n+","+total+"\n";
-});
+function clock(action){
+  if(!locationOK){
+    alert("目前定位未通過，不能打卡。");
+    return;
+  }
 
-let blob=new Blob(["\uFEFF"+csv]);
-let a=document.createElement("a");
-a.href=URL.createObjectURL(blob);
-a.download="月結薪資.csv";
-a.click();
+  records.unshift({
+    name:empSelect.value,
+    action,
+    time:new Date().toLocaleString("zh-TW",{hour12:false}),
+    date:getToday(),
+    distance:distance || "",
+    device:navigator.userAgent
+  });
+
+  localStorage.setItem("clock_records", JSON.stringify(records));
+  renderButtons();
 }
 
-async function loadRecords(){
-let {data,error}=await db.from("clock_records")
-.select("*")
-.order("clock_time",{ascending:false});
+function renderToday(){
+  const data = getTodayRecords();
+  const box = document.getElementById("today");
 
-if(error){
-document.getElementById("records").innerHTML="讀取失敗："+error.message;
-return;
+  if(data.length === 0){
+    box.innerHTML = `<div class="empty">今天尚無打卡紀錄</div>`;
+    return;
+  }
+
+  box.innerHTML = data.map(r => `
+    <div class="record">
+      <b>${r.name}｜${r.action}</b>
+      <span>${r.time} · ${r.distance || "?"} 公尺</span>
+    </div>
+  `).join("");
 }
 
-let html="<table>";
-html+="<tr><th>員工</th><th>動作</th><th>時間</th><th>位置</th></tr>";
-
-data.forEach(r=>{
-html+=`
-<tr>
-<td>${r.employee_name}</td>
-<td>${r.action}</td>
-<td>${new Date(r.clock_time).toLocaleString()}</td>
-<td>${r.latitude ? "有定位" : "無定位"}</td>
-</tr>`;
-});
-
-html+="</table>";
-document.getElementById("records").innerHTML=html;
+function unlock(){
+  if(document.getElementById("pwd").value === PASSWORD){
+    document.getElementById("admin").style.display = "block";
+  }else{
+    alert("密碼錯誤");
+  }
 }
+
+function makeCSV(data){
+  let csv = "姓名,動作,日期,時間,距離,裝置\n";
+  data.forEach(r => {
+    csv += `"${r.name}","${r.action}","${r.date}","${r.time}","${r.distance}","${r.device || ""}"\n`;
+  });
+  return "\uFEFF" + csv;
+}
+
+function downloadCSV(filename, data){
+  const blob = new Blob([makeCSV(data)], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportCSV(){
+  downloadCSV(`clock-records-${getToday()}.csv`, records);
+}
+
+function monthly(){
+  const now = new Date();
+  const month = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+  const data = records.filter(r => r.date.startsWith(month));
+  downloadCSV(`monthly-records-${month}.csv`, data);
+}
+
+function clearData(){
+  if(document.getElementById("confirm").value !== "DELETE"){
+    alert("請輸入 DELETE 才能清空紀錄");
+    return;
+  }
+
+  records = [];
+  localStorage.removeItem("clock_records");
+  renderButtons();
+  alert("紀錄已清空");
+}
+
+getLocation();
+renderButtons();
 </script>
-
 </body>
 </html>
