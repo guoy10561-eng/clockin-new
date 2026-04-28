@@ -735,15 +735,42 @@ if(done.includes(action)){
     return;
   }
 
-  records.unshift({
-    name:empSelect.value,
-    action,
-    time:new Date().toLocaleString("zh-TW",{hour12:false}),
-    date:getToday(),
-    distance:distance || "",
-    device:navigator.userAgent
-  });
+  const newRecord = {
+  name: empSelect.value,
+  action,
+  time: new Date().toLocaleString("zh-TW", { hour12:false }),
+  date: getToday(),
+  distance: String(distance || ""),
+  device: navigator.userAgent,
+  shift: getShift ? getShift() : ""
+};
 
+supabaseClient
+  .from("clock_records")
+  .insert([newRecord])
+  .then(({ error }) => {
+    if(error){
+      alert("上傳失敗：" + error.message);
+      return;
+    }
+
+    records.unshift(newRecord);
+    localStorage.setItem("clock_records", JSON.stringify(records));
+    renderButtons();
+    alert("打卡成功，已同步雲端");
+  });
+  async function loadCloudRecords(){
+  const { data, error } = await supabaseClient
+    .from("clock_records")
+    .select("*")
+    .order("created_at", { ascending:false });
+
+  if(error){
+    console.log("讀取雲端失敗", error.message);
+    return;
+  }
+
+  records = data || [];
   localStorage.setItem("clock_records", JSON.stringify(records));
   renderButtons();
 }
