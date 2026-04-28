@@ -623,7 +623,30 @@ function renderButtons(){
     box.appendChild(btn);
   });
 
-  renderToday();
+  renderToday();const salary = calcSalaryDetail(empSelect.value, data);
+
+if(salary){
+  if(salary.type === "hourly"){
+    box.innerHTML += `
+      <div class="empty">
+        工時：${salary.work.toFixed(2)} 小時<br>
+        加班：${salary.overtime.toFixed(2)} 小時<br>
+        餐費：$${salary.meal}<br>
+        今日薪資：$${salary.total}
+      </div>
+    `;
+  }else{
+    box.innerHTML += `
+      <div class="empty">
+        月薪：$${salary.base}<br>
+        全勤：$${salary.fullAttendance}<br>
+        餐費：$1000<br>
+        加班：$${salary.overtimePay}<br>
+        本月薪資：$${salary.total}
+      </div>
+    `;
+  }
+}
 }
 
 function clock(action){
