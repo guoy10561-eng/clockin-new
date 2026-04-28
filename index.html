@@ -360,6 +360,7 @@ button:disabled{cursor:not-allowed;transform:none}
       <div class="admin-actions">
         <button onclick="exportCSV()">匯出全部紀錄 CSV</button>
         <button onclick="monthly()">匯出本月紀錄</button>
+        <button onclick="monthlySalary()">月薪結算</button>
       </div>
 
       <div class="danger-box">
@@ -459,6 +460,60 @@ function calcDistance(lat,lng){
     Math.cos(lat*Math.PI/180) * Math.cos(SHOP.lat*Math.PI/180) *
     Math.sin(dLng/2)**2;
   return Math.round(2 * R * Math.asin(Math.sqrt(a)));
+}
+  function monthlySalary(){
+  let month = new Date().toISOString().slice(0,7);
+
+  let result = {};
+
+  // 👉 依人分組
+  records.forEach(r=>{
+    if(!r.date.startsWith(month)) return;
+
+    if(!result[r.name]){
+      result[r.name] = [];
+    }
+    result[r.name].push(r);
+  });
+
+  let csv = "姓名,類型,工時,加班,餐費,薪資\\n";
+
+  for(let name in result){
+    let userRecords = result[name];
+
+    // 👉 每天分組
+    let days = {};
+    userRecords.forEach(r=>{
+      if(!days[r.date]) days[r.date] = [];
+      days[r.date].push(r);
+    });
+
+    let totalWork = 0;
+    let totalOT = 0;
+    let totalMeal = 0;
+    let totalSalary = 0;
+
+    for(let d in days){
+      let detail = calcHoursDetail(days[d]);
+      let salary = calcSalaryDetail(name, days[d]);
+
+      totalWork += detail.work;
+      totalOT += detail.overtime;
+      totalMeal += salary.meal || 0;
+      totalSalary += salary.total || 0;
+    }
+
+    let type = PAY_CONFIG[name]?.type || "unknown";
+
+    csv += `${name},${type},${totalWork.toFixed(2)},${totalOT.toFixed(2)},${totalMeal},${Math.round(totalSalary)}\\n`;
+  }
+
+  // 👉 下載
+  const blob = new Blob(["\\uFEFF"+csv], {type:"text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `月薪結算-${month}.csv`;
+  a.click();
 }
   // ========================
 // 💰 薪資設定
