@@ -1,140 +1,399 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>潮味決南港昆陽店打卡</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    *{box-sizing:border-box}
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",Arial,sans-serif;color:#0f172a;background:linear-gradient(-45deg,#f8fafc,#eef2ff,#dcfce7,#e0f2fe);background-size:400% 400%;animation:bgMove 16s ease infinite}
-    @keyframes bgMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-    .page{max-width:1160px;margin:0 auto;padding:18px 18px 90px}.header,.card{background:rgba(255,255,255,.93);border:1px solid rgba(255,255,255,.85);border-radius:24px;box-shadow:0 16px 42px rgba(15,23,42,.08)}.header{padding:20px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
-    h1,h2,h3,p{margin:0}h1{font-size:26px;font-weight:950}h2{font-size:21px;font-weight:950;margin-bottom:12px}h3{font-size:18px;font-weight:950;margin-bottom:12px}.muted{color:#64748b;font-size:13px}
-    button{border:0;cursor:pointer;font-weight:850;border-radius:16px;transition:.15s ease;font-size:15px;touch-action:manipulation}button:hover{transform:translateY(-1px)}button:disabled{cursor:not-allowed;transform:none;opacity:.6}.tabs{display:flex;gap:8px}.tab{padding:10px 16px;background:#fff;color:#475569;border:1px solid #e2e8f0}.tab.active{background:#020617;color:#fff;border-color:#020617}
-    .grid{display:grid;grid-template-columns:1fr .95fr;gap:18px}.card{padding:22px;margin-bottom:18px}.timeRow{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}.time{font-size:52px;font-weight:950;letter-spacing:-1px;font-variant-numeric:tabular-nums}.summaryBox{background:#020617;color:#fff;border-radius:22px;padding:18px;min-width:190px}.summaryBox .big{font-size:24px;font-weight:950;margin-top:4px}
-    .employees{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.employeeBtn{padding:14px;background:#fff;color:#334155;border:1px solid #e2e8f0;text-align:left}.employeeBtn.active{background:#020617;color:#fff;border-color:#020617}.statusPanel{margin-top:16px;background:#f8fafc;border-radius:22px;padding:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.name{font-size:28px;font-weight:950}.badge{display:inline-block;padding:9px 14px;border-radius:999px;font-size:14px;font-weight:900}.gray{background:#f1f5f9;color:#475569}.green{background:#dcfce7;color:#15803d}.yellow{background:#fef3c7;color:#b45309}
-    .actions{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.action{color:#fff;padding:20px;min-height:88px;text-align:left;box-shadow:0 12px 28px rgba(15,23,42,.12)}.action small{display:block;opacity:.82;margin-bottom:5px}.action span{font-size:22px;display:block}.greenBtn{background:#059669}.yellowBtn{background:#f59e0b}.blueBtn{background:#0284c7}.redBtn{background:#e11d48}.disabled{background:#e2e8f0!important;color:#94a3b8!important;box-shadow:none}
-    .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.darkBtn{background:#020617;color:#fff;padding:12px 16px}.lightBtn{background:#fff;color:#334155;border:1px solid #e2e8f0;padding:12px 16px}.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 14px;background:#f8fafc;border-radius:16px;margin-bottom:8px}
-    input{width:100%;max-width:280px;border:1px solid #cbd5e1;border-radius:14px;padding:12px 14px;font-size:15px;outline:none;background:#fff}.tableWrap{overflow:auto}.tableHeader,.recordLine{display:grid;grid-template-columns:1fr .8fr .8fr .8fr .8fr .8fr .8fr;gap:10px;align-items:center}.tableHeader{min-width:780px;padding:12px;background:#f8fafc;color:#64748b;font-size:13px;font-weight:900;border-radius:16px}.recordLine{min-width:780px;padding:14px 12px;border-bottom:1px solid #e2e8f0;font-size:14px}.salaryLine{display:grid;grid-template-columns:1fr .75fr .75fr .75fr .75fr .75fr .85fr;gap:10px;align-items:center;padding:13px 12px;border-bottom:1px solid #e2e8f0;font-size:14px;min-width:820px}.salaryHeader{background:#f8fafc;color:#64748b;font-weight:900;border-radius:16px}
-    .hidden{display:none!important}#toast{position:fixed;right:18px;top:18px;z-index:99;color:#fff;border-radius:16px;padding:13px 16px;font-weight:900;box-shadow:0 18px 38px rgba(15,23,42,.22);max-width:calc(100vw - 36px)}#toast.success{background:#059669}#toast.error{background:#e11d48}#distanceBox{position:fixed;right:16px;bottom:16px;z-index:80;background:#020617;color:#fff;padding:11px 14px;border-radius:16px;font-size:13px;font-weight:850;box-shadow:0 14px 28px rgba(15,23,42,.22);max-width:calc(100vw - 32px)}#distanceBox.ok{background:#059669}#distanceBox.bad{background:#e11d48}.modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;z-index:120;padding:16px}.modal.show{display:flex}.modalBox{background:#fff;border-radius:22px;padding:22px;width:min(360px,100%);box-shadow:0 24px 60px rgba(0,0,0,.25)}.modalBox input{max-width:100%;margin:12px 0}.modalActions{display:flex;gap:8px}
-    @media(max-width:850px){.page{padding:14px 14px 86px}.grid{grid-template-columns:1fr}.employees{grid-template-columns:repeat(2,1fr)}.time{font-size:42px}.actions{grid-template-columns:1fr}.tableHeader{display:none}.recordLine,.salaryLine{grid-template-columns:1fr 1fr;min-width:0;border:1px solid #e2e8f0;border-radius:16px;margin-bottom:10px}.salaryHeader{display:none}}
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div id="toast" class="hidden"></div>
-  <div id="distanceBox">尚未取得定位距離</div>
-  <div id="passwordModal" class="modal">
-    <div class="modalBox">
-      <h3>老闆頁面</h3>
-      <p class="muted">請輸入密碼</p>
-      <input id="passwordInput" type="password" placeholder="密碼">
-      <div class="modalActions">
-        <button id="passwordSubmit" class="darkBtn" type="button">確認</button>
-        <button id="passwordCancel" class="lightBtn" type="button">取消</button>
-      </div>
+<body class="min-h-screen bg-slate-100 text-slate-900">
+  <main class="min-h-screen bg-[radial-gradient(circle_at_top_left,#dcfce7,transparent_32%),linear-gradient(135deg,#f8fafc,#eef2ff)] p-4 sm:p-6 lg:p-8">
+    <div id="toast" class="fixed right-4 top-4 z-50 hidden rounded-2xl px-4 py-3 text-sm font-bold text-white shadow-xl"></div>
+
+    <div class="mx-auto max-w-7xl">
+      <header class="mb-6 flex flex-col gap-4 rounded-[2rem] border border-white/70 bg-white/80 p-5 shadow-xl shadow-slate-200/60 backdrop-blur md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-4">
+          <div class="rounded-3xl bg-slate-950 p-4 text-2xl text-white shadow-lg">店</div>
+          <div>
+            <p class="text-sm font-medium text-slate-500">Clock-in Dashboard</p>
+            <h1 class="text-2xl font-black tracking-tight sm:text-3xl">潮味決南港昆陽店打卡</h1>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="staffTab" class="rounded-full bg-slate-950 px-4 py-2 text-sm font-bold text-white transition">員工打卡</button>
+          <button id="bossTab" class="rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-100">老闆頁面</button>
+        </div>
+      </header>
+
+      <section id="staffView" class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <div class="space-y-6">
+          <section class="rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur sm:p-8">
+            <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p class="text-sm font-bold text-slate-500">現在時間</p>
+                <div class="mt-2 flex items-end gap-3">
+                  <span class="mb-2 text-3xl text-slate-400">◷</span>
+                  <p id="currentTime" class="text-5xl font-black tabular-nums tracking-tight sm:text-6xl">--:--:--</p>
+                </div>
+                <p id="currentDate" class="mt-2 text-slate-500">--</p>
+              </div>
+              <div class="rounded-3xl bg-slate-950 px-5 py-4 text-white">
+                <p class="text-sm text-white/60">今日累積工時</p>
+                <p id="todayDuration" class="mt-1 text-2xl font-black">0 分</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur sm:p-8">
+            <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p class="text-sm font-bold text-slate-500">選擇員工</p>
+                <h2 class="mt-1 text-2xl font-black">今天誰要打卡？</h2>
+              </div>
+              <div id="statusBadge" class="rounded-full bg-slate-100 px-4 py-2 text-sm font-black text-slate-600">尚未上班</div>
+            </div>
+
+            <div id="employeeList" class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4"></div>
+
+            <div class="mt-6 rounded-3xl bg-slate-50 p-5">
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p class="text-sm font-bold text-slate-500">目前員工</p>
+                  <p id="selectedEmployeeText" class="text-3xl font-black">--</p>
+                </div>
+                <p id="statusHint" class="text-sm font-medium text-slate-500">請先選擇員工並打上班卡</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="grid gap-3 sm:grid-cols-2">
+            <button data-action="clockIn" class="action-btn rounded-2xl border border-white/70 bg-emerald-600 p-4 text-left text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-emerald-700">
+              <div class="flex items-center justify-between gap-3"><div><p class="text-sm opacity-80">打卡動作</p><p class="mt-1 text-xl font-bold">上班</p></div><span class="rounded-2xl bg-white/20 px-4 py-3 text-2xl">➜</span></div>
+            </button>
+            <button data-action="breakStart" class="action-btn rounded-2xl border border-white/70 bg-amber-500 p-4 text-left text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-amber-600">
+              <div class="flex items-center justify-between gap-3"><div><p class="text-sm opacity-80">打卡動作</p><p class="mt-1 text-xl font-bold">休息開始</p></div><span class="rounded-2xl bg-white/20 px-4 py-3 text-2xl">☕</span></div>
+            </button>
+            <button data-action="breakEnd" class="action-btn rounded-2xl border border-white/70 bg-sky-600 p-4 text-left text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-sky-700">
+              <div class="flex items-center justify-between gap-3"><div><p class="text-sm opacity-80">打卡動作</p><p class="mt-1 text-xl font-bold">休息結束</p></div><span class="rounded-2xl bg-white/20 px-4 py-3 text-2xl">↻</span></div>
+            </button>
+            <button data-action="clockOut" class="action-btn rounded-2xl border border-white/70 bg-rose-600 p-4 text-left text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-rose-700">
+              <div class="flex items-center justify-between gap-3"><div><p class="text-sm opacity-80">打卡動作</p><p class="mt-1 text-xl font-bold">下班</p></div><span class="rounded-2xl bg-white/20 px-4 py-3 text-2xl">←</span></div>
+            </button>
+          </section>
+        </div>
+
+        <aside class="space-y-6">
+          <section class="rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur">
+            <h3 class="text-xl font-black">今日紀錄</h3>
+            <div id="todayRecordBox" class="mt-4 space-y-3"></div>
+          </section>
+
+          <section class="rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur">
+            <h3 class="text-xl font-black">今日已打卡</h3>
+            <div id="todayAllBox" class="mt-4 space-y-2"></div>
+          </section>
+        </aside>
+      </section>
+
+      <section id="bossView" class="hidden grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+        <div class="space-y-6">
+          <section class="rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur">
+            <h2 class="text-2xl font-black">老闆總覽</h2>
+            <div class="mt-5 grid gap-3">
+              <div class="rounded-3xl bg-slate-950 p-5 text-white">
+                <p class="text-sm text-white/60">本月總工時</p>
+                <p id="monthlyTotal" class="mt-1 text-3xl font-black">0 分</p>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="rounded-3xl bg-white p-5 shadow-sm">
+                  <p class="text-sm font-bold text-slate-500">員工數</p>
+                  <p id="employeeCount" class="mt-1 text-3xl font-black">0</p>
+                </div>
+                <div class="rounded-3xl bg-white p-5 shadow-sm">
+                  <p class="text-sm font-bold text-slate-500">今日筆數</p>
+                  <p id="todayCount" class="mt-1 text-3xl font-black">0</p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 flex flex-wrap gap-2">
+              <button id="exportBtn" class="rounded-2xl bg-slate-950 px-4 py-3 text-sm font-bold text-white hover:bg-slate-800">匯出 CSV</button>
+              <button id="resetBtn" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50">重置示範</button>
+            </div>
+          </section>
+
+          <section class="rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur">
+            <h3 class="text-xl font-black">一鍵月結算</h3>
+            <div id="monthlySummary" class="mt-4 space-y-2"></div>
+          </section>
+        </div>
+
+        <section class="rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur">
+          <div class="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p class="text-sm font-bold text-slate-500">Record Center</p>
+              <h2 class="text-2xl font-black">查看打卡紀錄</h2>
+            </div>
+            <input id="searchInput" placeholder="搜尋員工或日期" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium outline-none focus:border-slate-950 md:w-64" />
+          </div>
+
+          <div class="overflow-hidden rounded-3xl border border-slate-100 bg-white">
+            <div class="hidden grid-cols-[1.1fr_1fr_1fr_1fr_1fr_1fr] gap-3 bg-slate-50 px-4 py-3 text-xs font-black text-slate-500 md:grid">
+              <span>員工 / 日期</span><span>上班</span><span>休息開始</span><span>休息結束</span><span>下班</span><span>工時</span>
+            </div>
+            <div id="recordsTable" class="divide-y divide-slate-100"></div>
+          </div>
+        </section>
+      </section>
     </div>
-  </div>
-
-  <main class="page">
-    <header class="header">
-      <div><p class="muted">Cloud Clock-in System</p><h1>潮味決南港昆陽店打卡</h1></div>
-      <div class="tabs"><button id="staffTab" class="tab active" type="button">員工打卡</button><button id="bossTab" class="tab" type="button">老闆頁面</button></div>
-    </header>
-
-    <section id="staffView" class="grid">
-      <div>
-        <section class="card"><div class="timeRow"><div><p class="muted">現在時間</p><p id="currentTime" class="time">--:--:--</p><p id="currentDate" class="muted">--</p></div><div class="summaryBox"><p class="muted" style="color:#cbd5e1">目前員工</p><p id="currentEmployeeMini" class="big">--</p></div></div></section>
-        <section class="card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px"><div><p class="muted">選擇員工</p><h2>今天誰要打卡？</h2></div><span id="statusBadge" class="badge gray">尚未上班</span></div><div id="employeeList" class="employees"></div><div class="statusPanel"><div><p class="muted">目前員工</p><p id="selectedEmployeeText" class="name">--</p></div><p id="statusHint" class="muted">請先選擇員工並打上班卡</p></div></section>
-        <section class="actions"><button id="clockInBtn" class="action greenBtn" type="button"><small>打卡動作</small><span>上班</span></button><button id="breakStartBtn" class="action yellowBtn" type="button"><small>打卡動作</small><span>休息開始</span></button><button id="breakEndBtn" class="action blueBtn" type="button"><small>打卡動作</small><span>休息結束</span></button><button id="clockOutBtn" class="action redBtn" type="button"><small>打卡動作</small><span>下班</span></button></section>
-      </div>
-      <aside class="hidden"></aside>
-    </section>
-
-    <section id="bossView" class="grid hidden">
-      <div>
-        <section class="card"><h2>老闆總覽</h2><div class="summaryBox"><p class="muted" style="color:#cbd5e1">本月預估總薪資</p><p id="totalPayroll" class="big">$0</p></div><div class="toolbar"><button id="refreshBtn" class="lightBtn" type="button">重新整理</button><button id="exportRecordsBtn" class="darkBtn" type="button">匯出打卡 CSV</button><button id="exportSalaryBtn" class="darkBtn" type="button">匯出薪資 CSV</button></div></section>
-        <section class="card"><h3>薪資明細</h3><div class="tableWrap"><div id="salaryBox"></div></div></section>
-      </div>
-      <section class="card"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px"><div><p class="muted">Record Center</p><h2>打卡紀錄</h2></div><input id="searchInput" placeholder="搜尋員工或日期"></div><div class="tableWrap"><div class="tableHeader"><span>員工/日期</span><span>上班</span><span>休息開始</span><span>休息結束</span><span>下班</span><span>工時</span><span>休息</span></div><div id="recordsTable"></div></div></section>
-    </section>
   </main>
 
   <script>
-    var SUPABASE_URL="https://chdznhbloctutfsenstm.supabase.co";
-    var SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoZHpuaGJsb2N0dXRmc2Vuc3RtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTI4MDMsImV4cCI6MjA5MjY4ODgwM30.tYcDc8Yq4WLde0A6pFDG1uouHKx3j34GR_oZwu3H5zE";
-    var EMPLOYEES=["劉淑貞","洪語婷","劉春美","林佳恆","林禹達","劉穎希","林芷亘","黃韋銘","李品璇","黃王楷","黃啟軒"];
-    var BOSS_PASSWORD="931119",STORE_LAT=25.0505,STORE_LNG=121.5937,MAX_DISTANCE=100;
-    var ACTION_TEXT={clockIn:"今天加油",breakStart:"休息一下吧",breakEnd:"再努力一下",clockOut:"今天辛苦了"};
-    var STAFF={"劉淑貞":{type:"monthly",salary:45000,start:"09:30",shift:"morning"},"洪語婷":{type:"monthly",salary:33000,start:"10:00",shift:"morning"},"劉春美":{type:"hourly",rate:200,start:"11:30",shift:"morning"},"林佳恆":{type:"hourly",rate:196,start:"12:00",shift:"morning"},"林禹達":{type:"hourly",rate:200,start:"12:00",shift:"morning"},"劉穎希":{type:"hourly",rate:196,start:"12:00",shift:"morning"},"林芷亘":{type:"monthly",salary:30500,start:"14:00",shift:"night"},"黃韋銘":{type:"hourly",rate:200,start:"18:00",shift:"night"},"李品璇":{type:"hourly",rate:200,start:"18:00",shift:"night"},"黃王楷":{type:"hourly",rate:196,start:"18:00",shift:"night"},"黃啟軒":{type:"hourly",rate:196,start:"18:00",shift:"night"}};
-    var db=null,selectedEmployee=EMPLOYEES[0],records=[],query="",bossUnlocked=false,isPunching=false,cloudReady=false;
+    const EMPLOYEES = ["劉淑貞", "洪語婷", "劉春美", "林佳恆", "林禹達", "劉穎希", "林芷亘", "黃韋銘", "李品璇", "黃王楷", "黃啟軒"];
+    const STORAGE_KEY = "clockin-records-html-v1";
+    const ACTION_LABELS = { clockIn: "上班", breakStart: "休息開始", breakEnd: "休息結束", clockOut: "下班" };
 
-    function el(id){return document.getElementById(id)}
-    function dateKey(d){d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
-    function monthKey(){return dateKey(new Date()).slice(0,7)}
-    function fmtTime(v){if(!v)return"--:--";return new Intl.DateTimeFormat("zh-TW",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date(v))}
-    function fmtDate(d){return new Intl.DateTimeFormat("zh-TW",{dateStyle:"full"}).format(d)}
-    function money(n){return"$"+Math.round(n||0).toLocaleString("zh-TW")}
-    function minutesBetween(a,b){if(!a||!b)return 0;return Math.max(0,Math.round((new Date(b).getTime()-new Date(a).getTime())/60000))}
-    function duration(m){m=Math.max(0,Math.round(m||0));var h=Math.floor(m/60);var mm=m%60;return h>0?h+"小時"+mm+"分":mm+"分"}
-    function timeToDate(date,time){return new Date(date+"T"+time+":00+08:00")}
-    function toast(type,text){var t=el("toast");t.className=type;t.textContent=text;clearTimeout(window.toastTimer);window.toastTimer=setTimeout(function(){t.className="hidden"},3000)}
-    function vibrate(ok){if(navigator.vibrate)navigator.vibrate(ok?50:[100,50,100])}
+    let selectedEmployee = EMPLOYEES[0];
+    let records = readRecords();
+    let query = "";
 
-    function initSupabase(){try{if(!window.supabase){toast("error","Supabase 套件載入失敗");return}db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);cloudReady=true}catch(e){toast("error","Supabase 初始化失敗："+e.message)}}
-    function dbToRecord(r){return{id:r.id,employee:r.employee,date:r.date,clockIn:r.clock_in,breakStart:r.break_start,breakEnd:r.break_end,clockOut:r.clock_out,updatedAt:r.updated_at}}
-    function recordToDb(r){return{employee:r.employee,date:r.date,clock_in:r.clockIn||null,break_start:r.breakStart||null,break_end:r.breakEnd||null,clock_out:r.clockOut||null,updated_at:r.updatedAt||new Date().toISOString()}}
-    function loadRecords(){if(!cloudReady)return;db.from("clock_records").select("*").order("date",{ascending:false}).order("updated_at",{ascending:false}).then(function(res){if(res.error){toast("error","讀取資料失敗："+res.error.message);return}records=[];for(var i=0;i<(res.data||[]).length;i++){records.push(dbToRecord(res.data[i]))}render()})}
-    function saveRecord(r,cb){if(!cloudReady){toast("error","Supabase 尚未設定完成");cb(null);return}var payload=recordToDb(r);var q=r.id?db.from("clock_records").update(payload).eq("id",r.id).select().single():db.from("clock_records").insert(payload).select().single();q.then(function(res){if(res.error){toast("error","儲存失敗："+res.error.message);cb(null);return}cb(dbToRecord(res.data))})}
+    if (!records.length) {
+      records = getDemoRecords();
+      writeRecords(records);
+    }
 
-    function todayRecord(){var d=dateKey(new Date());for(var i=0;i<records.length;i++){if(records[i].employee===selectedEmployee&&records[i].date===d)return records[i]}return null}
-    function getBreakMinutes(r,endTime){if(!r||!r.breakStart)return 0;return minutesBetween(r.breakStart,r.breakEnd||r.clockOut||endTime||new Date())}
-    function getWorkMinutes(r,now){now=now||new Date();if(!r||!r.clockIn)return 0;if(!r.clockOut)return Math.max(0,minutesBetween(r.clockIn,now)-getBreakMinutes(r,now));return Math.max(0,minutesBetween(r.clockIn,r.clockOut)-getBreakMinutes(r,r.clockOut))}
-    function getStatus(r){if(!r||!r.clockIn)return{label:"尚未上班",hint:"請先選擇員工並打上班卡",color:"gray"};if(r.clockOut)return{label:"今日已下班",hint:"下班時間 "+fmtTime(r.clockOut),color:"gray"};if(r.breakStart&&!r.breakEnd)return{label:"休息中",hint:"休息開始 "+fmtTime(r.breakStart),color:"yellow"};return{label:"上班中",hint:"上班時間 "+fmtTime(r.clockIn),color:"green"}}
-    function validate(r,action){if(!cloudReady)return"系統尚未連線完成，請稍等或重新整理。";if(action==="clockIn"&&r&&r.clockIn&&!r.clockOut)return"今天已經上班了。";if(action==="clockIn"&&r&&r.clockOut)return"今天已經完成下班。正式版目前是單段班。";if(action==="breakStart"&&(!r||!r.clockIn))return"還沒上班，不能休息。";if(action==="breakStart"&&r.clockOut)return"今天已經下班了。";if(action==="breakStart"&&r.breakStart&&!r.breakEnd)return"已經在休息中了。";if(action==="breakStart"&&r.breakStart&&r.breakEnd)return"今天已經休息過了。";if(action==="breakEnd"&&(!r||!r.breakStart))return"尚未開始休息。";if(action==="breakEnd"&&r.breakEnd)return"休息已經結束了。";if(action==="clockOut"&&(!r||!r.clockIn))return"還沒上班，不能下班。";if(action==="clockOut"&&r.breakStart&&!r.breakEnd)return"休息尚未結束，先打休息結束。";if(action==="clockOut"&&r.clockOut)return"今天已經下班了。";return""}
+    function createId() {
+      return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
 
-    function distanceMeters(a,b,c,d){var R=6371000;var p1=a*Math.PI/180,p2=c*Math.PI/180,dp=(c-a)*Math.PI/180,dl=(d-b)*Math.PI/180;var x=Math.sin(dp/2)*Math.sin(dp/2)+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)*Math.sin(dl/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
-    function setDistance(text,state){var d=el("distanceBox");d.textContent=text;d.className=state||""}
-    function checkLocation(cb){setDistance("正在取得定位...","");if(!navigator.geolocation){setDistance("裝置不支援定位","bad");vibrate(false);cb(false,"裝置不支援定位");return}navigator.geolocation.getCurrentPosition(function(pos){var dist=distanceMeters(pos.coords.latitude,pos.coords.longitude,STORE_LAT,STORE_LNG);var ok=dist<=MAX_DISTANCE;setDistance("距離店面：約 "+Math.round(dist)+" 公尺",ok?"ok":"bad");vibrate(ok);cb(ok,ok?"":"距離過遠：約 "+Math.round(dist)+" 公尺")},function(){setDistance("無法取得定位，請允許定位權限","bad");vibrate(false);cb(false,"無法取得定位，請允許定位權限")},{enableHighAccuracy:true,timeout:10000,maximumAge:30000})}
+    function formatDateKey(date = new Date()) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
 
-    function punch(action){if(isPunching)return;var current=todayRecord();var error=validate(current,action);if(error){toast("error",error);vibrate(false);return}isPunching=true;render();checkLocation(function(ok,msg){if(!ok){toast("error",msg);isPunching=false;render();return}var stamp=new Date().toISOString();var rec=todayRecord();if(rec){rec[action]=stamp;rec.updatedAt=stamp}else{rec={employee:selectedEmployee,date:dateKey(new Date()),updatedAt:stamp};rec[action]=stamp}saveRecord(rec,function(saved){if(saved){var found=false;for(var i=0;i<records.length;i++){if(records[i].id===saved.id){records[i]=saved;found=true}}if(!found)records.unshift(saved);toast("success",ACTION_TEXT[action])}isPunching=false;render()})})}
+    function formatTime(dateLike) {
+      if (!dateLike) return "--:--";
+      return new Intl.DateTimeFormat("zh-TW", {
+        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false, timeZone: "Asia/Taipei"
+      }).format(new Date(dateLike));
+    }
 
-    function isLate(r){if(!r||!r.clockIn)return false;var s=STAFF[r.employee];if(!s)return false;return new Date(r.clockIn).getTime()>timeToDate(r.date,s.start).getTime()}
-    function overtimeMinutes(r){if(!r||!r.clockOut)return 0;var s=STAFF[r.employee];if(!s)return 0;var start=s.shift==="night"?timeToDate(r.date,"22:10"):timeToDate(r.date,"18:10");var end=s.shift==="night"?timeToDate(r.date,"22:30"):timeToDate(r.date,"18:30");var out=new Date(r.clockOut);if(out.getTime()<=start.getTime())return 0;var until=Math.min(out.getTime(),end.getTime());return Math.max(0,Math.round((until-start.getTime())/60000))}
-    function filteredRecords(){var arr=[];for(var i=0;i<records.length;i++){var r=records[i];if(!query||r.employee.indexOf(query)>=0||r.date.indexOf(query)>=0)arr.push(r)}arr.sort(function(a,b){return new Date(b.updatedAt)-new Date(a.updatedAt)});return arr}
-    function monthlyRecords(name){var m=monthKey();var arr=[];for(var i=0;i<records.length;i++){if(records[i].employee===name&&records[i].date.indexOf(m)===0)arr.push(records[i])}return arr}
-    function calcSalary(name){var s=STAFF[name];var rs=monthlyRecords(name);var work=0,rest=0,ot=0,late=false,missing=false,meal=0;for(var i=0;i<rs.length;i++){var r=rs[i];var w=getWorkMinutes(r,r.clockOut?new Date(r.clockOut):new Date());var br=getBreakMinutes(r,r.clockOut||new Date());work+=w;rest+=br;ot+=overtimeMinutes(r);if(isLate(r))late=true;if(!r.clockIn||!r.clockOut)missing=true;if(s.type==="hourly"){if(w>=300)meal+=100;else if(w>=240)meal+=50}}var base=0,otPay=0,attendance=0,total=0;if(s.type==="monthly"){base=s.salary;meal=1000;otPay=ot/60*200;attendance=(!late&&!missing&&rs.length>0)?1000:0;total=base+meal+otPay+attendance}else{base=work/60*s.rate;var morningHours=s.shift==="morning"?work/60:0;var nightHours=s.shift==="night"?work/60:0;attendance=(!late&&((morningHours>=80)||(nightHours>=60)))?1000:0;total=base+meal+attendance}return{name:name,type:s.type==="monthly"?"月薪":"時薪",work:work,rest:rest,ot:ot,base:base,otPay:otPay,meal:meal,attendance:attendance,total:total,late:late,missing:missing}}
+    function formatFullDate(date) {
+      return new Intl.DateTimeFormat("zh-TW", { dateStyle: "full", timeZone: "Asia/Taipei" }).format(date);
+    }
 
-    function switchView(view){if(view==="boss"&&!bossUnlocked){el("passwordModal").classList.add("show");el("passwordInput").focus();return}el("staffView").classList.toggle("hidden",view!=="staff");el("bossView").classList.toggle("hidden",view!=="boss");el("staffTab").classList.toggle("active",view==="staff");el("bossTab").classList.toggle("active",view==="boss");render()}
-    function renderEmployees(){var html="";for(var i=0;i<EMPLOYEES.length;i++){var n=EMPLOYEES[i];html+='<button type="button" class="employeeBtn '+(n===selectedEmployee?'active':'')+'" data-name="'+n+'">'+n+'</button>'}el("employeeList").innerHTML=html;var btns=document.querySelectorAll(".employeeBtn");for(var j=0;j<btns.length;j++){btns[j].onclick=function(){selectedEmployee=this.getAttribute("data-name");render()}}}
-    function setButtonState(id,disabled){var b=el(id);b.disabled=isPunching;b.classList.toggle("disabled",disabled)}
-    function render(){var now=new Date();var r=todayRecord();var st=getStatus(r);el("currentTime").textContent=fmtTime(now);el("currentDate").textContent=fmtDate(now);el("selectedEmployeeText").textContent=selectedEmployee;el("currentEmployeeMini").textContent=selectedEmployee;el("statusHint").textContent=st.hint;el("statusBadge").textContent=st.label;el("statusBadge").className="badge "+st.color;renderEmployees();setButtonState("clockInBtn",Boolean(validate(r,"clockIn"))||isPunching);setButtonState("breakStartBtn",Boolean(validate(r,"breakStart"))||isPunching);setButtonState("breakEndBtn",Boolean(validate(r,"breakEnd"))||isPunching);setButtonState("clockOutBtn",Boolean(validate(r,"clockOut"))||isPunching);renderBoss(now)}
-    function renderBoss(now){var salaries=[],total=0;for(var i=0;i<EMPLOYEES.length;i++){var s=calcSalary(EMPLOYEES[i]);salaries.push(s);total+=s.total}el("totalPayroll").textContent=money(total);var html='<div class="salaryLine salaryHeader"><span>員工</span><span>類型</span><span>工時</span><span>休息</span><span>加班</span><span>餐費/全勤</span><span>總薪資</span></div>';for(var j=0;j<salaries.length;j++){var x=salaries[j];html+='<div class="salaryLine"><strong>'+x.name+'</strong><span>'+x.type+'</span><span>'+duration(x.work)+'</span><span>'+duration(x.rest)+'</span><span>'+x.ot+'分</span><span>'+money(x.meal)+' / '+money(x.attendance)+'</span><strong>'+money(x.total)+'</strong></div>'}el("salaryBox").innerHTML=html;var recs=filteredRecords(),rows="";for(var k=0;k<recs.length;k++){var rr=recs[k];rows+='<div class="recordLine"><div><strong>'+rr.employee+'</strong><br><span class="muted">'+rr.date+(isLate(rr)?'｜遲到':'')+'</span></div><span>'+fmtTime(rr.clockIn)+'</span><span>'+fmtTime(rr.breakStart)+'</span><span>'+fmtTime(rr.breakEnd)+'</span><span>'+fmtTime(rr.clockOut)+'</span><strong>'+duration(getWorkMinutes(rr,now))+'</strong><span>'+duration(getBreakMinutes(rr,rr.clockOut||now))+'</span></div>'}el("recordsTable").innerHTML=rows}
-    function exportCsv(filename,rows){var lines=[];for(var i=0;i<rows.length;i++){var cells=[];for(var j=0;j<rows[i].length;j++){cells.push('"'+String(rows[i][j]==null?"":rows[i][j]).replace(/"/g,'""')+'"')}lines.push(cells.join(","))}var blob=new Blob(["﻿"+lines.join("
-")],{type:"text/csv;charset=utf-8"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url)}
-    function exportRecords(){var rows=[["員工","日期","上班","休息開始","休息結束","下班","工時分鐘","休息分鐘","加班分鐘","遲到"]],arr=filteredRecords();for(var i=0;i<arr.length;i++){var r=arr[i];rows.push([r.employee,r.date,fmtTime(r.clockIn),fmtTime(r.breakStart),fmtTime(r.breakEnd),fmtTime(r.clockOut),getWorkMinutes(r,r.clockOut?new Date(r.clockOut):new Date()),getBreakMinutes(r,r.clockOut||new Date()),overtimeMinutes(r),isLate(r)?"是":"否"])}exportCsv("clockin-"+dateKey(new Date())+".csv",rows)}
-    function exportSalary(){var rows=[["員工","類型","工時分鐘","休息分鐘","加班分鐘","基本薪資","加班費","餐費","全勤","總薪資","遲到","缺卡"]];for(var i=0;i<EMPLOYEES.length;i++){var x=calcSalary(EMPLOYEES[i]);rows.push([x.name,x.type,x.work,x.rest,x.ot,Math.round(x.base),Math.round(x.otPay),Math.round(x.meal),Math.round(x.attendance),Math.round(x.total),x.late?"是":"否",x.missing?"是":"否"])}exportCsv("salary-"+monthKey()+".csv",rows)}
-    function unlockBoss(){if(el("passwordInput").value===BOSS_PASSWORD){bossUnlocked=true;el("passwordModal").classList.remove("show");el("passwordInput").value="";toast("success","老闆頁面已解鎖");switchView("boss")}else{toast("error","密碼錯誤");vibrate(false)}}
+    function formatShortDate(dateLike) {
+      return new Intl.DateTimeFormat("zh-TW", { month: "2-digit", day: "2-digit", weekday: "short", timeZone: "Asia/Taipei" }).format(new Date(dateLike));
+    }
 
-    window.addEventListener("load",function(){
-      initSupabase();
-      el("staffTab").onclick=function(){switchView("staff")};
-      el("bossTab").onclick=function(){switchView("boss")};
-      el("passwordSubmit").onclick=unlockBoss;
-      el("passwordCancel").onclick=function(){el("passwordModal").classList.remove("show")};
-      el("passwordInput").onkeydown=function(e){if(e.key==="Enter")unlockBoss()};
-      el("clockInBtn").onclick=function(){punch("clockIn")};
-      el("breakStartBtn").onclick=function(){punch("breakStart")};
-      el("breakEndBtn").onclick=function(){punch("breakEnd")};
-      el("clockOutBtn").onclick=function(){punch("clockOut")};
-      el("searchInput").oninput=function(){query=this.value.trim();render()};
-      el("refreshBtn").onclick=loadRecords;
-      el("exportRecordsBtn").onclick=exportRecords;
-      el("exportSalaryBtn").onclick=exportSalary;
+    function minutesBetween(start, end) {
+      if (!start || !end) return 0;
+      return Math.max(0, Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000));
+    }
+
+    function formatDuration(minutes) {
+      const h = Math.floor(minutes / 60);
+      const m = minutes % 60;
+      return h <= 0 ? `${m} 分` : `${h} 小時 ${m} 分`;
+    }
+
+    function calculateWorkMinutes(record, now = new Date()) {
+      if (!record || !record.clockIn) return 0;
+      const end = record.clockOut || now;
+      const gross = minutesBetween(record.clockIn, end);
+      const breakMinutes = record.breakStart ? minutesBetween(record.breakStart, record.breakEnd || now) : 0;
+      return Math.max(0, gross - breakMinutes);
+    }
+
+    function readRecords() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
+      catch { return []; }
+    }
+
+    function writeRecords(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function getDemoRecords() {
+      const now = new Date();
+      const y = new Date(now); y.setDate(now.getDate() - 1);
+      const t = new Date(now); t.setDate(now.getDate() - 2);
+      const d1 = formatDateKey(y);
+      const d2 = formatDateKey(t);
+      return [
+        { id: createId(), employee: "林佳恆", date: d1, clockIn: `${d1}T10:02:00+08:00`, breakStart: `${d1}T14:21:00+08:00`, breakEnd: `${d1}T15:02:00+08:00`, clockOut: `${d1}T20:08:00+08:00`, updatedAt: new Date().toISOString() },
+        { id: createId(), employee: "洪語婷", date: d2, clockIn: `${d2}T09:58:00+08:00`, breakStart: `${d2}T13:54:00+08:00`, breakEnd: `${d2}T14:26:00+08:00`, clockOut: `${d2}T19:56:00+08:00`, updatedAt: new Date().toISOString() }
+      ];
+    }
+
+    function getTodayRecord() {
+      const today = formatDateKey(new Date());
+      return records.find(r => r.employee === selectedEmployee && r.date === today);
+    }
+
+    function getStatus(record) {
+      if (!record || !record.clockIn) return { label: "尚未上班", hint: "請先選擇員工並打上班卡", cls: "bg-slate-100 text-slate-600" };
+      if (record.clockOut) return { label: "今日已下班", hint: `下班時間 ${formatTime(record.clockOut)}`, cls: "bg-slate-100 text-slate-600" };
+      if (record.breakStart && !record.breakEnd) return { label: "休息中", hint: `休息開始 ${formatTime(record.breakStart)}`, cls: "bg-amber-100 text-amber-700" };
+      return { label: "上班中", hint: `上班時間 ${formatTime(record.clockIn)}`, cls: "bg-emerald-100 text-emerald-700" };
+    }
+
+    function validateAction(record, action) {
+      if (action === "clockIn" && record?.clockIn && !record?.clockOut) return "今天已經上班了，別重複打卡。";
+      if (action === "clockIn" && record?.clockOut) return "今天已經完成下班，不能再次上班。";
+      if (action === "breakStart" && !record?.clockIn) return "還沒上班，不能先休息。";
+      if (action === "breakStart" && record?.clockOut) return "今天已經下班了。";
+      if (action === "breakStart" && record?.breakStart && !record?.breakEnd) return "已經在休息中了。";
+      if (action === "breakStart" && record?.breakStart && record?.breakEnd) return "今天已經休息過了。";
+      if (action === "breakEnd" && !record?.breakStart) return "尚未開始休息。";
+      if (action === "breakEnd" && record?.breakEnd) return "休息已經結束了。";
+      if (action === "clockOut" && !record?.clockIn) return "還沒上班，不能下班。";
+      if (action === "clockOut" && record?.breakStart && !record?.breakEnd) return "休息尚未結束，先打休息結束。";
+      if (action === "clockOut" && record?.clockOut) return "今天已經下班了。";
+      return "";
+    }
+
+    function showToast(type, text) {
+      const toast = document.getElementById("toast");
+      toast.textContent = text;
+      toast.className = `fixed right-4 top-4 z-50 rounded-2xl px-4 py-3 text-sm font-bold text-white shadow-xl ${type === "success" ? "bg-emerald-600" : "bg-rose-600"}`;
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => toast.classList.add("hidden"), 2600);
+    }
+
+    function handleAction(action) {
+      const today = formatDateKey(new Date());
+      const todayRecord = getTodayRecord();
+      const error = validateAction(todayRecord, action);
+      if (error) return showToast("error", error);
+
+      const stamp = new Date().toISOString();
+      const base = todayRecord || { id: createId(), employee: selectedEmployee, date: today, updatedAt: stamp };
+      const nextRecord = { ...base, [action]: stamp, updatedAt: stamp };
+      records = todayRecord ? records.map(r => r.id === todayRecord.id ? nextRecord : r) : [nextRecord, ...records];
+      writeRecords(records);
+      showToast("success", `${selectedEmployee} ${ACTION_LABELS[action]}成功：${formatTime(stamp)}`);
       render();
-      loadRecords();
-      setInterval(render,1000);
-    });
+    }
+
+    function switchView(view) {
+      document.getElementById("staffView").classList.toggle("hidden", view !== "staff");
+      document.getElementById("bossView").classList.toggle("hidden", view !== "boss");
+      document.getElementById("bossView").classList.toggle("grid", view === "boss");
+      document.getElementById("staffTab").className = view === "staff" ? "rounded-full bg-slate-950 px-4 py-2 text-sm font-bold text-white transition" : "rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-100";
+      document.getElementById("bossTab").className = view === "boss" ? "rounded-full bg-slate-950 px-4 py-2 text-sm font-bold text-white transition" : "rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-100";
+      render();
+    }
+
+    function getMonthlySummary() {
+      const month = formatDateKey(new Date()).slice(0, 7);
+      const map = new Map();
+      records.filter(r => r.date.startsWith(month)).forEach(r => {
+        const item = map.get(r.employee) || { employee: r.employee, days: 0, minutes: 0 };
+        item.days += r.clockIn ? 1 : 0;
+        item.minutes += calculateWorkMinutes(r, r.clockOut ? new Date(r.clockOut) : new Date());
+        map.set(r.employee, item);
+      });
+      return [...map.values()].sort((a, b) => b.minutes - a.minutes);
+    }
+
+    function exportCsv() {
+      const filtered = getFilteredRecords();
+      const rows = [["員工", "日期", "上班", "休息開始", "休息結束", "下班", "工時分鐘"], ...filtered.map(r => [r.employee, r.date, formatTime(r.clockIn), formatTime(r.breakStart), formatTime(r.breakEnd), formatTime(r.clockOut), calculateWorkMinutes(r, r.clockOut ? new Date(r.clockOut) : new Date())])];
+      const csv = rows.map(row => row.map(cell => `"${String(cell).replaceAll('"', '""')}"`).join(",")).join("
+");
+      const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `clockin-${formatDateKey(new Date())}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function getFilteredRecords() {
+      return records.filter(r => !query || r.employee.includes(query) || r.date.includes(query)).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    }
+
+    function renderEmployees() {
+      const box = document.getElementById("employeeList");
+      box.innerHTML = EMPLOYEES.map(name => `
+        <button data-employee="${name}" class="rounded-2xl border px-4 py-3 text-left text-sm font-bold transition-all ${selectedEmployee === name ? "border-slate-950 bg-slate-950 text-white shadow-lg" : "border-slate-200 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50"}">${name}</button>
+      `).join("");
+      box.querySelectorAll("button").forEach(btn => btn.addEventListener("click", () => { selectedEmployee = btn.dataset.employee; render(); }));
+    }
+
+    function render() {
+      const now = new Date();
+      const today = formatDateKey(now);
+      const todayRecord = getTodayRecord();
+      const status = getStatus(todayRecord);
+      const todayAll = records.filter(r => r.date === today);
+      const summary = getMonthlySummary();
+
+      document.getElementById("currentTime").textContent = formatTime(now);
+      document.getElementById("currentDate").textContent = formatFullDate(now);
+      document.getElementById("todayDuration").textContent = formatDuration(calculateWorkMinutes(todayRecord, now));
+      document.getElementById("selectedEmployeeText").textContent = selectedEmployee;
+      document.getElementById("statusBadge").textContent = status.label;
+      document.getElementById("statusBadge").className = `rounded-full px-4 py-2 text-sm font-black ${status.cls}`;
+      document.getElementById("statusHint").textContent = status.hint;
+
+      renderEmployees();
+
+      document.querySelectorAll(".action-btn").forEach(btn => {
+        const action = btn.dataset.action;
+        const blocked = Boolean(validateAction(todayRecord, action));
+        btn.classList.toggle("opacity-50", blocked);
+      });
+
+      document.getElementById("todayRecordBox").innerHTML = [
+        ["上班", todayRecord?.clockIn], ["休息開始", todayRecord?.breakStart], ["休息結束", todayRecord?.breakEnd], ["下班", todayRecord?.clockOut]
+      ].map(([label, value]) => `
+        <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+          <span class="font-bold text-slate-600">${label}</span><span class="font-black tabular-nums">${formatTime(value)}</span>
+        </div>
+      `).join("");
+
+      document.getElementById("todayAllBox").innerHTML = todayAll.length ? todayAll.map(r => `
+        <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-4 py-3">
+          <div><p class="font-black">${r.employee}</p><p class="text-xs text-slate-500">${getStatus(r).label}</p></div>
+          <p class="text-sm font-bold text-slate-500">${formatDuration(calculateWorkMinutes(r, now))}</p>
+        </div>
+      `).join("") : `<p class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">今天還沒有人打卡。很安靜，安靜到有點可疑。</p>`;
+
+      document.getElementById("employeeCount").textContent = EMPLOYEES.length;
+      document.getElementById("todayCount").textContent = todayAll.length;
+      document.getElementById("monthlyTotal").textContent = formatDuration(summary.reduce((sum, item) => sum + item.minutes, 0));
+      document.getElementById("monthlySummary").innerHTML = summary.length ? summary.map(item => `
+        <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+          <div><p class="font-black">${item.employee}</p><p class="text-xs text-slate-500">出勤 ${item.days} 天</p></div>
+          <p class="font-black">${formatDuration(item.minutes)}</p>
+        </div>
+      `).join("") : `<p class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">本月還沒有紀錄。</p>`;
+
+      document.getElementById("recordsTable").innerHTML = getFilteredRecords().map(r => `
+        <div class="grid gap-3 px-4 py-4 text-sm md:grid-cols-[1.1fr_1fr_1fr_1fr_1fr_1fr] md:items-center">
+          <div><p class="font-black">${r.employee}</p><p class="text-xs text-slate-500">${formatShortDate(r.clockIn || `${r.date}T00:00:00+08:00`)}</p></div>
+          <p class="font-bold tabular-nums">${formatTime(r.clockIn)}</p>
+          <p class="font-bold tabular-nums">${formatTime(r.breakStart)}</p>
+          <p class="font-bold tabular-nums">${formatTime(r.breakEnd)}</p>
+          <p class="font-bold tabular-nums">${formatTime(r.clockOut)}</p>
+          <p class="font-black">${formatDuration(calculateWorkMinutes(r, r.clockOut ? new Date(r.clockOut) : now))}</p>
+        </div>
+      `).join("");
+    }
+
+    document.getElementById("staffTab").addEventListener("click", () => switchView("staff"));
+    document.getElementById("bossTab").addEventListener("click", () => switchView("boss"));
+    document.querySelectorAll(".action-btn").forEach(btn => btn.addEventListener("click", () => handleAction(btn.dataset.action)));
+    document.getElementById("searchInput").addEventListener("input", e => { query = e.target.value.trim(); render(); });
+    document.getElementById("exportBtn").addEventListener("click", exportCsv);
+    document.getElementById("resetBtn").addEventListener("click", () => { records = getDemoRecords(); writeRecords(records); showToast("success", "已重置示範資料。"); render(); });
+
+    render();
+    setInterval(render, 1000);
   </script>
 </body>
 </html>
