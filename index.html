@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>潮味決南港昆陽店｜員工打卡系統</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>潮味決南港昆陽店｜員工打卡系統</title>
 
-  <!-- ✅ 一定要在 head 裡面 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
+<style>
 :root{
   --bg:#f4f7fb;
   --card:#ffffff;
@@ -731,27 +729,6 @@ function clock(action){
 if(done.includes(action)){
   alert("這個已經打過卡了");
   return;
-}
-  function clock(action){
-  ...
-  ...
-}  // 👈 這是結束
-
-// 👇👇👇 就貼在這裡
-async function loadCloudRecords(){
-  const { data, error } = await supabaseClient
-    .from("clock_records")
-    .select("*")
-    .order("created_at", { ascending:false });
-
-  if(error){
-    alert("讀取雲端失敗：" + error.message);
-    return;
-  }
-
-  records = data || [];
-  localStorage.setItem("clock_records", JSON.stringify(records));
-  renderButtons();
 }
   if(!locationOK){
     alert("目前定位未通過，不能打卡。");
