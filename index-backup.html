@@ -726,28 +726,45 @@ if(salary){
 
 function clock(action){
   const done = getTodayRecords().map(r => r.action);
-if(done.includes(action)){
-  alert("這個已經打過卡了");
-  return;
-}
+
+  if(done.includes(action)){
+    alert("這個已經打過卡了");
+    return;
+  }
+
   if(!locationOK){
     alert("目前定位未通過，不能打卡。");
     return;
   }
 
-  records.unshift({
-    name:empSelect.value,
+  const newRecord = {
+    name: empSelect.value,
     action,
-    time:new Date().toLocaleString("zh-TW",{hour12:false}),
-    date:getToday(),
-    distance:distance || "",
-    device:navigator.userAgent
-  });
+    time: new Date().toLocaleString("zh-TW",{hour12:false}),
+    date: getToday(),
+    distance: distance || "",
+    device: navigator.userAgent
+  };
 
-  localStorage.setItem("clock_records", JSON.stringify(records));
-  renderButtons();
+  // ⭐ 先寫入雲端
+  supabaseClient
+    .from("clock_records")
+    .insert([newRecord])
+    .then(({ error }) => {
+      if(error){
+        alert("上傳失敗：" + error.message);
+        return;
+      }
+
+      // ⭐ 成功才寫本地
+      records.unshift(newRecord);
+      localStorage.setItem("clock_records", JSON.stringify(records));
+
+      renderButtons();
+
+      alert(`${empSelect.value} 已完成「${action}」打卡`);
+    });
 }
-alert(`${empSelect.value} 已完成「${action}」打卡`);
 
 function renderToday(){
   const data = getTodayRecords();
@@ -809,6 +826,20 @@ function clearData(){
     alert("請輸入 DELETE 才能清空紀錄");
     return;
   }
+  async function loadCloudRecords(){
+  const { data, error } = await supabaseClient
+    .from("clock_records")
+    .select("*")
+    .order("created_at", { ascending:false });
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  records = data || [];
+  renderButtons();
+}
 
   records = [];
   localStorage.removeItem("clock_records");
@@ -817,7 +848,7 @@ function clearData(){
 }
 
 getLocation();
-renderButtons();
+loadCloudRecords();
 </script>
 </body>
 </html>
