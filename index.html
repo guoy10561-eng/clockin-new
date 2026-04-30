@@ -754,6 +754,7 @@ function clock(action){
       if(error){
         alert("上傳失敗：" + error.message + "\n" + JSON.stringify(error));
 console.log(error);
+      }
 
       // ⭐ 成功才寫本地
       records.unshift(newRecord);
