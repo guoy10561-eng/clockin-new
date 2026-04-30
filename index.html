@@ -687,8 +687,8 @@ if(!done.includes("上班")){
     const isDone = done.includes(action);
     const isNext = allowedActions.includes(action);
 
-    btn.className = "action-btn " + (isDone ? "done" : (isNext && locationOK ? "enabled" : "locked"));
-    btn.disabled = !(isNext && locationOK) || isDone;
+    btn.className = "action-btn " + (isDone ? "done" : (isNext ? "enabled" : "locked"));
+    btn.disabled = !isNext || isDone;
     btn.innerHTML = `<span class="name">${action}</span><span class="hint">${isDone ? "已完成" : isNext ? "下一個步驟" : "尚未開放"}</span>`;
 
     if(isNext && locationOK && !isDone){
