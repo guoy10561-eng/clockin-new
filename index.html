@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+<head>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>潮味決南港昆陽店｜員工打卡系統</title>
@@ -661,44 +661,52 @@ function calcSalaryDetail(name, records){
 }
 
 function getTodayRecords(){
-  return records.filter(r => r.name === empSelect.value && r.date === getToday());
+  return records.filter(r =>
+    (r.employee_name || r.name) === empSelect.value &&
+    r.date === getToday()
+  );
 }
 
 function renderButtons(){
   const done = getTodayRecords().map(r => r.action);
 
-let allowedActions = [];
+  let allowedActions = [];
 
-if(!done.includes("上班")){
-  allowedActions = ["上班"];
-}else if(done.includes("上班") && !done.includes("休息開始") && !done.includes("下班")){
-  allowedActions = ["休息開始", "下班"];
-}else if(done.includes("休息開始") && !done.includes("休息結束")){
-  allowedActions = ["休息結束"];
-}else if(done.includes("休息結束") && !done.includes("下班")){
-  allowedActions = ["下班"];
-}
-  const next = ACTIONS.find(a => !done.includes(a));
+  if(!done.includes("上班")){
+    allowedActions = ["上班"];
+  }else if(done.includes("上班") && !done.includes("休息開始") && !done.includes("下班")){
+    allowedActions = ["休息開始", "下班"];
+  }else if(done.includes("休息開始") && !done.includes("休息結束")){
+    allowedActions = ["休息結束"];
+  }else if(done.includes("休息結束") && !done.includes("下班")){
+    allowedActions = ["下班"];
+  }
+
   const box = document.getElementById("buttons");
   box.innerHTML = "";
 
   ACTIONS.forEach(action => {
     const btn = document.createElement("button");
     const isDone = done.includes(action);
-    const isNext = allowedActions.includes(action);
+    const isAllowed = allowedActions.includes(action);
 
-    btn.className = "action-btn " + (isDone ? "done" : (isNext ? "enabled" : "locked"));
-    btn.disabled = !isNext || isDone;
-    btn.innerHTML = `<span class="name">${action}</span><span class="hint">${isDone ? "已完成" : isNext ? "下一個步驟" : "尚未開放"}</span>`;
+    btn.className = "action-btn " + (isDone ? "done" : isAllowed ? "enabled" : "locked");
+    btn.disabled = isDone || !isAllowed;
 
-    if(isNext && locationOK && !isDone){
+    btn.innerHTML = `
+      <span class="name">${action}</span>
+      <span class="hint">${isDone ? "已完成" : isAllowed ? "可以打卡" : "尚未開放"}</span>
+    `;
+
+    if(isAllowed && !isDone){
       btn.onclick = () => clock(action);
     }
 
     box.appendChild(btn);
   });
 
-  renderToday();const salary = calcSalaryDetail(empSelect.value, data);
+  renderToday();
+}
 
 if(salary){
   if(salary.type === "hourly"){
@@ -736,6 +744,20 @@ function clock(action){
     alert("目前定位未通過，不能打卡。");
     return;
   }
+  async function loadCloudRecords(){
+  const { data, error } = await supabaseClient
+    .from("clock_records")
+    .select("*")
+    .order("created_at", { ascending:false });
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  records = data || [];
+  renderButtons();
+}
 
   const newRecord = {
     employee_name: empSelect.value,
@@ -752,9 +774,10 @@ function clock(action){
     .insert([newRecord])
     .then(({ error }) => {
       if(error){
-        alert("上傳失敗：" + error.message + "\n" + JSON.stringify(error));
-console.log(error);
-      }
+  alert("上傳失敗：" + error.message + "\n" + JSON.stringify(error));
+  console.log(error);
+  return;
+}
 
       // ⭐ 成功才寫本地
       records.unshift(newRecord);
@@ -777,7 +800,7 @@ function renderToday(){
 
   box.innerHTML = data.map(r => `
     <div class="record">
-      <b>${r.name}｜${r.action}</b>
+      <b>${r.employee_name || r.name}｜${r.action}</b>
       <span>${r.time} · ${r.distance || "?"} 公尺</span>
     </div>
   `).join("");
@@ -826,20 +849,7 @@ function clearData(){
     alert("請輸入 DELETE 才能清空紀錄");
     return;
   }
-  async function loadCloudRecords(){
-  const { data, error } = await supabaseClient
-    .from("clock_records")
-    .select("*")
-    .order("created_at", { ascending:false });
-
-  if(error){
-    console.log(error);
-    return;
-  }
-
-  records = data || [];
-  renderButtons();
-}
+ 
 
   records = [];
   localStorage.removeItem("clock_records");
