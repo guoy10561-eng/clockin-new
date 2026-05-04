@@ -42,12 +42,20 @@ button:disabled{
 <div class="card">
   <h2>員工打卡（測試）</h2>
 
-  <select id="employee">
-    <option value="">請選擇員工</option>
-    <option>劉淑貞</option>
-    <option>洪語婷</option>
-    <option>劉春美</option>
-  </select>
+  <select id="employee"></select>
+  <option value="">請選擇員工</option>
+  <option>劉淑貞</option>
+  <option>洪語婷</option>
+  <option>林芷亘</option>
+  <option>劉春美</option>
+  <option>林佳恆</option>
+  <option>林禹達</option>
+  <option>劉穎希</option>
+  <option>黃韋銘</option>
+  <option>李品璇</option>
+  <option>黃王楷</option>
+  <option>黃啟軒</option>
+</select>
 
   <p id="status">定位中...</p>
 
@@ -110,6 +118,23 @@ function clock(){
 
   alert(name + " 打卡成功！");
 }
+  const EMPLOYEES = [
+  "劉淑貞","洪語婷","林芷亘",
+  "劉春美","林佳恆","林禹達",
+  "劉穎希","黃韋銘","李品璇",
+  "黃王楷","黃啟軒"
+];
+
+const select = document.getElementById("employee");
+
+select.innerHTML = '<option value="">請選擇員工</option>';
+
+EMPLOYEES.forEach(name=>{
+  const opt = document.createElement("option");
+  opt.value = name;
+  opt.textContent = name;
+  select.appendChild(opt);
+});
 
 getLocation();
 </script>
