@@ -127,8 +127,16 @@ function clock(){
 
 const select = document.getElementById("employee");
 
-select.innerHTML = '<option value="">請選擇員工</option>';
+// 🔥 先清空（很重要）
+select.innerHTML = "";
 
+// 🔥 加第一個提示
+const first = document.createElement("option");
+first.value = "";
+first.textContent = "請選擇員工";
+select.appendChild(first);
+
+// 🔥 正確加入選項
 EMPLOYEES.forEach(name=>{
   const opt = document.createElement("option");
   opt.value = name;
