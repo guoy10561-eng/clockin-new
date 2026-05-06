@@ -3,36 +3,54 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>打卡系統（測試版）</title>
+<title>潮味決打卡系統</title>
 
 <style>
 body{
-  font-family:sans-serif;
-  text-align:center;
-  padding:30px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;
   background:#f5f7fa;
+  margin:0;
+  padding:24px;
+  text-align:center;
 }
 .card{
   background:white;
-  padding:20px;
-  border-radius:16px;
-  max-width:400px;
-  margin:auto;
-  box-shadow:0 10px 30px rgba(0,0,0,.1);
+  padding:24px;
+  border-radius:18px;
+  max-width:430px;
+  margin:0 auto 20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
 }
-button{
+select,input,button{
   width:100%;
   padding:14px;
   margin-top:10px;
-  border:none;
-  border-radius:10px;
+  border-radius:12px;
   font-size:16px;
-  font-weight:bold;
+  box-sizing:border-box;
+}
+select,input{
+  border:1px solid #ddd;
+}
+button{
+  border:none;
   background:#0f766e;
   color:white;
+  font-weight:bold;
 }
 button:disabled{
-  background:#ccc;
+  background:#cbd5e1;
+  color:#64748b;
+}
+.danger{
+  background:#dc2626;
+}
+.record{
+  background:#f1f5f9;
+  padding:10px;
+  border-radius:10px;
+  margin-top:8px;
+  text-align:left;
 }
 </style>
 </head>
@@ -40,39 +58,66 @@ button:disabled{
 <body>
 
 <div class="card">
-  <h2>員工打卡（測試）</h2>
+  <h2>潮味決員工打卡</h2>
 
   <select id="employee"></select>
 
-</select>
-
   <p id="status">定位中...</p>
 
-  <button id="btn" disabled onclick="clock()">上班打卡</button>
-<div id="recordBox" style="display:none; margin-top:25px;">
-  <h3>打卡紀錄</h3>
-  <div id="records"></div>
+  <div id="actionButtons"></div>
 </div>
 
-<div style="margin-top:25px;">
+<div class="card">
   <h3>管理專區</h3>
+
   <input type="password" id="adminPwd" placeholder="輸入管理密碼">
   <button onclick="unlockAdmin()">解鎖管理</button>
 
-  <div id="adminPanel" style="display:none; margin-top:15px;">
+  <div id="adminPanel" style="display:none;">
+    <h3>打卡紀錄</h3>
+    <div id="records"></div>
+
     <button onclick="exportCSV()">匯出 CSV</button>
+
     <input id="confirmDelete" placeholder="輸入 DELETE 才能清空">
-    <button onclick="clearRecords()" style="background:#dc2626;">清空紀錄</button>
+    <button class="danger" onclick="clearRecords()">清空紀錄</button>
   </div>
 </div>
 
 <script>
-  const ADMIN_PASSWORD = "931119";
-let records = JSON.parse(localStorage.getItem("clock_records") || "[]");
+const EMPLOYEES = [
+  "劉淑貞","洪語婷","林芷亘",
+  "劉春美","林佳恆","林禹達",
+  "劉穎希","黃韋銘","李品璇",
+  "黃王楷","黃啟軒"
+];
+
+const ACTIONS = ["上班","休息開始","休息結束","下班"];
+const ADMIN_PASSWORD = "931119";
+
 const SHOP = { lat:25.05068, lng:121.59259 };
 const MAX_DISTANCE = 150;
 
+let records = JSON.parse(localStorage.getItem("clock_records") || "[]");
 let locationOK = false;
+let distance = "";
+
+const employeeSelect = document.getElementById("employee");
+
+employeeSelect.innerHTML = `<option value="">請選擇員工</option>`;
+
+EMPLOYEES.forEach(name=>{
+  const opt = document.createElement("option");
+  opt.value = name;
+  opt.textContent = name;
+  employeeSelect.appendChild(opt);
+});
+
+employeeSelect.addEventListener("change", updateButtons);
+
+function getToday(){
+  return new Date().toISOString().slice(0,10);
+}
 
 function calcDistance(lat,lng){
   const R = 6371000;
@@ -89,38 +134,75 @@ function calcDistance(lat,lng){
 }
 
 function getLocation(){
+  const status = document.getElementById("status");
+  status.textContent = "定位中...";
+
   if(!navigator.geolocation){
-    document.getElementById("status").textContent = "裝置不支援定位";
+    status.textContent = "此裝置不支援定位";
     return;
   }
 
   navigator.geolocation.getCurrentPosition(pos=>{
-    const d = calcDistance(pos.coords.latitude,pos.coords.longitude);
+    distance = calcDistance(pos.coords.latitude,pos.coords.longitude);
+    locationOK = distance <= MAX_DISTANCE;
 
-    if(d <= MAX_DISTANCE){
-      locationOK = true;
-      document.getElementById("status").textContent = "定位通過（"+d+"m）";
-    }else{
-      locationOK = false;
-      document.getElementById("status").textContent = "距離太遠（"+d+"m）";
-    }
+    status.textContent = locationOK
+      ? `定位通過，距離 ${distance}m`
+      : `距離太遠，距離 ${distance}m`;
 
-    updateBtn();
-
-  }, ()=>{
-    document.getElementById("status").textContent = "定位失敗";
+    updateButtons();
+  },()=>{
+    status.textContent = "定位失敗，請開啟定位權限";
+    locationOK = false;
+    updateButtons();
   });
 }
 
-function updateBtn(){
-  const emp = document.getElementById("employee").value;
-  document.getElementById("btn").disabled = !(emp && locationOK);
+function getTodayRecords(){
+  const name = employeeSelect.value;
+  return records.filter(r => r.name === name && r.date === getToday());
 }
 
-document.getElementById("employee").addEventListener("change", updateBtn);
+function updateButtons(){
+  const box = document.getElementById("actionButtons");
+  const name = employeeSelect.value;
 
-function clock(){
-  const name = document.getElementById("employee").value;
+  box.innerHTML = "";
+
+  if(!name){
+    box.innerHTML = "<p>請先選擇員工</p>";
+    return;
+  }
+
+  const done = getTodayRecords().map(r => r.action);
+
+  let allowed = [];
+
+  if(!done.includes("上班")){
+    allowed = ["上班"];
+  }else if(done.includes("上班") && !done.includes("休息開始") && !done.includes("下班")){
+    allowed = ["休息開始","下班"];
+  }else if(done.includes("休息開始") && !done.includes("休息結束")){
+    allowed = ["休息結束"];
+  }else if(done.includes("休息結束") && !done.includes("下班")){
+    allowed = ["下班"];
+  }
+
+  ACTIONS.forEach(action=>{
+    const btn = document.createElement("button");
+    const isDone = done.includes(action);
+    const canClick = locationOK && allowed.includes(action) && !isDone;
+
+    btn.textContent = isDone ? `${action} ✅` : action;
+    btn.disabled = !canClick;
+    btn.onclick = () => clock(action);
+
+    box.appendChild(btn);
+  });
+}
+
+function clock(action){
+  const name = employeeSelect.value;
 
   if(!name){
     alert("請先選擇員工");
@@ -132,31 +214,43 @@ function clock(){
     return;
   }
 
+  const done = getTodayRecords().map(r => r.action);
+
+  if(done.includes(action)){
+    alert("這個已經打過卡了");
+    return;
+  }
+
   const record = {
     name,
-    action: "上班",
-    date: new Date().toISOString().slice(0,10),
-    time: new Date().toLocaleString("zh-TW", { hour12:false }),
+    action,
+    date:getToday(),
+    time:new Date().toLocaleString("zh-TW",{hour12:false}),
     distance
   };
 
   records.unshift(record);
   localStorage.setItem("clock_records", JSON.stringify(records));
 
-  alert(`${name} 上班打卡成功`);
+  alert(`${name} ${action}成功`);
+  updateButtons();
   renderRecords();
 }
-  function renderRecords(){
+
+function renderRecords(){
   const box = document.getElementById("records");
-  if(!box) return;
 
   if(records.length === 0){
     box.innerHTML = "<p>目前沒有紀錄</p>";
     return;
   }
 
-  box.innerHTML = records.map(r => `
-    <p>${r.name}｜${r.action}｜${r.time}｜${r.distance}m</p>
+  box.innerHTML = records.map(r=>`
+    <div class="record">
+      ${r.name}｜${r.action}<br>
+      ${r.time}<br>
+      距離：${r.distance}m
+    </div>
   `).join("");
 }
 
@@ -165,7 +259,7 @@ function unlockAdmin(){
 
   if(pwd === ADMIN_PASSWORD){
     document.getElementById("adminPanel").style.display = "block";
-    document.getElementById("recordBox").style.display = "block";
+    document.getElementById("adminPwd").value = "";
     renderRecords();
   }else{
     alert("密碼錯誤");
@@ -179,7 +273,7 @@ function exportCSV(){
     csv += `${r.name},${r.action},${r.date},${r.time},${r.distance}\n`;
   });
 
-  const blob = new Blob(["\uFEFF" + csv], { type:"text/csv;charset=utf-8" });
+  const blob = new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = "clock-records.csv";
@@ -195,34 +289,11 @@ function clearRecords(){
   records = [];
   localStorage.removeItem("clock_records");
   renderRecords();
+  updateButtons();
   alert("紀錄已清空");
 }
-  const EMPLOYEES = [
-  "劉淑貞","洪語婷","林芷亘",
-  "劉春美","林佳恆","林禹達",
-  "劉穎希","黃韋銘","李品璇",
-  "黃王楷","黃啟軒"
-];
 
-const select = document.getElementById("employee");
-
-// 🔥 先清空（很重要）
-select.innerHTML = "";
-
-// 🔥 加第一個提示
-const first = document.createElement("option");
-first.value = "";
-first.textContent = "請選擇員工";
-select.appendChild(first);
-
-// 🔥 正確加入選項
-EMPLOYEES.forEach(name=>{
-  const opt = document.createElement("option");
-  opt.value = name;
-  opt.textContent = name;
-  select.appendChild(opt);
-});
-
+updateButtons();
 getLocation();
 </script>
 
