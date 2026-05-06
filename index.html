@@ -119,13 +119,14 @@ EMPLOYEES.forEach(name=>{
 });
   const filterSelect = document.getElementById("filterEmployee");
 
-EMPLOYEES.forEach(name=>{
-  const opt = document.createElement("option");
-  opt.value = name;
-  opt.textContent = name;
-  filterSelect.appendChild(opt);
-});
-
+if(filterSelect){
+  EMPLOYEES.forEach(name=>{
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    filterSelect.appendChild(opt);
+  });
+}
 employeeSelect.addEventListener("change", updateButtons);
 
 function getToday(){
