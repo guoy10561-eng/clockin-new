@@ -75,7 +75,12 @@ button:disabled{
 
   <div id="adminPanel" style="display:none;">
     <h3>打卡紀錄</h3>
-    <div id="records"></div>
+
+<select id="filterEmployee" onchange="renderRecords()">
+  <option value="ALL">全部員工</option>
+</select>
+
+<div id="records"></div>
 
     <button onclick="exportCSV()">匯出 CSV</button>
 
@@ -111,6 +116,14 @@ EMPLOYEES.forEach(name=>{
   opt.value = name;
   opt.textContent = name;
   employeeSelect.appendChild(opt);
+});
+  const filterSelect = document.getElementById("filterEmployee");
+
+EMPLOYEES.forEach(name=>{
+  const opt = document.createElement("option");
+  opt.value = name;
+  opt.textContent = name;
+  filterSelect.appendChild(opt);
 });
 
 employeeSelect.addEventListener("change", updateButtons);
@@ -239,12 +252,27 @@ function clock(action){
 
 function renderRecords(){
   const box = document.getElementById("records");
+  const filter = document.getElementById("filterEmployee")?.value || "ALL";
 
-  if(records.length === 0){
+  let data = records;
+
+  if(filter !== "ALL"){
+    data = records.filter(r => r.name === filter);
+  }
+
+  if(data.length === 0){
     box.innerHTML = "<p>目前沒有紀錄</p>";
     return;
   }
 
+  box.innerHTML = data.map(r=>`
+    <div class="record">
+      ${r.name}｜${r.action}<br>
+      ${r.time}<br>
+      距離：${r.distance}m
+    </div>
+  `).join("");
+}
   box.innerHTML = records.map(r=>`
     <div class="record">
       ${r.name}｜${r.action}<br>
