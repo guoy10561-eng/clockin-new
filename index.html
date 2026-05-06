@@ -107,28 +107,27 @@ let records = JSON.parse(localStorage.getItem("clock_records") || "[]");
 let locationOK = false;
 let distance = "";
 
-const employeeSelect = document.getElementById("employee");
+let employeeSelect;
 
-employeeSelect.innerHTML = `<option value="">請選擇員工</option>`;
+function initEmployees(){
+  employeeSelect = document.getElementById("employee");
 
-EMPLOYEES.forEach(name=>{
-  const opt = document.createElement("option");
-  opt.value = name;
-  opt.textContent = name;
-  employeeSelect.appendChild(opt);
-});
-  const filterSelect = document.getElementById("filterEmployee");
+  if(!employeeSelect){
+    alert("找不到員工選單");
+    return;
+  }
 
-if(filterSelect){
+  employeeSelect.innerHTML = `<option value="">請選擇員工</option>`;
+
   EMPLOYEES.forEach(name=>{
     const opt = document.createElement("option");
     opt.value = name;
     opt.textContent = name;
-    filterSelect.appendChild(opt);
+    employeeSelect.appendChild(opt);
   });
-}
-employeeSelect.addEventListener("change", updateButtons);
 
+  employeeSelect.addEventListener("change", updateButtons);
+}
 function getToday(){
   return new Date().toISOString().slice(0,10);
 }
@@ -322,6 +321,7 @@ function clearRecords(){
   alert("紀錄已清空");
 }
 
+initEmployees();
 updateButtons();
 getLocation();
 </script>
