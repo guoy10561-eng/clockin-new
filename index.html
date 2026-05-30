@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>潮味決南港昆陽店｜員工打卡系統</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 *{box-sizing:border-box}
@@ -109,6 +110,13 @@ button:disabled{
 </div>
 
 <script>
+  const SUPABASE_URL = "https://chdznhbloctutfsenstm.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoZHpuaGJsb2N0dXRmc2Vuc3RtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMTI4MDMsImV4cCI6MjA5MjY4ODgwM30.tYcDc8Yq4WLde0A6pFDG1uouHKx3j34GR_oZwu3H5zE";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 const EMPLOYEES = [
   "劉淑貞","洪語婷","林芷亘",
   "劉春美","林佳恆","林禹達",
@@ -227,7 +235,7 @@ function renderButtons(){
   });
 }
 
-function clock(action){
+async function clock(action){
   const name = document.getElementById("employee").value;
 
   if(!name){
@@ -245,8 +253,18 @@ function clock(action){
     action,
     date:getToday(),
     time:new Date().toLocaleString("zh-TW",{hour12:false}),
-    distance
+    distance:String(distance || "")
   };
+
+  const { error } = await supabaseClient
+    .from("clock_records")
+    .insert([record]);
+
+  if(error){
+    alert("上傳失敗：" + error.message);
+    console.log(error);
+    return;
+  }
 
   records.unshift(record);
   localStorage.setItem("clock_records",JSON.stringify(records));
@@ -255,7 +273,24 @@ function clock(action){
   renderButtons();
   renderRecords();
 }
+  async function loadCloudRecords(){
+  const { data, error } = await supabaseClient
+    .from("clock_records")
+    .select("*")
+    .order("created_at", { ascending:false });
 
+  if(error){
+    alert("讀取雲端失敗：" + error.message);
+    console.log(error);
+    return;
+  }
+
+  records = data || [];
+  localStorage.setItem("clock_records", JSON.stringify(records));
+
+  renderButtons();
+  renderRecords();
+}
 function unlockAdmin(){
   if(document.getElementById("adminPwd").value === ADMIN_PASSWORD){
     document.getElementById("adminPanel").style.display = "block";
@@ -319,7 +354,10 @@ function clearRecords(){
   alert("紀錄已清空");
 }
 
-window.onload = init;
+window.onload = async function(){
+  init();
+  await loadCloudRecords();
+};
 </script>
 
 </body>
